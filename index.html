@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP One Tools Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F6FB; --panel:#FFFFFF; --ink:#0E2A47; --ink-soft:#4A6380; --ink-faint:#8BA0B8;
+  --line:#DCE5EF; --blue:#1B5FAA; --blue-soft:#E6EFF9; --amber:#B7791F; --amber-soft:#FBF1E0;
+  --shadow:0 1px 2px rgba(14,42,71,.06),0 6px 20px rgba(14,42,71,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1724; --panel:#14212F; --ink:#E6EEF7; --ink-soft:#A8BBD0; --ink-faint:#6E849C;
+    --line:#22344A; --blue:#5B9BE0; --blue-soft:#17304D; --amber:#E3A84F; --amber-soft:#33281A;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;line-height:1.55;min-height:100vh}
+.top{background:#1B5FAA;color:#fff;height:52px;display:flex;align-items:center;padding:0 20px;gap:10px}
+.top .logo{font-size:18px}
+.top b{font-weight:700;font-size:15px}
+.top span{opacity:.8;font-size:12px}
+.wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px}
+h1{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--ink-soft);margin-top:4px}
+.search{margin:24px 0 8px;width:100%;max-width:360px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+.search:focus{outline:2px solid var(--blue);outline-offset:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
+a.card:hover{transform:translateY(-2px);border-color:var(--blue)}
+a.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.card.off{opacity:.7;cursor:default}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.icon{width:42px;height:42px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:21px}
+.tag{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue)}
+.tag.soon{background:var(--amber-soft);color:var(--amber)}
+.card h2{font-size:17px;font-weight:600}
+.card p{color:var(--ink-soft);font-size:14px;flex:1}
+.meta{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-faint)}
+.go{font-size:14px;font-weight:600;color:var(--blue)}
+.empty{color:var(--ink-faint);margin-top:20px;display:none}
+footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center}
+@media(max-width:520px){h1{font-size:23px}.wrap{padding:24px 16px 48px}.top{padding:0 16px}}
+</style>
+</head>
+<body>
+<div class="top"><span class="logo">▦</span><b>IP One Tools</b><span>Inventory Controls</span></div>
+<main class="wrap">
+  <h1>เครื่องมือทั้งหมด</h1>
+  <p class="sub">เลือกเครื่องมือที่ต้องการใช้งาน</p>
+  <input class="search" id="q" type="search" placeholder="ค้นหาเครื่องมือ..." aria-label="ค้นหาเครื่องมือ">
+  <div class="grid" id="grid"></div>
+  <p class="empty" id="empty">ไม่พบเครื่องมือที่ค้นหา</p>
+  <footer>Crafted with care by <b>Phassakorn T</b></footer>
+</main>
+<script>
+/* ===== เพิ่ม/แก้เครื่องมือที่นี่ =====
+   url   : โฟลเดอร์ของ tool ใน repo (เช่น 'audit/') — ใส่ '' ถ้ายังไม่พร้อม
+   status: 'live' = ใช้งานได้ | 'soon' = กำลังพัฒนา                       */
+const TOOLS = [
+  { icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live' },
+  { icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'', version:'', status:'soon' },
+  { icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับและติดตามทรัพย์สิน สแกนรหัสผ่านมือถือ', url:'', version:'', status:'soon' },
+];
+
+const grid=document.getElementById('grid'), q=document.getElementById('q'), empty=document.getElementById('empty');
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function render(){
+  const k=q.value.trim().toLowerCase();
+  const list=TOOLS.filter(t=>!k||(t.name+' '+t.desc).toLowerCase().includes(k));
+  grid.innerHTML=list.map(t=>{
+    const live=t.status==='live'&&t.url;
+    const inner=`<div class="row"><div class="icon">${t.icon}</div><span class="tag ${live?'':'soon'}">${live?'ใช้งานได้':'เร็ว ๆ นี้'}</span></div>
+      <h2>${esc(t.name)}</h2><p>${esc(t.desc)}</p>
+      <div class="row"><span class="meta">${esc(t.version||'')}</span>${live?'<span class="go">เปิดใช้งาน →</span>':''}</div>`;
+    return live?`<a class="card" href="${esc(t.url)}">${inner}</a>`:`<div class="card off">${inner}</div>`;
+  }).join('');
+  empty.style.display=list.length?'none':'block';
+}
+q.addEventListener('input',render);
+render();
+</script>
+</body>
+</html>

@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>เทียบ Stock — SAP × SalesTools</title>
+<!-- Portal SSO: ต้องล็อกอินที่ Portal ก่อน -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="auth.js"></script>
+<script>IPAuth.guard('stock');</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* เก็บตัวอ่านไฟล์ที่ใช้งานได้แน่นอนไว้ก่อน */
@@ -1481,5 +1485,6 @@ $('#clr').onclick=()=>{
     '<b>ยังไม่มีข้อมูล</b>อัปโหลดไฟล์ทั้งสองฝั่ง แล้วกด “เทียบสต็อก”</div></td></tr>';
 };
 </script>
+<a href="./" title="กลับหน้า Portal" style="position:fixed;right:16px;bottom:16px;z-index:9999;background:#1B5FAA;color:#fff;text-decoration:none;font:600 13px 'IBM Plex Sans Thai',system-ui,sans-serif;padding:9px 14px;border-radius:999px;box-shadow:0 4px 14px rgba(14,42,71,.25)">▦ Portal</a>
 </body>
 </html>

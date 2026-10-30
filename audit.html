@@ -5266,6 +5266,10 @@ body.pre-login .hr-statusbar{ display:none !important; }
 
 
 
+<!-- Portal SSO: ยังไม่ได้ล็อกอิน → ไปล็อกอินที่ Portal -->
+<script>
+  try{ if(!localStorage.getItem('sb-hcjbjbdjddnnutpwjbny-auth-token')) location.replace('./?next='+encodeURIComponent('audit.html'+location.hash)); }catch(e){}
+</script>
 <!-- 1. โหลด Library ของ Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -7223,6 +7227,16 @@ function toggleMobileSidebar() {
           const allowed = (typeof rbacAllowedPages==='function') ? rbacAllowedPages(RBAC_CURRENT) : [];
           const cur = (typeof getCurrentPage==='function') ? getCurrentPage() : null;
           if(allowed.length && cur && !allowed.includes(cur)) navTo(allowed[0]);
+          // Portal SSO: เช็กสิทธิ์เข้าเครื่องมือ + เปิดหน้าตาม #hash
+          try{
+            const t = await window.sb.from('profiles').select('tools').eq('id', session.user.id).single();
+            const tools = t && t.data ? t.data.tools : null;
+            if(prof.role!=='admin' && Array.isArray(tools) && !tools.includes('audit')){ location.replace('./'); return; }
+          }catch(_e){}
+          const h=(location.hash||'').replace('#','');
+          if(h && allowed.includes(h) && typeof navTo==='function') navTo(h);
+        }else{
+          location.replace('./?next='+encodeURIComponent('audit.html'+location.hash)); return;
         }
       }catch(e){}
     })();
@@ -15798,8 +15812,10 @@ function rbacEsc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&
 function rbacLogout(){
   try{ sessionStorage.removeItem('lg_role'); sessionStorage.removeItem('lg_user'); }catch(e){}
   if(typeof rbacClearLoginSession==='function') rbacClearLoginSession();
-  try{ if(window.sb) window.sb.auth.signOut(); }catch(e){}  // เฟส 3: ออกจากระบบฝั่ง Supabase
   RBAC_CURRENT=null;
+  // Portal SSO: ออกจากระบบแล้วกลับหน้า Portal
+  (async()=>{ try{ if(window.sb) await window.sb.auth.signOut(); }catch(e){} location.replace('./'); })();
+  return;
   const gate=document.getElementById('loginGate');
   if(gate){
     document.getElementById('lgUser').value='';
@@ -15815,6 +15831,7 @@ function rbacLogout(){
 ============================================================ */
 function rbacOpenModal(){
   if(!RBAC_CURRENT||RBAC_CURRENT.role!=='admin'){ rbacToast('เฉพาะ Admin เท่านั้น'); return; }
+  location.href='./#settings'; return; // Portal SSO: จัดการผู้ใช้ย้ายไปที่ Portal
   rbacSwitchTab('list');
   rbacRenderUserList();
   document.getElementById('rbacModal').classList.add('show');

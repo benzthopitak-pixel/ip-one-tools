@@ -7,84 +7,454 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="auth.js"></script>
 <style>
 :root{
   --bg:#F2F6FB; --panel:#FFFFFF; --ink:#0E2A47; --ink-soft:#4A6380; --ink-faint:#8BA0B8;
   --line:#DCE5EF; --blue:#1B5FAA; --blue-soft:#E6EFF9; --amber:#B7791F; --amber-soft:#FBF1E0;
+  --red:#C2410C; --red-soft:#FDECE4; --green:#15803D; --green-soft:#E3F4E8;
   --shadow:0 1px 2px rgba(14,42,71,.06),0 6px 20px rgba(14,42,71,.06);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0D1724; --panel:#14212F; --ink:#E6EEF7; --ink-soft:#A8BBD0; --ink-faint:#6E849C;
     --line:#22344A; --blue:#5B9BE0; --blue-soft:#17304D; --amber:#E3A84F; --amber-soft:#33281A;
+    --red:#F08A5D; --red-soft:#3A2219; --green:#4ADE80; --green-soft:#16301F;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
   }
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;line-height:1.55;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
 .top{background:#1B5FAA;color:#fff;height:52px;display:flex;align-items:center;padding:0 20px;gap:10px}
 .top .logo{font-size:18px}
 .top b{font-weight:700;font-size:15px}
-.top span{opacity:.8;font-size:12px}
+.top .sub{opacity:.8;font-size:12px}
+.top .sp{flex:1}
+.top .chip{display:flex;align-items:center;gap:8px;font-size:13px}
+.top .av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:700}
+.tbtn{background:rgba(255,255,255,.14);border:0;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px}
+.tbtn:hover{background:rgba(255,255,255,.26)}
 .wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px}
 h1{font-size:28px;font-weight:700;letter-spacing:-.01em}
-.sub{color:var(--ink-soft);margin-top:4px}
-.search{margin:24px 0 8px;width:100%;max-width:360px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+h2.sec{font-size:18px;font-weight:600;margin-bottom:12px}
+.lead{color:var(--ink-soft);margin-top:4px}
+.hidden{display:none!important}
+
+/* login */
+.login{min-height:calc(100vh - 52px);display:grid;place-items:center;padding:24px 16px}
+.lbox{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:var(--shadow)}
+.lbox h1{font-size:22px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.field label{font-size:13px;font-weight:600;color:var(--ink-soft)}
+.inp{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.inp:focus{outline:2px solid var(--blue);outline-offset:1px}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.ghost{background:var(--blue-soft);color:var(--blue)}
+.btn.danger{background:var(--red-soft);color:var(--red)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn.full{width:100%;margin-top:20px}
+.msg{margin-top:12px;font-size:13.5px;padding:8px 12px;border-radius:8px;display:none}
+.msg.show{display:block}
+.msg.err{background:var(--red-soft);color:var(--red)}
+.msg.ok{background:var(--green-soft);color:var(--green)}
+.credit{margin-top:20px;text-align:center;font-size:12px;color:var(--ink-faint)}
+
+/* tools */
+.search{margin:24px 0 8px;width:100%;max-width:360px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
 .search:focus{outline:2px solid var(--blue);outline-offset:1px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-top:16px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
 a.card:hover{transform:translateY(-2px);border-color:var(--blue)}
 a.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.card.off{opacity:.7;cursor:default}
+.card.off{opacity:.7}
 .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .icon{width:42px;height:42px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:21px}
-.tag{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue)}
+.tag{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue);white-space:nowrap}
 .tag.soon{background:var(--amber-soft);color:var(--amber)}
-.card h2{font-size:17px;font-weight:600}
+.tag.admin{background:var(--amber-soft);color:var(--amber)}
+.card h3{font-size:17px;font-weight:600}
 .card p{color:var(--ink-soft);font-size:14px;flex:1}
 .meta{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-faint)}
 .go{font-size:14px;font-weight:600;color:var(--blue)}
-.empty{color:var(--ink-faint);margin-top:20px;display:none}
+.note{font-size:12.5px;color:var(--ink-faint)}
+.empty{color:var(--ink-faint);margin-top:20px}
+
+/* settings */
+.tabs{display:flex;gap:6px;margin:22px 0 18px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:10px 14px;cursor:pointer;color:var(--ink-soft);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+.panel + .panel{margin-top:16px}
+.narrow{max-width:420px}
+.ulist{width:100%;border-collapse:collapse;font-size:14px}
+.ulist th{text-align:left;font-size:12.5px;color:var(--ink-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
+.ulist td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.ulist tr:last-child td{border-bottom:0}
+.ulist .acts{text-align:right;white-space:nowrap}
+.pills{display:flex;flex-wrap:wrap;gap:4px}
+.tblwrap{overflow-x:auto}
+.checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
+.checks label{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
+.grp{margin-top:10px}
+.grp b{font-size:12.5px;color:var(--ink-faint);font-weight:600}
+.hint{font-size:12.5px;color:var(--ink-faint);margin-top:4px}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(10,20,35,.45);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{width:100%;max-width:560px;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal h3{font-size:18px;font-weight:700}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center}
-@media(max-width:520px){h1{font-size:23px}.wrap{padding:24px 16px 48px}.top{padding:0 16px}}
+@media(max-width:620px){
+  h1{font-size:23px}.wrap{padding:24px 16px 48px}.top{padding:0 12px;gap:6px}
+  .top .sub,.top .uname{display:none}.split{grid-template-columns:1fr}
+  .ulist .hide-sm{display:none}
+}
 </style>
 </head>
 <body>
-<div class="top"><span class="logo">▦</span><b>IP One Tools</b><span>Inventory Controls</span></div>
-<main class="wrap">
+<div class="top">
+  <span class="logo">▦</span><b>IP One Tools</b><span class="sub">Inventory Controls</span>
+  <span class="sp"></span>
+  <div class="chip hidden" id="who">
+    <span class="av" id="whoAv">?</span><span class="uname" id="whoName"></span>
+    <button class="tbtn" id="btnHome" title="หน้าแรก">หน้าแรก</button>
+    <button class="tbtn" id="btnSettings" title="ตั้งค่า">⚙️ ตั้งค่า</button>
+    <button class="tbtn" id="btnLogout" title="ออกจากระบบ">ออก</button>
+  </div>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<section class="login hidden" id="vLogin">
+  <form class="lbox" id="fLogin" autocomplete="on">
+    <h1>เข้าสู่ระบบ</h1>
+    <p class="lead">ล็อกอินครั้งเดียว ใช้ได้ทุกเครื่องมือ</p>
+    <div class="field"><label for="lgUser">Username</label>
+      <input class="inp" id="lgUser" name="username" autocomplete="username" required></div>
+    <div class="field"><label for="lgPass">Password</label>
+      <input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn full" id="lgBtn" type="submit">เข้าใช้งาน</button>
+    <div class="msg err" id="lgErr"></div>
+    <p class="credit">Crafted with care by <b>Phassakorn T</b></p>
+  </form>
+</section>
+
+<!-- ===== HOME ===== -->
+<main class="wrap hidden" id="vHome">
   <h1>เครื่องมือทั้งหมด</h1>
-  <p class="sub">เลือกเครื่องมือที่ต้องการใช้งาน</p>
+  <p class="lead">เลือกเครื่องมือที่ต้องการใช้งาน</p>
   <input class="search" id="q" type="search" placeholder="ค้นหาเครื่องมือ..." aria-label="ค้นหาเครื่องมือ">
   <div class="grid" id="grid"></div>
-  <p class="empty" id="empty">ไม่พบเครื่องมือที่ค้นหา</p>
+  <p class="empty hidden" id="empty">ไม่พบเครื่องมือ</p>
   <footer>Crafted with care by <b>Phassakorn T</b></footer>
 </main>
+
+<!-- ===== SETTINGS ===== -->
+<main class="wrap hidden" id="vSettings">
+  <h1>ตั้งค่า</h1>
+  <p class="lead">บัญชีผู้ใช้และสิทธิ์ของทุกเครื่องมือ</p>
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-tab="me" role="tab">บัญชีของฉัน</button>
+    <button class="tab hidden" data-tab="users" role="tab" id="tabUsers">จัดการผู้ใช้</button>
+    <button class="tab" data-tab="tooldata" role="tab">ข้อมูลเครื่องมือ</button>
+  </div>
+
+  <div id="pMe">
+    <div class="panel narrow">
+      <h2 class="sec">เปลี่ยนรหัสผ่าน</h2>
+      <form id="fPw" autocomplete="off">
+        <div class="field"><label for="pwOld">รหัสผ่านปัจจุบัน</label>
+          <input class="inp" id="pwOld" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="pwNew">รหัสผ่านใหม่</label>
+          <input class="inp" id="pwNew" type="password" autocomplete="new-password" minlength="6" required>
+          <span class="hint">อย่างน้อย 6 ตัว</span></div>
+        <div class="field"><label for="pwNew2">ยืนยันรหัสผ่านใหม่</label>
+          <input class="inp" id="pwNew2" type="password" autocomplete="new-password" required></div>
+        <button class="btn full" id="pwBtn" type="submit">บันทึกรหัสผ่านใหม่</button>
+        <div class="msg" id="pwMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="pUsers" class="hidden">
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px"><h2 class="sec" style="margin:0">ผู้ใช้ทั้งหมด</h2>
+        <button class="btn sm" id="btnAddUser">+ เพิ่มผู้ใช้</button></div>
+      <div class="tblwrap"><table class="ulist">
+        <thead><tr><th>Username</th><th>บทบาท</th><th class="hide-sm">เข้าเครื่องมือได้</th><th></th></tr></thead>
+        <tbody id="uBody"><tr><td colspan="4" class="note">กำลังโหลด...</td></tr></tbody>
+      </table></div>
+      <div class="msg" id="uMsg"></div>
+    </div>
+  </div>
+
+  <div id="pToolData" class="hidden">
+    <div class="panel">
+      <h2 class="sec">Master Data / Master Van (Audit Tools)</h2>
+      <p class="lead">ไฟล์ Master ใช้เฉพาะใน Audit Tools จึงยังอัปโหลดอยู่ในหน้า Settings ของ Audit Tools</p>
+      <a class="btn" style="display:inline-block;margin-top:14px;text-decoration:none" href="audit.html#settings">เปิดหน้า Master Data →</a>
+    </div>
+    <div class="panel">
+      <h2 class="sec">AssetSync</h2>
+      <p class="lead">AssetSync ใช้ฐานข้อมูลแยก และเครื่องยิงล็อกอินด้วยรหัสพนักงาน + PIN จึงจัดการผู้ใช้ในหน้าของ AssetSync เอง</p>
+      <a class="btn ghost" style="display:inline-block;margin-top:14px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/">เปิด AssetSync →</a>
+    </div>
+  </div>
+</main>
+
+<!-- ===== USER MODAL ===== -->
+<div class="ov hidden" id="ovUser">
+  <form class="modal" id="fUser" autocomplete="off">
+    <h3 id="muTitle">เพิ่มผู้ใช้</h3>
+    <div class="split">
+      <div class="field"><label for="muName">Username</label>
+        <input class="inp" id="muName" required><span class="hint">ล็อกอินด้วยชื่อนี้ (ระบบเติม @ipone.co.th ให้)</span></div>
+      <div class="field"><label for="muRole">บทบาท</label>
+        <select class="inp" id="muRole"><option value="user">User — ใช้งานทั่วไป</option><option value="admin">Admin — สิทธิ์เต็ม</option></select></div>
+    </div>
+    <div class="split" id="muPwRow">
+      <div class="field"><label for="muPw" id="muPwLbl">รหัสผ่าน</label>
+        <input class="inp" id="muPw" type="password" autocomplete="new-password"><span class="hint" id="muPwHint">อย่างน้อย 6 ตัว</span></div>
+      <div class="field"><label for="muPw2">ยืนยันรหัสผ่าน</label>
+        <input class="inp" id="muPw2" type="password" autocomplete="new-password"></div>
+    </div>
+    <div id="muPermBox">
+      <div class="field"><label>เครื่องมือที่เข้าได้</label><div class="checks" id="muTools"></div></div>
+      <div class="field" id="muAuditBox"><label>เมนูใน Audit Tools</label><div id="muAudit"></div>
+        <span class="hint">ไม่ติ๊กเลย = ใช้ค่าเริ่มต้น (ทุกเมนูที่พร้อมใช้ ยกเว้น Settings)</span></div>
+    </div>
+    <p class="hint" id="muAdminHint" style="margin-top:14px">Admin เข้าได้ทุกเครื่องมือและทุกเมนู</p>
+    <div class="msg" id="muMsg"></div>
+    <div class="mfoot">
+      <button class="btn danger hidden" type="button" id="muDel">ลบผู้ใช้</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost" type="button" id="muCancel">ยกเลิก</button>
+      <button class="btn" type="submit" id="muSave">บันทึก</button>
+    </div>
+  </form>
+</div>
+
 <script>
-/* ===== เพิ่ม/แก้เครื่องมือที่นี่ =====
-   url   : โฟลเดอร์ของ tool ใน repo (เช่น 'audit/') — ใส่ '' ถ้ายังไม่พร้อม
-   status: 'live' = ใช้งานได้ | 'soon' = กำลังพัฒนา                       */
+/* ===== เครื่องมือใน Portal — เพิ่ม/แก้ที่นี่ =====
+   id     : ใช้กำหนดสิทธิ์ผู้ใช้ (อย่าเปลี่ยนหลังมีผู้ใช้แล้ว)
+   url    : ที่อยู่ของเครื่องมือ
+   status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live' },
-  { icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live' },
-  { icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', note:'ล็อกอินแยก' },
+];
+/* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
+const AUDIT_PAGES = [
+  { title:'1 · Prepare Data', pages:[['stock','Stock Formatter'],['movement','Movement Wait'],['lorry','Picking Formatter']] },
+  { title:'2 · Build Output', pages:[['merger','Merge Count'],['vanbuilder','Build VAN Sheets']] },
+  { title:'3 · Audit & Check', pages:[['stockaudit','Stock Audit'],['recon','Sales Recon'],['approval','Approval Audit'],['iocheck','IO/WI Check'],['aging','Inventory Aging'],['errorlogs','Error Logs']] },
+  { title:'4 · Email Tools', pages:[['email','Audit Email'],['claim','Claim Email'],['reminder','Reminder Email'],['followup','Follow-up Email']] },
+  { title:'Settings', pages:[['settings','Master Data']] },
 ];
 
-const grid=document.getElementById('grid'), q=document.getElementById('q'), empty=document.getElementById('empty');
-function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function render(){
-  const k=q.value.trim().toLowerCase();
-  const list=TOOLS.filter(t=>!k||(t.name+' '+t.desc).toLowerCase().includes(k));
-  grid.innerHTML=list.map(t=>{
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let ME = null;           // { id, username, role, perms, tools }
+let USERS = [];
+
+function show(view){
+  ['vLogin','vHome','vSettings'].forEach(v=>$(v).classList.toggle('hidden', v!==view));
+  $('who').classList.toggle('hidden', view==='vLogin');
+}
+function setMsg(el, text, kind){ el.textContent=text; el.className='msg show '+kind; }
+function clearMsg(el){ el.className='msg'; el.textContent=''; }
+function errText(e){ return (e && (e.message||e.error_description)) || 'เกิดข้อผิดพลาด'; }
+
+/* ---------- routing ---------- */
+function route(){
+  if(!ME){ show('vLogin'); setTimeout(()=>$('lgUser').focus(),50); return; }
+  if(location.hash==='#settings'){ show('vSettings'); openTab(currentTab); }
+  else { show('vHome'); renderTools(); }
+}
+window.addEventListener('hashchange', route);
+
+/* ---------- auth ---------- */
+async function loadMe(){
+  ME = await IPAuth.profile();
+  if(ME){
+    $('whoName').textContent = ME.username + (ME.role==='admin'?' · Admin':'');
+    $('whoAv').textContent = (ME.username||'?').charAt(0).toUpperCase();
+    $('tabUsers').classList.toggle('hidden', ME.role!=='admin');
+  }
+}
+$('fLogin').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  const btn=$('lgBtn'); clearMsg($('lgErr')); btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...';
+  try{
+    const { error } = await IPAuth.sb.auth.signInWithPassword({ email: IPAuth.toEmail($('lgUser').value), password: $('lgPass').value });
+    if(error) throw new Error('Username หรือ Password ไม่ถูกต้อง');
+    $('lgPass').value='';
+    await loadMe();
+    const next = new URLSearchParams(location.search).get('next');
+    if(next && /^[a-z0-9-]+\.html(#[a-z0-9-]*)?$/i.test(next)){ location.href = next; return; }
+    route();
+  }catch(e){ setMsg($('lgErr'), errText(e), 'err'); }
+  finally{ btn.disabled=false; btn.textContent='เข้าใช้งาน'; }
+});
+$('btnLogout').addEventListener('click', async ()=>{ await IPAuth.sb.auth.signOut(); ME=null; history.replaceState(null,'',location.pathname); route(); });
+$('btnSettings').addEventListener('click', ()=>{ location.hash='settings'; });
+$('btnHome').addEventListener('click', ()=>{ history.pushState(null,'',location.pathname); route(); });
+
+/* ---------- tools grid ---------- */
+function renderTools(){
+  const k=$('q').value.trim().toLowerCase();
+  const list=TOOLS.filter(t=>IPAuth.canUseTool(ME,t.id)).filter(t=>!k||(t.name+' '+t.desc).toLowerCase().includes(k));
+  $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
     const inner=`<div class="row"><div class="icon">${t.icon}</div><span class="tag ${live?'':'soon'}">${live?'ใช้งานได้':'เร็ว ๆ นี้'}</span></div>
-      <h2>${esc(t.name)}</h2><p>${esc(t.desc)}</p>
-      <div class="row"><span class="meta">${esc(t.version||'')}</span>${live?'<span class="go">เปิดใช้งาน →</span>':''}</div>`;
+      <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
+      <div class="row"><span class="meta">${esc(t.version||'')}${t.note?' · '+esc(t.note):''}</span>${live?'<span class="go">เปิดใช้งาน →</span>':''}</div>`;
     return live?`<a class="card" href="${esc(t.url)}">${inner}</a>`:`<div class="card off">${inner}</div>`;
   }).join('');
-  empty.style.display=list.length?'none':'block';
+  $('empty').classList.toggle('hidden', list.length>0);
 }
-q.addEventListener('input',render);
-render();
+$('q').addEventListener('input', renderTools);
+
+/* ---------- settings tabs ---------- */
+let currentTab='me';
+function openTab(t){
+  if(t==='users' && (!ME || ME.role!=='admin')) t='me';
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
+  $('pMe').classList.toggle('hidden', t!=='me');
+  $('pUsers').classList.toggle('hidden', t!=='users');
+  $('pToolData').classList.toggle('hidden', t!=='tooldata');
+  if(t==='users') loadUsers();
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
+
+/* ---------- change own password ---------- */
+$('fPw').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  const m=$('pwMsg'), btn=$('pwBtn'); clearMsg(m);
+  const a=$('pwNew').value, b=$('pwNew2').value;
+  if(a.length<6) return setMsg(m,'รหัสผ่านใหม่ต้องยาวอย่างน้อย 6 ตัว','err');
+  if(a!==b) return setMsg(m,'รหัสผ่านใหม่กับยืนยันไม่ตรงกัน','err');
+  btn.disabled=true;
+  try{
+    const { data:{ user } } = await IPAuth.sb.auth.getUser();
+    const chk = await IPAuth.sb.auth.signInWithPassword({ email:user.email, password:$('pwOld').value });
+    if(chk.error) throw new Error('รหัสผ่านปัจจุบันไม่ถูกต้อง');
+    const { error } = await IPAuth.sb.auth.updateUser({ password:a });
+    if(error) throw error;
+    $('fPw').reset(); setMsg(m,'เปลี่ยนรหัสผ่านเรียบร้อย','ok');
+  }catch(e){ setMsg(m, errText(e), 'err'); }
+  finally{ btn.disabled=false; }
+});
+
+/* ---------- user management (admin) ---------- */
+async function loadUsers(){
+  const body=$('uBody'); clearMsg($('uMsg'));
+  const { data, error } = await IPAuth.sb.from('profiles').select('id,username,role,perms,tools').order('username');
+  if(error){ body.innerHTML=''; setMsg($('uMsg'), 'โหลดรายชื่อไม่ได้: '+errText(error)+' — ตรวจว่ารัน supabase/portal-setup.sql แล้ว', 'err'); return; }
+  USERS=data||[];
+  body.innerHTML=USERS.map((u,i)=>{
+    const tools = u.role==='admin' ? ['ทั้งหมด'] : (Array.isArray(u.tools) ? TOOLS.filter(t=>u.tools.includes(t.id)).map(t=>t.name) : ['ทั้งหมด']);
+    return `<tr><td><b>${esc(u.username)}</b>${ME&&u.id===ME.id?' <span class="note">(คุณ)</span>':''}</td>
+      <td><span class="tag ${u.role==='admin'?'admin':''}">${u.role==='admin'?'Admin':'User'}</span></td>
+      <td class="hide-sm"><div class="pills">${tools.length?tools.map(n=>`<span class="tag">${esc(n)}</span>`).join(''):'<span class="note">ไม่มี</span>'}</div></td>
+      <td class="acts"><button class="btn ghost sm" data-edit="${i}">แก้ไข</button></td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="note">ยังไม่มีผู้ใช้</td></tr>';
+  body.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openUser(USERS[+b.dataset.edit])));
+}
+
+let EDIT=null;
+function buildChecks(){
+  $('muTools').innerHTML=TOOLS.map(t=>`<label><input type="checkbox" value="${t.id}"> ${esc(t.name)}</label>`).join('');
+  $('muAudit').innerHTML=AUDIT_PAGES.map(g=>`<div class="grp"><b>${esc(g.title)}</b><div class="checks">${g.pages.map(p=>`<label><input type="checkbox" value="${p[0]}"> ${esc(p[1])}</label>`).join('')}</div></div>`).join('');
+  $('muTools').querySelector('[value="audit"]').addEventListener('change', syncAuditBox);
+}
+function syncAuditBox(){ $('muAuditBox').classList.toggle('hidden', !$('muTools').querySelector('[value="audit"]').checked); }
+function syncRole(){
+  const admin=$('muRole').value==='admin';
+  $('muPermBox').classList.toggle('hidden', admin);
+  $('muAdminHint').classList.toggle('hidden', !admin);
+}
+$('muRole').addEventListener('change', syncRole);
+
+function openUser(u){
+  EDIT=u||null; clearMsg($('muMsg'));
+  $('muTitle').textContent = u ? 'แก้ไขผู้ใช้: '+u.username : 'เพิ่มผู้ใช้';
+  $('muName').value = u ? u.username : ''; $('muName').disabled = !!u;
+  $('muRole').value = u ? (u.role==='admin'?'admin':'user') : 'user';
+  $('muRole').disabled = !!(u && ME && u.id===ME.id);
+  $('muPw').value=''; $('muPw2').value='';
+  $('muPwLbl').textContent = u ? 'ตั้งรหัสผ่านใหม่ (ไม่บังคับ)' : 'รหัสผ่าน';
+  $('muPwHint').textContent = u ? 'เว้นว่างถ้าไม่ต้องการเปลี่ยน' : 'อย่างน้อย 6 ตัว';
+  const tools = u && Array.isArray(u.tools) ? u.tools : TOOLS.map(t=>t.id);
+  $('muTools').querySelectorAll('input').forEach(c=>c.checked=tools.includes(c.value));
+  const perms = u && Array.isArray(u.perms) ? u.perms : [];
+  $('muAudit').querySelectorAll('input').forEach(c=>c.checked=perms.includes(c.value));
+  $('muDel').classList.toggle('hidden', !u || (ME && u.id===ME.id));
+  $('muDel').dataset.confirm=''; $('muDel').textContent='ลบผู้ใช้';
+  syncRole(); syncAuditBox();
+  $('ovUser').classList.remove('hidden');
+  (u?$('muRole'):$('muName')).focus();
+}
+function closeUser(){ $('ovUser').classList.add('hidden'); EDIT=null; }
+$('btnAddUser').addEventListener('click',()=>openUser(null));
+$('muCancel').addEventListener('click', closeUser);
+$('ovUser').addEventListener('click', e=>{ if(e.target===$('ovUser')) closeUser(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('ovUser').classList.contains('hidden')) closeUser(); });
+
+$('fUser').addEventListener('submit', async ev=>{
+  ev.preventDefault();
+  const m=$('muMsg'), btn=$('muSave'); clearMsg(m);
+  const role=$('muRole').value;
+  const pw=$('muPw').value, pw2=$('muPw2').value;
+  const toolsSel=[...$('muTools').querySelectorAll('input:checked')].map(c=>c.value);
+  const auditSel=[...$('muAudit').querySelectorAll('input:checked')].map(c=>c.value);
+  const tools = role==='admin' || toolsSel.length===TOOLS.length ? null : toolsSel;
+  const perms = role==='admin' || auditSel.length===0 ? null : auditSel;
+  if(!EDIT && pw.length<6) return setMsg(m,'รหัสผ่านต้องยาวอย่างน้อย 6 ตัว','err');
+  if(pw && pw.length<6) return setMsg(m,'รหัสผ่านต้องยาวอย่างน้อย 6 ตัว','err');
+  if(pw!==pw2) return setMsg(m,'รหัสผ่านกับยืนยันไม่ตรงกัน','err');
+  btn.disabled=true;
+  try{
+    if(!EDIT){
+      const name=$('muName').value.trim();
+      if(!/^[a-z0-9._-]+$/i.test(name)) throw new Error('Username ใช้ได้เฉพาะ a-z 0-9 . _ -');
+      const { error } = await IPAuth.sb.rpc('admin_create_user',{ p_username:name, p_password:pw, p_role:role, p_tools:tools, p_perms:perms });
+      if(error) throw error;
+    }else{
+      const { error } = await IPAuth.sb.from('profiles').update({ role, tools, perms }).eq('id', EDIT.id);
+      if(error) throw error;
+      if(pw){
+        const r = await IPAuth.sb.rpc('admin_set_password',{ p_user:EDIT.id, p_password:pw });
+        if(r.error) throw r.error;
+      }
+    }
+    closeUser(); await loadUsers(); setMsg($('uMsg'),'บันทึกเรียบร้อย','ok');
+  }catch(e){ setMsg(m, errText(e), 'err'); }
+  finally{ btn.disabled=false; }
+});
+
+$('muDel').addEventListener('click', async ()=>{
+  if(!EDIT) return;
+  const m=$('muMsg');
+  if($('muDel').dataset.confirm!=='1'){ $('muDel').dataset.confirm='1'; $('muDel').textContent='กดอีกครั้งเพื่อยืนยันการลบ'; return; }
+  $('muDel').dataset.confirm=''; $('muDel').textContent='ลบผู้ใช้';
+  try{
+    const { error } = await IPAuth.sb.rpc('admin_delete_user',{ p_user:EDIT.id });
+    if(error) throw error;
+    closeUser(); await loadUsers(); setMsg($('uMsg'),'ลบผู้ใช้เรียบร้อย','ok');
+  }catch(e){ setMsg(m, errText(e), 'err'); }
+});
+
+/* ---------- start ---------- */
+buildChecks();
+(async ()=>{ await loadMe(); route(); })();
+IPAuth.sb.auth.onAuthStateChange((evt)=>{ if(evt==='SIGNED_OUT'){ ME=null; route(); } });
 </script>
 </body>
 </html>

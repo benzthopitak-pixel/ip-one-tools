@@ -314,7 +314,7 @@ function renderTools(){
     const inner=`<div class="row"><div class="icon">${t.icon}</div><span class="tag ${live?'':'soon'}">${live?'ใช้งานได้':'เร็ว ๆ นี้'}</span></div>
       <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
       <div class="row"><span class="meta">${esc(t.version||'')}${t.note?' · '+esc(t.note):''}</span>${live?'<span class="go">เปิดใช้งาน →</span>':''}</div>`;
-    return live?`<a class="card" href="${esc(t.url)}">${inner}</a>`:`<div class="card off">${inner}</div>`;
+    return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="card off">${inner}</div>`;
   }).join('');
   $('empty').classList.toggle('hidden', list.length>0);
 }

@@ -10,7 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="auth.js"></script>
 <style>
-/* ===== Tokens — สีจากแพ็กเกจ Hygiene: ชมพูกุหลาบ ฟ้าคราม ม่วงลาเวนเดอร์ พีช ===== */
+/* ===== Tokens — ชมพู ฟ้า ม่วง พีช ===== */
 :root{
   --bg:#F6F7FB; --bg-2:#EEF1F8;
   --glass:rgba(255,255,255,.72); --glass-strong:rgba(255,255,255,.9); --glass-line:rgba(255,255,255,.9);
@@ -82,25 +82,12 @@ h1{font:600 clamp(28px,4vw,40px)/1.15 var(--head);letter-spacing:-.01em}
 .eyebrow{font:500 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
 
 /* ===== Hero ===== */
-.hero{position:relative;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:24px;padding:36px 36px 30px;border-radius:28px;
+.hero{position:relative;display:grid;grid-template-columns:1fr;align-items:center;gap:24px;padding:36px 36px 30px;border-radius:28px;
   background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);overflow:hidden}
 .hero::before{content:"";position:absolute;inset:auto -10% -60% 40%;height:120%;background:radial-gradient(closest-side,var(--aurora-a),transparent);pointer-events:none}
 .hero .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
 .stat{padding:8px 14px;border-radius:12px;background:var(--glass-strong);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft)}
 .stat b{font:600 15px var(--head);color:var(--ink);margin-right:4px}
-.packs{position:relative;height:210px}
-.packs img{position:absolute;bottom:0;width:108px;height:auto;filter:drop-shadow(0 16px 20px rgba(20,27,52,.22));transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.packs img:nth-child(1){left:2%;transform:rotate(-12deg) translateY(10px)}
-.packs img:nth-child(2){left:18%;transform:rotate(-5deg)}
-.packs img:nth-child(3){left:35%;transform:translateY(-14px);z-index:2;width:120px}
-.packs img:nth-child(4){left:53%;transform:rotate(6deg)}
-.packs img:nth-child(5){left:69%;transform:rotate(12deg) translateY(10px)}
-.hero:hover .packs img:nth-child(1){transform:rotate(-15deg) translate(-8px,6px)}
-.hero:hover .packs img:nth-child(5){transform:rotate(15deg) translate(8px,6px)}
-@media (prefers-reduced-motion:no-preference){
-  .packs img:nth-child(3){animation:float 6s ease-in-out infinite}
-  @keyframes float{0%,100%{transform:translateY(-14px)}50%{transform:translateY(-24px)}}
-}
 
 /* ===== Toolbar + cards ===== */
 .toolbar{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:40px 0 16px;flex-wrap:wrap}
@@ -115,8 +102,6 @@ h1{font:600 clamp(28px,4vw,40px)/1.15 var(--head);letter-spacing:-.01em}
 .card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
 a.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
 .card.rose{--c:var(--rose);--cs:var(--rose-soft)} .card.violet{--c:var(--violet);--cs:var(--violet-soft)} .card.peach{--c:var(--peach);--cs:var(--peach-soft)}
-.card .pk{position:absolute;right:-10px;bottom:-40px;width:96px;opacity:.95;transform:rotate(10deg);filter:drop-shadow(0 12px 16px rgba(20,27,52,.18));transition:transform .4s cubic-bezier(.2,.8,.2,1);pointer-events:none}
-a.card:hover .pk{transform:rotate(4deg) translateY(-8px)}
 .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:var(--cs);border:1px solid color-mix(in srgb,var(--c) 22%,transparent)}
 .card h3{font:600 19px/1.3 var(--head);max-width:78%}
 .card p{color:var(--ink-soft);font-size:14.5px;max-width:74%;flex:1}
@@ -136,9 +121,6 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
 .lside::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.28),transparent 45%);pointer-events:none}
 .lside h2{font:600 30px/1.2 var(--head);margin-top:18px;position:relative;z-index:1}
 .lside p{opacity:.9;margin-top:10px;position:relative;z-index:1;max-width:34ch}
-.lside .packs{margin-top:auto;height:190px}
-.lside .packs img{width:96px}
-.lside .packs img:nth-child(3){width:108px}
 .lside .mark{background:rgba(255,255,255,.22);box-shadow:none;position:relative;z-index:1}
 .lform{padding:44px 40px;display:flex;flex-direction:column;justify-content:center;background:var(--glass-strong)}
 .lform h1{font-size:28px}
@@ -197,14 +179,13 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
 @media(max-width:860px){
   .hero{grid-template-columns:1fr;padding:28px 22px}
-  .hero .packs{height:170px}.hero .packs img{width:92px}.hero .packs img:nth-child(3){width:104px}
-  .lcard{grid-template-columns:1fr}.lside{min-height:0;padding:28px}.lside .packs{height:150px;margin-top:20px}.lside .packs img{width:82px}.lside .packs img:nth-child(3){width:92px}
+  .lcard{grid-template-columns:1fr}.lside{min-height:0;padding:28px}
   .lform{padding:30px 24px}
 }
 @media(max-width:620px){
   .top{gap:4px;padding:8px 8px 8px 10px}.brand small,.nav-btn .lbl,.me{display:none}.nav-btn{padding:8px 10px}
   .wrap{padding:24px 16px 48px}.grid{grid-template-columns:1fr}.split{grid-template-columns:1fr}
-  .ulist .hide-sm{display:none}.card p,.card h3{max-width:100%}.card .pk{display:none}.chips{max-width:100%}.card{min-height:0}
+  .ulist .hide-sm{display:none}.card p,.card h3{max-width:100%}.chips{max-width:100%}.card{min-height:0}
 }
 </style>
 </head>
@@ -230,9 +211,6 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
       <div class="mark" aria-hidden="true">IP</div>
       <h2>ทุกเครื่องมือของทีม<br>ในที่เดียว</h2>
       <p>Audit, เทียบ Stock และตรวจนับทรัพย์สิน ล็อกอินครั้งเดียวใช้ได้ทั้งหมด</p>
-      <div class="packs" aria-hidden="true">
-        <img src="assets/pack-1.webp" alt=""><img src="assets/pack-2.webp" alt=""><img src="assets/pack-3.webp" alt=""><img src="assets/pack-4.webp" alt=""><img src="assets/pack-5.webp" alt="">
-      </div>
     </div>
     <form class="lform" id="fLogin" autocomplete="on">
       <span class="eyebrow">IP One · Inventory Controls</span>
@@ -256,9 +234,6 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
       <h1 style="margin-top:8px">สวัสดี, <span class="grad" id="hiName">ทีม</span></h1>
       <p class="lead">เลือกเครื่องมือที่ต้องการ ทุกอันเปิดในแท็บใหม่ ไม่ต้องล็อกอินซ้ำ</p>
       <div class="stats"><span class="stat"><b id="statTools">0</b>เครื่องมือที่ใช้ได้</span><span class="stat"><b id="statRole">—</b>สิทธิ์ของคุณ</span></div>
-    </div>
-    <div class="packs" aria-hidden="true">
-      <img src="assets/pack-1.webp" alt=""><img src="assets/pack-2.webp" alt=""><img src="assets/pack-3.webp" alt=""><img src="assets/pack-4.webp" alt=""><img src="assets/pack-10.webp" alt="">
     </div>
   </section>
 
@@ -315,14 +290,14 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
   <div id="pToolData" class="hidden">
     <div class="panel">
-      <div class="toolinfo"><img src="assets/pack-3.webp" alt="" aria-hidden="true"><div>
+      <div class="toolinfo"><div>
         <h2>Master Data / Master Van</h2>
         <p class="note">ไฟล์ Master ใช้เฉพาะใน Audit Tools จึงยังอัปโหลดอยู่ในหน้า Settings ของ Audit Tools</p>
         <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="audit.html#settings" target="_blank" rel="noopener">เปิดหน้า Master Data ↗</a>
       </div></div>
     </div>
     <div class="panel">
-      <div class="toolinfo"><img src="assets/pack-2.webp" alt="" aria-hidden="true"><div>
+      <div class="toolinfo"><div>
         <h2>AssetSync</h2>
         <p class="note">ใช้ฐานข้อมูลแยก เครื่องยิงล็อกอินด้วยรหัสพนักงาน + PIN จึงจัดการผู้ใช้ในหน้าของ AssetSync เอง</p>
         <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/" target="_blank" rel="noopener">เปิด AssetSync ↗</a>
@@ -369,9 +344,9 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
    url    : ที่อยู่ของเครื่องมือ
    status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live', accent:'azure', pack:'pack-3' },
-  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live', accent:'rose', pack:'pack-4' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', note:'ล็อกอินแยก', accent:'violet', pack:'pack-2' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live', accent:'azure' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live', accent:'rose' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', note:'ล็อกอินแยก', accent:'violet' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
@@ -443,8 +418,7 @@ function renderTools(){
   $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
     const chips=[live?'':'<span class="chip soon">เร็ว ๆ นี้</span>', t.version?`<span class="chip mono">${esc(t.version)}</span>`:'', t.note?`<span class="chip">${esc(t.note)}</span>`:''].join('');
-    const inner=`${t.pack?`<img class="pk" src="assets/${esc(t.pack)}.webp" alt="" aria-hidden="true">`:''}
-      <div class="ic" aria-hidden="true">${t.icon}</div>
+    const inner=`<div class="ic" aria-hidden="true">${t.icon}</div>
       <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
       <div class="chips">${chips}${live?'<span class="open">เปิดใช้งาน <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>':''}</div>`;
     const cls='card '+(t.accent||'azure');

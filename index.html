@@ -215,7 +215,7 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
     <form class="lform" id="fLogin" autocomplete="on">
       <span class="eyebrow">IP One · Inventory Controls</span>
       <h1 style="margin-top:6px">เข้าสู่ระบบ</h1>
-      <div class="field"><label for="lgUser">Username</label>
+      <div class="field"><label for="lgUser">รหัสพนักงาน</label>
         <input class="inp" id="lgUser" name="username" autocomplete="username" required></div>
       <div class="field"><label for="lgPass">Password</label>
         <input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
@@ -281,8 +281,8 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
       <div class="row"><div><h2>ผู้ใช้ทั้งหมด</h2><p class="note">กำหนดว่าใครเปิดเครื่องมือไหนได้</p></div>
         <button class="btn brand sm" id="btnAddUser">+ เพิ่มผู้ใช้</button></div>
       <div class="tblwrap"><table class="ulist">
-        <thead><tr><th>Username</th><th>บทบาท</th><th class="hide-sm">เข้าเครื่องมือได้</th><th></th></tr></thead>
-        <tbody id="uBody"><tr><td colspan="4" class="note">กำลังโหลด...</td></tr></tbody>
+        <thead><tr><th>รหัสพนักงาน</th><th>ชื่อ</th><th>บทบาท</th><th class="hide-sm">เข้าเครื่องมือได้</th><th></th></tr></thead>
+        <tbody id="uBody"><tr><td colspan="5" class="note">กำลังโหลด...</td></tr></tbody>
       </table></div>
       <div class="msg" id="uMsg"></div>
     </div>
@@ -299,7 +299,7 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
     <div class="panel">
       <div class="toolinfo"><div>
         <h2>AssetSync</h2>
-        <p class="note">ใช้ฐานข้อมูลแยก เครื่องยิงล็อกอินด้วยรหัสพนักงาน + PIN จึงจัดการผู้ใช้ในหน้าของ AssetSync เอง</p>
+        <p class="note">ใช้บัญชีเดียวกับ Portal ทั้งบนคอมและเครื่องยิง (รหัสพนักงาน + รหัสผ่าน) · เพิ่มผู้ใช้และตั้งรหัสที่แท็บจัดการผู้ใช้ แล้วติ๊กเครื่องมือ AssetSync</p>
         <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/" target="_blank" rel="noopener">เปิด AssetSync ↗</a>
       </div></div>
     </div>
@@ -311,8 +311,10 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
   <form class="modal" id="fUser" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="muTitle">
     <h3 id="muTitle">เพิ่มผู้ใช้</h3>
     <div class="split">
-      <div class="field"><label for="muName">Username</label>
-        <input class="inp" id="muName" required><span class="hint">ล็อกอินด้วยชื่อนี้ (ระบบเติม @ipone.co.th ให้)</span></div>
+      <div class="field"><label for="muName">รหัสพนักงาน</label>
+        <input class="inp" id="muName" required><span class="hint">ใช้ล็อกอินทุกเว็บและเครื่องยิง</span></div>
+      <div class="field"><label for="muFull">ชื่อ-นามสกุล</label>
+        <input class="inp" id="muFull"><span class="hint">แสดงใน AssetSync ว่าใครเป็นคนสแกน</span></div>
       <div class="field"><label for="muRole">บทบาท</label>
         <select class="inp" id="muRole"><option value="user">User — ใช้งานทั่วไป</option><option value="admin">Admin — สิทธิ์เต็ม</option></select></div>
     </div>
@@ -346,7 +348,7 @@ footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center
 const TOOLS = [
   { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live', accent:'azure' },
   { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live', accent:'rose' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', note:'ล็อกอินแยก', accent:'violet' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', accent:'violet' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
@@ -398,7 +400,7 @@ $('fLogin').addEventListener('submit', async ev=>{
   const btn=$('lgBtn'); clearMsg($('lgErr')); btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...';
   try{
     const { error } = await IPAuth.sb.auth.signInWithPassword({ email: IPAuth.toEmail($('lgUser').value), password: $('lgPass').value });
-    if(error) throw new Error('Username หรือ Password ไม่ถูกต้อง');
+    if(error) throw new Error('รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง');
     $('lgPass').value='';
     await loadMe();
     const next = new URLSearchParams(location.search).get('next');
@@ -463,16 +465,16 @@ $('fPw').addEventListener('submit', async ev=>{
 /* ---------- user management (admin) ---------- */
 async function loadUsers(){
   const body=$('uBody'); clearMsg($('uMsg'));
-  const { data, error } = await IPAuth.sb.from('profiles').select('id,username,role,perms,tools').order('username');
+  const { data, error } = await IPAuth.sb.from('profiles').select('id,username,name,role,perms,tools').order('username');
   if(error){ body.innerHTML=''; setMsg($('uMsg'), 'โหลดรายชื่อไม่ได้: '+errText(error)+' — ตรวจว่ารัน supabase/portal-setup.sql แล้ว', 'err'); return; }
   USERS=data||[];
   body.innerHTML=USERS.map((u,i)=>{
     const tools = u.role==='admin' ? ['ทั้งหมด'] : (Array.isArray(u.tools) ? TOOLS.filter(t=>u.tools.includes(t.id)).map(t=>t.name) : ['ทั้งหมด']);
-    return `<tr><td><b>${esc(u.username)}</b>${ME&&u.id===ME.id?' <span class="note">(คุณ)</span>':''}</td>
+    return `<tr><td><b>${esc(u.username)}</b>${ME&&u.id===ME.id?' <span class="note">(คุณ)</span>':''}</td><td>${esc(u.name||'')}</td>
       <td><span class="tag ${u.role==='admin'?'admin':''}">${u.role==='admin'?'Admin':'User'}</span></td>
       <td class="hide-sm"><div class="pills">${tools.length?tools.map(n=>`<span class="tag">${esc(n)}</span>`).join(''):'<span class="note">ไม่มี</span>'}</div></td>
       <td class="acts"><button class="btn ghost sm" data-edit="${i}">แก้ไข</button></td></tr>`;
-  }).join('') || '<tr><td colspan="4" class="note">ยังไม่มีผู้ใช้</td></tr>';
+  }).join('') || '<tr><td colspan="5" class="note">ยังไม่มีผู้ใช้</td></tr>';
   body.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>openUser(USERS[+b.dataset.edit])));
 }
 
@@ -494,6 +496,7 @@ function openUser(u){
   EDIT=u||null; clearMsg($('muMsg'));
   $('muTitle').textContent = u ? 'แก้ไขผู้ใช้: '+u.username : 'เพิ่มผู้ใช้';
   $('muName').value = u ? u.username : ''; $('muName').disabled = !!u;
+  $('muFull').value = u ? (u.name||'') : '';
   $('muRole').value = u ? (u.role==='admin'?'admin':'user') : 'user';
   $('muRole').disabled = !!(u && ME && u.id===ME.id);
   $('muPw').value=''; $('muPw2').value='';
@@ -531,11 +534,11 @@ $('fUser').addEventListener('submit', async ev=>{
   try{
     if(!EDIT){
       const name=$('muName').value.trim();
-      if(!/^[a-z0-9._-]+$/i.test(name)) throw new Error('Username ใช้ได้เฉพาะ a-z 0-9 . _ -');
-      const { error } = await IPAuth.sb.rpc('admin_create_user',{ p_username:name, p_password:pw, p_role:role, p_tools:tools, p_perms:perms });
+      if(!/^[a-z0-9._-]+$/i.test(name)) throw new Error('รหัสพนักงานใช้ได้เฉพาะ a-z 0-9 . _ -');
+      const { error } = await IPAuth.sb.rpc('admin_create_user',{ p_username:name, p_password:pw, p_role:role, p_tools:tools, p_perms:perms, p_name:$('muFull').value.trim() });
       if(error) throw error;
     }else{
-      const { error } = await IPAuth.sb.from('profiles').update({ role, tools, perms }).eq('id', EDIT.id);
+      const { error } = await IPAuth.sb.from('profiles').update({ role, tools, perms, name:$('muFull').value.trim()||null }).eq('id', EDIT.id);
       if(error) throw error;
       if(pw){
         const r = await IPAuth.sb.rpc('admin_set_password',{ p_user:EDIT.id, p_password:pw });

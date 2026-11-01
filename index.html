@@ -54,14 +54,13 @@ button,input,select{font:inherit;color:inherit}
 .kicker{top:calc(196*var(--u));font:900 calc(40.5*var(--u))/1.2 var(--display);letter-spacing:.02em;text-shadow:var(--shadow-t)}
 .headline{top:calc(250*var(--u));font:900 calc(143.5*var(--u))/calc(118*var(--u)) var(--display);letter-spacing:.005em;text-shadow:var(--shadow-t)}
 .headline span{display:block}
-.subline{top:calc(512*var(--u));font:400 calc(21.2*var(--u))/calc(27*var(--u)) var(--body);text-shadow:0 1px 10px rgba(28,70,120,.35)}
 .ctas{top:calc(617*var(--u));display:flex;justify-content:center;gap:calc(13*var(--u))}
 .ctas .white{height:calc(59*var(--u));padding:0 calc(30*var(--u));font-size:calc(22*var(--u))}
 .ctas .mint{height:calc(58*var(--u));padding:0 calc(28*var(--u))}
 .tri{width:0;height:0;border-left:calc(13*var(--u)) solid #fff;border-top:calc(8*var(--u)) solid transparent;border-bottom:calc(8*var(--u)) solid transparent;border-radius:2px}
 
 /* login form in hero */
-.loginbox{top:calc(632*var(--u));left:50%;transform:translateX(-50%);width:calc(470*var(--u));padding:calc(24*var(--u));border-radius:calc(26*var(--u));
+.loginbox{top:calc(530*var(--u));left:50%;transform:translateX(-50%);width:calc(470*var(--u));padding:calc(24*var(--u));border-radius:calc(26*var(--u));
   background:rgba(255,255,255,.28);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(255,255,255,.55);box-shadow:0 calc(16*var(--u)) calc(40*var(--u)) rgba(28,70,120,.2)}
 .loginbox .lrow{display:flex;gap:calc(10*var(--u))}
 .loginbox input{flex:1;min-width:0;height:calc(54*var(--u));padding:0 calc(18*var(--u));border-radius:999px;border:0;background:rgba(255,255,255,.92);color:var(--ink);font-size:calc(18*var(--u))}
@@ -163,8 +162,6 @@ button,input,select{font:inherit;color:inherit}
   .join{height:40px;padding:0 16px;font-size:15px}
   .kicker{margin-top:56px;font-size:22px}
   .headline{font-size:51px;line-height:46px;margin-top:8px}
-  .subline{font-size:16px;line-height:24px;margin-top:16px;max-width:30ch}
-  .subline br{display:none}
   .ctas{margin-top:22px;flex-wrap:wrap}
   .ctas .white,.ctas .mint{height:48px;font-size:17px;padding:0 22px}
   .tri{border-left-width:11px;border-top-width:7px;border-bottom-width:7px}
@@ -203,14 +200,14 @@ button,input,select{font:inherit;color:inherit}
     <div class="nav">
       <a class="abs logo anim" href="./" aria-label="IP One Tools หน้าแรก"><svg viewBox="0 0 32 32" fill="#fff" aria-hidden="true"><path d="M15 29V17c0-5-3-9-10-9 0 6 4 10 10 10"/><path d="M17 29V14c0-6 4-10 11-10 0 7-4 11-11 11"/><rect x="14.6" y="14" width="2.8" height="16" rx="1.4"/></svg>IP One Tools</a>
       <nav class="abs navpill anim hidden" id="who" aria-label="เมนู">
-        <button id="btnHome">หน้าแรก</button><button id="btnTools">เครื่องมือ</button><button id="btnSettings">ตั้งค่า</button><button id="btnLogout">ออกจากระบบ</button>
+        <button id="btnHome">หน้าแรก</button><button id="btnTools">เครื่องมือ</button><button id="btnLogout">ออกจากระบบ</button>
       </nav>
-      <button class="abs pill white join anim" id="btnJoin"><span class="av hidden" id="whoAv">?</span><span id="whoName">เข้าสู่ระบบ</span><span id="whoRole" class="hidden"></span></button>
+      <button class="abs pill white join anim hidden" id="btnSettings" aria-label="ตั้งค่า"><svg width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>ตั้งค่า</span></button>
+      <span class="hidden" id="whoAv"></span><span class="hidden" id="whoName"></span><span class="hidden" id="whoRole"></span>
     </div>
 
     <div class="abs copy kicker anim" id="kicker">IP ONE</div>
     <h1 class="abs copy headline"><span class="anim hl">INVENTORY</span><span class="anim hl">TOOLS</span></h1>
-    <p class="abs copy subline anim" id="subline">ทุกเครื่องมือของทีม Inventory Controls <br>ล็อกอินครั้งเดียวด้วยรหัสพนักงาน <br>ใช้ได้ทั้งบนคอมและเครื่องยิง</p>
 
     <!-- ล็อกอิน -->
     <form class="abs loginbox anim hidden" id="vLogin" autocomplete="on">
@@ -222,11 +219,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="err" id="lgErr"></div>
     </form>
 
-    <!-- หลังล็อกอิน -->
-    <div class="abs copy ctas anim hidden" id="vHome">
-      <button class="pill white" id="btnStart">เริ่มใช้งาน</button>
-      <button class="pill mint" id="btnGoSettings"><span class="tri" aria-hidden="true"></span>ตั้งค่าบัญชี</button>
-    </div>
+    <div class="hidden" id="vHome"></div>
 
     <div class="toolsrow hidden" id="toolsRow">
       <div class="rowhead">
@@ -371,6 +364,7 @@ function show(view){
   $('vHome').classList.toggle('hidden', view!=='vHome');
   $('toolsRow').classList.toggle('hidden', view!=='vHome');
   $('who').classList.toggle('hidden', view==='vLogin');
+  $('btnSettings').classList.toggle('hidden', view==='vLogin');
   if(view==='vLogin'){ $('whoName').textContent='เข้าสู่ระบบ'; $('whoAv').classList.add('hidden'); $('kicker').textContent='IP ONE'; }
   window.scrollTo(0,0);
 }
@@ -415,13 +409,11 @@ $('vLogin').addEventListener('submit', async ev=>{
   finally{ btn.disabled=false; btn.textContent='เข้าใช้งาน'; }
 });
 $('btnLogout').addEventListener('click', async ()=>{ await IPAuth.sb.auth.signOut(); ME=null; history.replaceState(null,'',location.pathname); route(); });
-$('btnSettings').addEventListener('click', ()=>{ location.hash='settings'; });
-$('btnGoSettings').addEventListener('click', ()=>{ currentTab='me'; location.hash='settings'; });
+$('btnSettings').addEventListener('click', ()=>{ currentTab='me'; location.hash='settings'; });
 $('rowLink').addEventListener('click', ()=>{ currentTab='users'; location.hash='settings'; });
 const toTools=()=>$('tools').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
-$('btnStart').addEventListener('click', toTools);
 $('btnTools').addEventListener('click', toTools);
-$('btnJoin').addEventListener('click', ()=>{ if(!ME){ $('lgUser').focus(); } else { currentTab='me'; location.hash='settings'; } });
+
 $('btnHome').addEventListener('click', ()=>{ history.pushState(null,'',location.pathname); route(); });
 
 /* ---------- tools grid ---------- */
@@ -578,11 +570,11 @@ let introDone=false;
 function intro(){
   if(introDone || reduce || !document.body.animate) return; introDone=true;
   const u=innerWidth/1440, seq=[];
-  document.querySelectorAll('.logo.anim,#who,#btnJoin').forEach(el=>seq.push([el,'drop',0]));
+  document.querySelectorAll('.logo.anim,#who,#btnSettings').forEach(el=>seq.push([el,'drop',0]));
   seq.push([$('kicker'),'blur',.15]);
   document.querySelectorAll('.hl').forEach((el,i)=>seq.push([el,'spring',.3+i*.16]));
   let t=.66;
-  [$('subline'),$('vLogin'),$('vHome'),$('tools'),$('rowLink'),...document.querySelectorAll('.card')].forEach(el=>{ if(el && !el.classList.contains('hidden') && el.offsetParent){ seq.push([el,'rise',t]); t+=.1; } });
+  [$('vLogin'),$('tools'),$('rowLink'),...document.querySelectorAll('.card')].forEach(el=>{ if(el && !el.classList.contains('hidden') && el.offsetParent){ seq.push([el,'rise',t]); t+=.1; } });
   for(const [el,kind,d] of seq){
     const k = kind==='drop' ? [{opacity:0,translate:`0 ${-24*u}px`},{opacity:1,translate:'0 0'}]
             : kind==='blur' ? [{opacity:0,filter:'blur(10px)'},{opacity:1,filter:'blur(0)'}]

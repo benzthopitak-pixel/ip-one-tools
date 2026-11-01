@@ -17074,5 +17074,211 @@ $('dlBtn').addEventListener('click',()=>{
 })();
 </script>
 
+
+<!-- ============================================================
+     THEME: Meadow Glass (หน้าตาใหม่ · เพิ่มอย่างเดียว ไม่แก้ logic เดิม)
+     - ฉากหลังทุ่งหญ้า · แถบบนสีขาวโปร่ง + เมนูข้อความ · หัวเรื่อง · แถวไอคอนการ์ด · เนื้อหาในการ์ดกระจก
+     - ปุ่มเมนูใหม่เรียก navTo() เดิม และซ่อน/แสดงตามเมนูไอคอนเดิม (สิทธิ์ผู้ใช้)
+     - ถอดธีมนี้ได้โดยลบบล็อกนี้ทั้งบล็อก
+============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style id="atTheme">
+:root{
+  --at-bg:url("assets/landscape.webp");
+  --at-ink:#111111; --at-ink2:#6F6F6F; --at-muted:#8a8a8a; --at-line:rgba(17,24,39,.08);
+  --at-glass:rgba(255,255,255,.72); --at-glass2:rgba(255,255,255,.88);
+  --at-blue1:#2F80ED; --at-blue2:#1F63C8;
+  --at-serif:'Instrument Serif',Georgia,serif;
+  --at-sans:'Inter','Noto Sans Thai','IBM Plex Sans Thai',system-ui,sans-serif;
+  --at-top:76px;
+}
+body:not(.pre-login){
+  background:#8ec5ef var(--at-bg) center center/cover fixed no-repeat !important;
+  padding-top:var(--at-top) !important;
+  font-family:var(--at-sans);
+}
+body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.25) 0,rgba(255,255,255,0) 240px)}
+.app-shell,#atHead{position:relative;z-index:1}
+@media (min-width:1280px){ .tab-panel.active{max-width:min(1400px,calc(100vw - 260px)) !important} .hr-quicknav{max-width:calc(100vw - 240px) !important} }
+@media (min-width:1280px) and (max-width:1599px){ .hr-quicknav .hr-qn-item{flex:0 0 120px !important} #hrQuicknav.hr-quicknav{gap:8px !important} .at-qs{font-size:11.5px} }
+
+
+/* ---------- top bar ---------- */
+.hr-topbar{height:var(--at-top) !important;background:rgba(255,255,255,.78) !important;color:var(--at-ink) !important;
+  backdrop-filter:blur(18px) saturate(1.4) !important;-webkit-backdrop-filter:blur(18px) saturate(1.4) !important;
+  box-shadow:0 1px 0 var(--at-line) !important;padding:0 28px !important;border:0 !important}
+.hr-tb-logo{display:none !important}
+.hr-tb-title{font:400 40px/1 var(--at-serif) !important;letter-spacing:-.01em;color:var(--at-ink) !important}
+.hr-tb-title::after{content:"®";font:500 10px var(--at-sans);vertical-align:super;margin-left:1px}
+.hr-tb-ver{background:#eef0f3 !important;color:var(--at-ink) !important;border-radius:8px !important;padding:3px 9px !important;font:700 13px var(--at-sans) !important}
+.hr-tb-sub{color:var(--at-ink2) !important;opacity:1 !important;font:500 15px var(--at-sans) !important;padding-left:12px;border-left:1px solid rgba(17,24,39,.2);margin-left:4px}
+.hr-topbar-right{gap:10px !important}
+.hr-tb-icon,.hr-zoom{background:#fff !important;color:var(--at-ink) !important;border:1px solid var(--at-line) !important;box-shadow:0 2px 8px rgba(17,24,39,.06) !important}
+.hr-tb-icon{width:42px !important;height:42px !important;border-radius:50% !important;display:grid !important;place-items:center !important;font-size:17px !important}
+.hr-zoom{border-radius:999px !important;padding:2px 6px !important}
+.hr-zoom-btn,.hr-zoom-val{color:var(--at-ink) !important}
+.hr-tb-user{background:#fff !important;color:var(--at-ink) !important;border:1px solid var(--at-line) !important;border-radius:999px !important;padding:5px 14px 5px 6px !important;box-shadow:0 2px 8px rgba(17,24,39,.06) !important}
+.hr-tb-avatar{background:#fff !important;color:var(--at-ink) !important;border:2px solid var(--at-ink) !important}
+.hr-tb-uname{font:700 16px var(--at-sans) !important;color:var(--at-ink) !important}
+#atBell{position:relative}
+#atBell::after{content:"";position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:#f97316}
+.at-nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:22px;align-items:center;height:100%}
+.at-nav button{background:none;border:0;cursor:pointer;font:500 15.5px var(--at-sans);color:#6b7280;padding:8px 0;position:relative}
+.at-nav button:hover{color:var(--at-ink)}
+.at-nav button.on{color:var(--at-ink);font-weight:700}
+.at-nav button.on::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;border-radius:3px;background:var(--at-ink)}
+
+#atHead{max-width:1460px;margin:0 auto;padding:8px 24px 0;text-align:center}
+
+/* ---------- icon row (เมนูไอคอนเดิม) ---------- */
+.hr-quicknav{position:static !important;height:auto !important;background:transparent !important;border:0 !important;box-shadow:none !important;
+  display:flex !important;justify-content:flex-start !important;gap:10px !important;padding:22px 24px 10px !important;overflow-x:auto !important;margin:0 auto !important;max-width:1460px;scrollbar-width:none}
+.hr-quicknav::-webkit-scrollbar{display:none}
+.hr-quicknav > .hr-qn-item:first-child{margin-left:auto !important}
+.hr-quicknav > .hr-qn-item:last-child{margin-right:auto !important}
+.hr-qn-div{display:none !important}
+.hr-qn-item{flex:0 0 128px !important;height:104px !important;border-radius:20px !important;background:var(--at-glass) !important;border:1px solid rgba(255,255,255,.8) !important;
+  backdrop-filter:blur(14px) !important;-webkit-backdrop-filter:blur(14px) !important;box-shadow:0 8px 24px rgba(17,24,39,.10) !important;
+  display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:2px !important;color:var(--at-ink) !important;padding:8px !important;transition:transform .2s !important}
+.hr-qn-item:hover{transform:translateY(-3px) !important;background:var(--at-glass2) !important}
+.hr-qn-item[data-qn-page="settings"]{display:none !important}
+.hr-qn-ic{display:none !important}
+.at-ic{width:32px;height:32px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;margin-bottom:4px}
+.hr-qn-lb{font:700 16px var(--at-sans) !important;color:inherit !important}
+.at-qs{font:400 12.5px var(--at-sans);color:var(--at-ink2);white-space:nowrap}
+.hr-qn-item.active{background:linear-gradient(160deg,var(--at-blue1),var(--at-blue2)) !important;color:#fff !important;box-shadow:0 12px 28px rgba(29,78,216,.35) !important;border-color:transparent !important}
+.hr-qn-item.active .at-qs{color:rgba(255,255,255,.9)}
+
+/* ---------- main card ---------- */
+.content{background:transparent !important;padding:18px 24px 60px !important}
+.breadcrumb{display:none !important}
+.tab-panel.active{max-width:1400px;margin:0 auto !important;background:var(--at-glass2) !important;border:1px solid rgba(255,255,255,.85) !important;border-radius:30px !important;
+  padding:34px 36px 38px !important;backdrop-filter:blur(18px) saturate(1.2) !important;-webkit-backdrop-filter:blur(18px) saturate(1.2) !important;box-shadow:0 20px 50px rgba(17,24,39,.12) !important}
+.ui-page-header{background:transparent !important;border:0 !important;box-shadow:none !important;padding:0 0 10px !important;color:var(--at-ink) !important}
+.ui-page-header::before,.ui-page-header::after{display:none !important}
+.ui-eyebrow{color:var(--at-muted) !important;font:600 13px var(--at-sans) !important;letter-spacing:.12em !important;text-transform:uppercase}
+.ui-page-header h1{font:400 clamp(36px,3.6vw,54px)/1.05 var(--at-serif) !important;color:var(--at-ink) !important;letter-spacing:-.01em !important}
+.ui-page-header p{color:var(--at-ink2) !important;font-size:17px !important}
+.ui-page-header small{color:var(--at-muted) !important}
+.dz{border:2px dashed #93b8ef !important;background:rgba(255,255,255,.75) !important;border-radius:20px !important}
+.btn.bp,.btn-primary,.sa-btn-primary{background:#111 !important;color:#fff !important;border:0 !important;border-radius:999px !important;padding:12px 28px !important;font-weight:700 !important;box-shadow:0 8px 20px rgba(0,0,0,.18) !important}
+.btn.bs,.btn.bd,.btn-secondary,.sa-btn-ghost,.aa-btn-ghost{background:#fff !important;color:var(--at-ink) !important;border:1px solid var(--at-line) !important;border-radius:999px !important;padding:11px 24px !important;font-weight:600 !important;box-shadow:0 4px 12px rgba(17,24,39,.06) !important}
+.btn:disabled,.btn-primary:disabled{opacity:.45 !important}
+.hr-statusbar{background:rgba(255,255,255,.8) !important;color:var(--at-ink2) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border-top:1px solid var(--at-line) !important}
+
+@media (max-width:1899px){ .hr-tb-sub{display:none !important} }
+@media (max-width:1599px){
+  .at-nav{position:fixed;left:auto;right:16px;top:calc(var(--at-top) + 8px);transform:none;height:auto;flex-direction:column;align-items:stretch;gap:2px;
+    padding:8px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 40px rgba(17,17,17,.18);min-width:190px;display:none;z-index:9999}
+  .at-nav.open{display:flex}
+  .at-nav button{text-align:left;padding:10px 14px;border-radius:12px}
+  .at-nav button.on{background:#eef4fd;color:var(--at-blue2)}
+  .at-nav button.on::after{display:none}
+  #atMenuBtn{display:grid !important}
+}
+#atMenuBtn{display:none}
+@media (prefers-reduced-motion:no-preference){
+  .hr-qn-item{animation:atRise .8s cubic-bezier(.2,.8,.2,1) both}
+  .tab-panel.active{animation:atFade .3s ease both}
+  @keyframes atRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes atFade{from{opacity:0}to{opacity:1}}
+}
+@media (prefers-reduced-motion:reduce){ .hr-qn-item{transition:none !important} }
+@media (max-width:768px){
+  :root{--at-top:60px}
+  .hr-topbar{padding:0 12px !important}
+  .hr-tb-title{font-size:24px !important;white-space:nowrap}
+  .hr-tb-ver,.hr-tb-uname{display:none !important}
+  .hr-tb-user{padding:3px !important}
+  #atBell{display:none !important}
+  .hr-tb-icon{width:36px !important;height:36px !important}
+  .hr-topbar-right{gap:6px !important}
+  .hr-tb-sub,.hr-zoom{display:none !important}
+  .hr-quicknav{display:grid !important;grid-template-columns:1fr 1fr !important;gap:10px !important;overflow:visible !important}
+  .hr-quicknav > .hr-qn-item:first-child,.hr-quicknav > .hr-qn-item:last-child{margin:0 !important}
+  .hr-qn-item{height:96px !important;width:auto !important}
+  .tab-panel.active{padding:22px 16px !important;border-radius:22px !important}
+}
+</style>
+<script id="atThemeJs">
+(function(){
+  var ICON={
+    stock:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+    movement:'<path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18 2v4h-4M6 22v-4h4"/>',
+    lorry:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11l2-8H6.2"/>',
+    merger:'<path d="M9 3h6v4a2 2 0 1 0 0 4v4h-4a2 2 0 1 1-4 0H3V9h4a2 2 0 1 0 0-4V3z"/>',
+    vanbuilder:'<rect x="2" y="6" width="13" height="10" rx="1"/><path d="M15 9h4l3 4v3h-7"/><circle cx="6.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/>',
+    stockaudit:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+    recon:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+    approval:'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m8 12 3 3 5-6"/>',
+    email:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'
+  };
+  var SUB={stock:'จัดการข้อมูลสต็อก',movement:'เตรียมไฟล์ Movement',lorry:'จัดรูปแบบ Picking',merger:'รวมข้อมูล',vanbuilder:'จัดการข้อมูล VAN',
+    stockaudit:'ตรวจสอบข้อมูล',recon:'กระทบยอดข้อมูล',approval:'อนุมัติข้อมูล',email:'ส่งไฟล์ทางอีเมล',settings:'Master Data'};
+  function svg(p){return '<svg class="at-ic" viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>';}
+  function init(){
+    var qn=document.getElementById('hrQuicknav'), shell=document.querySelector('.app-shell'), bar=document.getElementById('hrTopbar');
+    if(!qn||!shell||!bar||document.getElementById('atHead')) return;
+    // 1) ไอคอนเส้น + คำไทยใต้ชื่อในการ์ดเมนูเดิม
+    qn.querySelectorAll('.hr-qn-item[data-qn-page]').forEach(function(b){
+      var p=b.getAttribute('data-qn-page');
+      if(ICON[p]) b.insertAdjacentHTML('afterbegin',svg(ICON[p]));
+      if(SUB[p]) b.insertAdjacentHTML('beforeend','<span class="at-qs">'+SUB[p]+'</span>');
+    });
+    // 2) หัวเรื่อง + ย้ายแถวไอคอนมาอยู่ใต้หัวเรื่อง
+    var head=document.createElement('div'); head.id='atHead';
+    shell.parentNode.insertBefore(head, shell);
+    head.appendChild(qn);
+    // 3) เมนูข้อความกลางแถบบน (เรียก navTo เดิม · ซ่อน/แสดง + active ตามการ์ดเมนูเดิม)
+    var nav=document.createElement('nav'); nav.className='at-nav'; nav.setAttribute('aria-label','เมนูหลัก');
+    var home=document.createElement('button'); home.type='button'; home.textContent='Home';
+    home.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); });
+    nav.appendChild(home);
+    var pairs=[];
+    qn.querySelectorAll('.hr-qn-item[data-qn-page]').forEach(function(b){
+      var p=b.getAttribute('data-qn-page'); if(p==='settings') return;
+      var t=document.createElement('button'); t.type='button';
+      t.textContent=(b.querySelector('.hr-qn-lb')||{}).textContent||p;
+      t.addEventListener('click',function(){ if(typeof window.navTo==='function') window.navTo(p); });
+      nav.appendChild(t); pairs.push([b,t]);
+    });
+    bar.appendChild(nav);
+    var mb=document.createElement('button'); mb.className='hr-tb-icon'; mb.id='atMenuBtn'; mb.type='button'; mb.title='เมนู';
+    mb.setAttribute('aria-label','เปิดเมนู'); mb.setAttribute('aria-expanded','false');
+    mb.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+    mb.addEventListener('click',function(e){ e.stopPropagation(); var o=nav.classList.toggle('open'); mb.setAttribute('aria-expanded',o?'true':'false'); });
+    nav.addEventListener('click',function(){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); });
+    document.addEventListener('click',function(e){ if(!nav.contains(e.target)&&e.target!==mb){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); } });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); } });
+    var rt=bar.querySelector('.hr-topbar-right'); if(rt) rt.insertBefore(mb, rt.firstChild);
+    var i=0; qn.querySelectorAll('.hr-qn-item').forEach(function(b){ b.style.animationDelay=(0.3+0.1*(i++))+'s'; });
+    function sync(){
+      var any=false;
+      pairs.forEach(function(x){
+        var hidden=x[0].style.display==='none' || getComputedStyle(x[0]).display==='none';
+        x[1].style.display=hidden?'none':'';
+        var on=x[0].classList.contains('active'); x[1].classList.toggle('on',on); if(on) any=true;
+      });
+      home.classList.toggle('on',!any);
+    }
+    new MutationObserver(sync).observe(qn,{subtree:true,attributes:true,attributeFilter:['class','style']});
+    sync();
+    // 4) ปุ่มกระดิ่งเป็นของแต่งตามแบบ (ปุ่มเดิมไม่เปลี่ยน)
+    var right=bar.querySelector('.hr-topbar-right');
+    if(right && !document.getElementById('atBell')){
+      var bell=document.createElement('button'); bell.className='hr-tb-icon'; bell.id='atBell'; bell.type='button'; bell.title='การแจ้งเตือน';
+      bell.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>';
+      var gear=right.querySelector('.hr-tb-icon[title="ตั้งค่า"]');
+      right.insertBefore(bell, gear||right.firstChild);
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+
 </body>
 </html>

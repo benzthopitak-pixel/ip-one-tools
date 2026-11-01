@@ -6,148 +6,242 @@
 <title>IP One Tools Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="auth.js"></script>
 <style>
+/* ===== Tokens — ชมพู ฟ้า ม่วง พีช ===== */
 :root{
-  --bg:#F2F6FB; --panel:#FFFFFF; --ink:#0E2A47; --ink-soft:#4A6380; --ink-faint:#8BA0B8;
-  --line:#DCE5EF; --blue:#1B5FAA; --blue-soft:#E6EFF9; --amber:#B7791F; --amber-soft:#FBF1E0;
-  --red:#C2410C; --red-soft:#FDECE4; --green:#15803D; --green-soft:#E3F4E8;
-  --shadow:0 1px 2px rgba(14,42,71,.06),0 6px 20px rgba(14,42,71,.06);
+  --bg:#F6F7FB; --bg-2:#EEF1F8;
+  --glass:rgba(255,255,255,.72); --glass-strong:rgba(255,255,255,.9); --glass-line:rgba(255,255,255,.9);
+  --ink:#141B34; --ink-soft:#4B5675; --ink-faint:#8A93AD; --line:#E3E7F1;
+  --rose:#E6417F; --rose-soft:#FDE7F0; --azure:#2C7FE0; --azure-soft:#E3EFFD;
+  --violet:#8A6FE0; --violet-soft:#EEEAFD; --peach:#F29B6B; --peach-soft:#FDEDE4;
+  --brand:linear-gradient(120deg,#E6417F 0%,#8A6FE0 50%,#2C7FE0 100%);
+  --ok:#10875A; --ok-soft:#E1F5EC; --err:#C8324A; --err-soft:#FDE6EA;
+  --aurora-a:rgba(230,65,127,.22); --aurora-b:rgba(44,127,224,.20); --aurora-c:rgba(138,111,224,.18); --aurora-d:rgba(242,155,107,.18);
+  --shadow:0 1px 2px rgba(20,27,52,.04),0 12px 32px -12px rgba(20,27,52,.14);
+  --shadow-lift:0 2px 4px rgba(20,27,52,.05),0 24px 48px -16px rgba(20,27,52,.22);
+  --r-lg:22px; --r-md:14px; --r-sm:10px;
+  --head:'Prompt','IBM Plex Sans Thai',system-ui,sans-serif;
+  --body:'IBM Plex Sans Thai',system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0D1724; --panel:#14212F; --ink:#E6EEF7; --ink-soft:#A8BBD0; --ink-faint:#6E849C;
-    --line:#22344A; --blue:#5B9BE0; --blue-soft:#17304D; --amber:#E3A84F; --amber-soft:#33281A;
-    --red:#F08A5D; --red-soft:#3A2219; --green:#4ADE80; --green-soft:#16301F;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
+    --bg:#0A0F1E; --bg-2:#0F1629;
+    --glass:rgba(22,30,52,.66); --glass-strong:rgba(26,35,60,.92); --glass-line:rgba(255,255,255,.07);
+    --ink:#EDF1FB; --ink-soft:#B3BDD6; --ink-faint:#7682A0; --line:#243052;
+    --rose:#FF6FA3; --rose-soft:rgba(255,111,163,.14); --azure:#5EA6FF; --azure-soft:rgba(94,166,255,.14);
+    --violet:#AE98FF; --violet-soft:rgba(174,152,255,.14); --peach:#FFB089; --peach-soft:rgba(255,176,137,.14);
+    --ok:#4ADE9B; --ok-soft:rgba(74,222,155,.12); --err:#FF8597; --err-soft:rgba(255,133,151,.12);
+    --aurora-a:rgba(230,65,127,.20); --aurora-b:rgba(44,127,224,.22); --aurora-c:rgba(138,111,224,.20); --aurora-d:rgba(242,155,107,.10);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 16px 40px -16px rgba(0,0,0,.6);
+    --shadow-lift:0 2px 4px rgba(0,0,0,.3),0 28px 56px -18px rgba(0,0,0,.7);
   }
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;line-height:1.55;min-height:100vh}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg-2);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.6;min-height:100vh;overflow-x:hidden}
 button,input,select{font:inherit;color:inherit}
-.top{background:#1B5FAA;color:#fff;height:52px;display:flex;align-items:center;padding:0 20px;gap:10px}
-.top .logo{font-size:18px}
-.top b{font-weight:700;font-size:15px}
-.top .sub{opacity:.8;font-size:12px}
-.top .sp{flex:1}
-.top .chip{display:flex;align-items:center;gap:8px;font-size:13px}
-.top .av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-weight:700}
-.tbtn{background:rgba(255,255,255,.14);border:0;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px}
-.tbtn:hover{background:rgba(255,255,255,.26)}
-.wrap{max-width:1040px;margin:0 auto;padding:36px 20px 60px}
-h1{font-size:28px;font-weight:700;letter-spacing:-.01em}
-h2.sec{font-size:18px;font-weight:600;margin-bottom:12px}
-.lead{color:var(--ink-soft);margin-top:4px}
 .hidden{display:none!important}
+:focus-visible{outline:2.5px solid var(--azure);outline-offset:2px}
 
-/* login */
-.login{min-height:calc(100vh - 52px);display:grid;place-items:center;padding:24px 16px}
-.lbox{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:var(--shadow)}
-.lbox h1{font-size:22px}
-.field{display:flex;flex-direction:column;gap:6px;margin-top:16px}
-.field label{font-size:13px;font-weight:600;color:var(--ink-soft)}
-.inp{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
-.inp:focus{outline:2px solid var(--blue);outline-offset:1px}
-.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
-.btn:disabled{opacity:.6;cursor:default}
-.btn.ghost{background:var(--blue-soft);color:var(--blue)}
-.btn.danger{background:var(--red-soft);color:var(--red)}
-.btn.sm{padding:6px 12px;font-size:13px}
-.btn.full{width:100%;margin-top:20px}
-.msg{margin-top:12px;font-size:13.5px;padding:8px 12px;border-radius:8px;display:none}
-.msg.show{display:block}
-.msg.err{background:var(--red-soft);color:var(--red)}
-.msg.ok{background:var(--green-soft);color:var(--green)}
-.credit{margin-top:20px;text-align:center;font-size:12px;color:var(--ink-faint)}
+/* ===== Aurora background ===== */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:linear-gradient(180deg,var(--bg),var(--bg-2))}
+.aurora i{position:absolute;border-radius:50%;filter:blur(80px)}
+.aurora i:nth-child(1){width:48vw;height:48vw;left:-12vw;top:-18vw;background:var(--aurora-a)}
+.aurora i:nth-child(2){width:44vw;height:44vw;right:-14vw;top:-8vw;background:var(--aurora-b)}
+.aurora i:nth-child(3){width:40vw;height:40vw;left:30vw;bottom:-22vw;background:var(--aurora-c)}
+.aurora i:nth-child(4){width:26vw;height:26vw;right:8vw;bottom:-6vw;background:var(--aurora-d)}
+.aurora::after{content:"";position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px;mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 0%,transparent 70%)}
 
-/* tools */
-.search{margin:24px 0 8px;width:100%;max-width:360px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
-.search:focus{outline:2px solid var(--blue);outline-offset:1px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px;margin-top:16px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;transition:transform .15s,border-color .15s}
-a.card:hover{transform:translateY(-2px);border-color:var(--blue)}
-a.card:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.card.off{opacity:.7}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.icon{width:42px;height:42px;border-radius:10px;background:var(--blue-soft);display:grid;place-items:center;font-size:21px}
-.tag{font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--blue-soft);color:var(--blue);white-space:nowrap}
-.tag.soon{background:var(--amber-soft);color:var(--amber)}
-.tag.admin{background:var(--amber-soft);color:var(--amber)}
-.card h3{font-size:17px;font-weight:600}
-.card p{color:var(--ink-soft);font-size:14px;flex:1}
-.meta{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-faint)}
-.go{font-size:14px;font-weight:600;color:var(--blue)}
-.note{font-size:12.5px;color:var(--ink-faint)}
+/* ===== Top bar ===== */
+.top{position:sticky;top:12px;z-index:20;margin:12px auto 0;max-width:1120px;width:calc(100% - 32px);
+  display:flex;align-items:center;gap:12px;padding:10px 12px 10px 16px;border-radius:18px;
+  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);box-shadow:var(--shadow)}
+.mark{width:34px;height:34px;border-radius:11px;background:var(--brand);display:grid;place-items:center;color:#fff;font:700 15px var(--head);box-shadow:0 6px 16px -6px rgba(230,65,127,.6)}
+.brand b{font:600 16px var(--head);letter-spacing:.01em;display:block;line-height:1.15}
+.brand small{font-size:11.5px;color:var(--ink-faint);letter-spacing:.06em;text-transform:uppercase}
+.sp{flex:1}
+.who{display:flex;align-items:center;gap:6px}
+.nav-btn{border:0;background:transparent;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--ink-soft);font-weight:500;font-size:14.5px;display:flex;align-items:center;gap:6px}
+.nav-btn:hover{background:var(--azure-soft);color:var(--ink)}
+.nav-btn.on{background:var(--ink);color:var(--bg)}
+.me{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;margin-left:4px;border-radius:999px;background:var(--glass-strong);border:1px solid var(--line)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font:600 13px var(--head)}
+.me span{font-size:13.5px;font-weight:500}
+.me em{font-style:normal;font-size:11px;font-weight:600;color:var(--rose);background:var(--rose-soft);padding:1px 7px;border-radius:999px}
+
+/* ===== Layout ===== */
+.wrap{max-width:1120px;margin:0 auto;padding:36px 16px 64px}
+h1{font:600 clamp(28px,4vw,40px)/1.15 var(--head);letter-spacing:-.01em}
+.grad{background:var(--brand);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--ink-soft);font-size:16px;margin-top:8px}
+.eyebrow{font:500 12px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+
+/* ===== Hero ===== */
+.hero{position:relative;display:grid;grid-template-columns:1fr;align-items:center;gap:24px;padding:36px 36px 30px;border-radius:28px;
+  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);overflow:hidden}
+.hero::before{content:"";position:absolute;inset:auto -10% -60% 40%;height:120%;background:radial-gradient(closest-side,var(--aurora-a),transparent);pointer-events:none}
+.hero .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.stat{padding:8px 14px;border-radius:12px;background:var(--glass-strong);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft)}
+.stat b{font:600 15px var(--head);color:var(--ink);margin-right:4px}
+
+/* ===== Toolbar + cards ===== */
+.toolbar{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:40px 0 16px;flex-wrap:wrap}
+.toolbar h2{font:600 22px var(--head)}
+.search{position:relative;width:min(340px,100%)}
+.search input{width:100%;padding:11px 14px 11px 40px;border-radius:12px;border:1px solid var(--line);background:var(--glass-strong)}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-faint)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+.card{--c:var(--azure);--cs:var(--azure-soft);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;min-height:236px;padding:24px;border-radius:var(--r-lg);
+  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--shadow);
+  text-decoration:none;color:inherit;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--c)}
+a.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.card.rose{--c:var(--rose);--cs:var(--rose-soft)} .card.violet{--c:var(--violet);--cs:var(--violet-soft)} .card.peach{--c:var(--peach);--cs:var(--peach-soft)}
+.ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:var(--cs);border:1px solid color-mix(in srgb,var(--c) 22%,transparent)}
+.card h3{font:600 19px/1.3 var(--head)}
+.card p{color:var(--ink-soft);font-size:14.5px;flex:1}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--cs);color:var(--c)}
+.chip.mono{font-family:'JetBrains Mono',monospace;font-weight:500;background:transparent;border:1px solid var(--line);color:var(--ink-faint)}
+.chip.soon{background:var(--peach-soft);color:var(--peach)}
+.open{display:inline-flex;align-items:center;gap:6px;font:600 14px var(--head);color:var(--c)}
 .empty{color:var(--ink-faint);margin-top:20px}
+footer{margin-top:56px;color:var(--ink-faint);font-size:12.5px;text-align:center}
 
-/* settings */
-.tabs{display:flex;gap:6px;margin:22px 0 18px;border-bottom:1px solid var(--line)}
-.tab{background:none;border:0;padding:10px 14px;cursor:pointer;color:var(--ink-soft);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab.on{color:var(--blue);border-bottom-color:var(--blue)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+/* ===== Login ===== */
+.login{min-height:calc(100vh - 90px);display:grid;place-items:center;padding:32px 16px}
+.lcard{width:100%;max-width:940px;display:grid;grid-template-columns:1.05fr .95fr;border-radius:28px;overflow:hidden;background:var(--glass);border:1px solid var(--glass-line);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow-lift)}
+.lside{position:relative;padding:40px;color:#fff;background:linear-gradient(150deg,#E6417F 0%,#8A6FE0 55%,#2C7FE0 100%);display:flex;flex-direction:column;min-height:480px;overflow:hidden}
+.lside::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.28),transparent 45%);pointer-events:none}
+.lside h2{font:600 30px/1.2 var(--head);margin-top:18px;position:relative;z-index:1}
+.lside p{opacity:.9;margin-top:10px;position:relative;z-index:1;max-width:34ch}
+.lside .mark{background:rgba(255,255,255,.22);box-shadow:none;position:relative;z-index:1}
+.lform{padding:44px 40px;display:flex;flex-direction:column;justify-content:center;background:var(--glass-strong)}
+.lform h1{font-size:28px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.field label{font-size:13.5px;font-weight:600;color:var(--ink-soft)}
+.inp{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--glass-strong);transition:border-color .2s,box-shadow .2s}
+.inp:focus{outline:0;border-color:var(--azure);box-shadow:0 0 0 4px var(--azure-soft)}
+.btn{border:0;border-radius:12px;padding:11px 18px;font:600 15px var(--head);cursor:pointer;background:var(--ink);color:var(--bg);transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:default;transform:none}
+.btn.brand{background:var(--brand);color:#fff;box-shadow:0 10px 24px -10px rgba(138,111,224,.7)}
+.btn.ghost{background:var(--azure-soft);color:var(--azure)}
+.btn.danger{background:var(--err-soft);color:var(--err)}
+.btn.sm{padding:7px 13px;font-size:13.5px;border-radius:10px}
+.btn.full{width:100%;margin-top:24px;padding:13px}
+.msg{margin-top:14px;font-size:14px;padding:10px 12px;border-radius:10px;display:none}
+.msg.show{display:block}
+.msg.err{background:var(--err-soft);color:var(--err)}
+.msg.ok{background:var(--ok-soft);color:var(--ok)}
+.credit{margin-top:26px;font-size:12.5px;color:var(--ink-faint)}
+
+/* ===== Settings ===== */
+.tabs{display:inline-flex;gap:4px;margin:26px 0 20px;padding:4px;border-radius:14px;background:var(--glass);border:1px solid var(--line)}
+.tab{background:none;border:0;padding:9px 16px;cursor:pointer;color:var(--ink-soft);font-weight:500;border-radius:10px}
+.tab.on{background:var(--glass-strong);color:var(--ink);box-shadow:var(--shadow)}
+.panel{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r-lg);padding:26px;box-shadow:var(--shadow);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .panel + .panel{margin-top:16px}
-.narrow{max-width:420px}
-.ulist{width:100%;border-collapse:collapse;font-size:14px}
-.ulist th{text-align:left;font-size:12.5px;color:var(--ink-faint);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line)}
-.ulist td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.panel h2{font:600 19px var(--head);margin-bottom:6px}
+.narrow{max-width:460px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tblwrap{overflow-x:auto;margin-top:8px}
+.ulist{width:100%;border-collapse:collapse;font-size:14.5px}
+.ulist th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;padding:10px;border-bottom:1px solid var(--line)}
+.ulist td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
 .ulist tr:last-child td{border-bottom:0}
 .ulist .acts{text-align:right;white-space:nowrap}
 .pills{display:flex;flex-wrap:wrap;gap:4px}
-.tblwrap{overflow-x:auto}
-.checks{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:6px}
-.checks label{display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer}
-.grp{margin-top:10px}
-.grp b{font-size:12.5px;color:var(--ink-faint);font-weight:600}
-.hint{font-size:12.5px;color:var(--ink-faint);margin-top:4px}
+.tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;background:var(--azure-soft);color:var(--azure);white-space:nowrap}
+.tag.admin{background:var(--rose-soft);color:var(--rose)}
+.note{font-size:13px;color:var(--ink-faint)}
+.checks{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:6px}
+.checks label{display:flex;align-items:center;gap:7px;font-size:14.5px;cursor:pointer}
+.checks input{width:16px;height:16px;accent-color:var(--violet)}
+.grp{margin-top:12px}
+.grp b{font-size:12px;letter-spacing:.06em;color:var(--ink-faint);font-weight:600}
+.hint{font-size:12.5px;color:var(--ink-faint);margin-top:2px}
+.toolinfo{display:flex;gap:18px;align-items:center}
+.toolinfo img{width:72px;flex:none;filter:drop-shadow(0 10px 14px rgba(20,27,52,.18))}
 
-/* modal */
-.ov{position:fixed;inset:0;background:rgba(10,20,35,.45);display:grid;place-items:center;padding:16px;z-index:50}
-.modal{width:100%;max-width:560px;max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border-radius:16px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.modal h3{font-size:18px;font-weight:700}
-.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center}
+/* ===== Modal ===== */
+.ov{position:fixed;inset:0;background:rgba(10,15,30,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:50}
+.modal{width:100%;max-width:600px;max-height:calc(100vh - 32px);overflow:auto;background:var(--glass-strong);border:1px solid var(--glass-line);border-radius:24px;padding:28px;box-shadow:var(--shadow-lift)}
+.modal h3{font:600 21px var(--head)}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+@media(max-width:860px){
+  .hero{grid-template-columns:1fr;padding:28px 22px}
+  .lcard{grid-template-columns:1fr}.lside{min-height:0;padding:28px}
+  .lform{padding:30px 24px}
+}
 @media(max-width:620px){
-  h1{font-size:23px}.wrap{padding:24px 16px 48px}.top{padding:0 12px;gap:6px}
-  .top .sub,.top .uname{display:none}.split{grid-template-columns:1fr}
-  .ulist .hide-sm{display:none}
+  .top{gap:4px;padding:8px 8px 8px 10px}.brand small,.nav-btn .lbl,.me{display:none}.nav-btn{padding:8px 10px}
+  .wrap{padding:24px 16px 48px}.grid{grid-template-columns:1fr}.split{grid-template-columns:1fr}
+  .ulist .hide-sm{display:none}.card p,.card h3{max-width:100%}.chips{max-width:100%}.card{min-height:0}
 }
 </style>
 </head>
 <body>
-<div class="top">
-  <span class="logo">▦</span><b>IP One Tools</b><span class="sub">Inventory Controls</span>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<header class="top">
+  <div class="mark" aria-hidden="true">IP</div>
+  <div class="brand"><b>IP One Tools</b><small>Inventory Controls</small></div>
   <span class="sp"></span>
-  <div class="chip hidden" id="who">
-    <span class="av" id="whoAv">?</span><span class="uname" id="whoName"></span>
-    <button class="tbtn" id="btnHome" title="หน้าแรก">หน้าแรก</button>
-    <button class="tbtn" id="btnSettings" title="ตั้งค่า">⚙️ ตั้งค่า</button>
-    <button class="tbtn" id="btnLogout" title="ออกจากระบบ">ออก</button>
-  </div>
-</div>
+  <nav class="who hidden" id="who" aria-label="เมนูผู้ใช้">
+    <button class="nav-btn" id="btnHome" title="หน้าแรก"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span class="lbl">หน้าแรก</span></button>
+    <button class="nav-btn" id="btnSettings" title="ตั้งค่า"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="lbl">ตั้งค่า</span></button>
+    <button class="nav-btn" id="btnLogout" title="ออกจากระบบ"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg><span class="lbl">ออก</span></button>
+    <div class="me"><span class="av" id="whoAv">?</span><span id="whoName"></span><em id="whoRole" class="hidden">Admin</em></div>
+  </nav>
+</header>
 
 <!-- ===== LOGIN ===== -->
 <section class="login hidden" id="vLogin">
-  <form class="lbox" id="fLogin" autocomplete="on">
-    <h1>เข้าสู่ระบบ</h1>
-    <p class="lead">ล็อกอินครั้งเดียว ใช้ได้ทุกเครื่องมือ</p>
-    <div class="field"><label for="lgUser">รหัสพนักงาน</label>
-      <input class="inp" id="lgUser" name="username" autocomplete="username" required></div>
-    <div class="field"><label for="lgPass">Password</label>
-      <input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
-    <button class="btn full" id="lgBtn" type="submit">เข้าใช้งาน</button>
-    <div class="msg err" id="lgErr"></div>
-    <p class="credit">Crafted with care by <b>Phassakorn T</b></p>
-  </form>
+  <div class="lcard">
+    <div class="lside">
+      <div class="mark" aria-hidden="true">IP</div>
+      <h2>ทุกเครื่องมือของทีม<br>ในที่เดียว</h2>
+      <p>Audit, เทียบ Stock และตรวจนับทรัพย์สิน ล็อกอินครั้งเดียวใช้ได้ทั้งหมด</p>
+    </div>
+    <form class="lform" id="fLogin" autocomplete="on">
+      <span class="eyebrow">IP One · Inventory Controls</span>
+      <h1 style="margin-top:6px">เข้าสู่ระบบ</h1>
+      <div class="field"><label for="lgUser">รหัสพนักงาน</label>
+        <input class="inp" id="lgUser" name="username" autocomplete="username" required></div>
+      <div class="field"><label for="lgPass">Password</label>
+        <input class="inp" id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn brand full" id="lgBtn" type="submit">เข้าใช้งาน</button>
+      <div class="msg err" id="lgErr"></div>
+      <p class="credit">Crafted with care by <b>Phassakorn T</b></p>
+    </form>
+  </div>
 </section>
 
 <!-- ===== HOME ===== -->
 <main class="wrap hidden" id="vHome">
-  <h1>เครื่องมือทั้งหมด</h1>
-  <p class="lead">เลือกเครื่องมือที่ต้องการใช้งาน</p>
-  <input class="search" id="q" type="search" placeholder="ค้นหาเครื่องมือ..." aria-label="ค้นหาเครื่องมือ">
+  <section class="hero">
+    <div style="position:relative;z-index:1">
+      <span class="eyebrow" id="today"></span>
+      <h1 style="margin-top:8px">สวัสดี, <span class="grad" id="hiName">ทีม</span></h1>
+      <p class="lead">เลือกเครื่องมือที่ต้องการ ทุกอันเปิดในแท็บใหม่ ไม่ต้องล็อกอินซ้ำ</p>
+      <div class="stats"><span class="stat"><b id="statTools">0</b>เครื่องมือที่ใช้ได้</span><span class="stat"><b id="statRole">—</b>สิทธิ์ของคุณ</span></div>
+    </div>
+  </section>
+
+  <div class="toolbar">
+    <h2>เครื่องมือ</h2>
+    <label class="search"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="ค้นหาเครื่องมือ..." aria-label="ค้นหาเครื่องมือ"></label>
+  </div>
   <div class="grid" id="grid"></div>
   <p class="empty hidden" id="empty">ไม่พบเครื่องมือ</p>
   <footer>Crafted with care by <b>Phassakorn T</b></footer>
@@ -155,7 +249,8 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
 <!-- ===== SETTINGS ===== -->
 <main class="wrap hidden" id="vSettings">
-  <h1>ตั้งค่า</h1>
+  <span class="eyebrow">Settings</span>
+  <h1 style="margin-top:6px">ตั้งค่า</h1>
   <p class="lead">บัญชีผู้ใช้และสิทธิ์ของทุกเครื่องมือ</p>
   <div class="tabs" role="tablist">
     <button class="tab on" data-tab="me" role="tab">บัญชีของฉัน</button>
@@ -165,16 +260,17 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
   <div id="pMe">
     <div class="panel narrow">
-      <h2 class="sec">เปลี่ยนรหัสผ่าน</h2>
+      <h2>เปลี่ยนรหัสผ่าน</h2>
+      <p class="note">ใช้กับทุกเครื่องมือที่ล็อกอินผ่าน Portal</p>
       <form id="fPw" autocomplete="off">
         <div class="field"><label for="pwOld">รหัสผ่านปัจจุบัน</label>
           <input class="inp" id="pwOld" type="password" autocomplete="current-password" required></div>
         <div class="field"><label for="pwNew">รหัสผ่านใหม่</label>
           <input class="inp" id="pwNew" type="password" autocomplete="new-password" minlength="6" required>
-          <span class="hint">อย่างน้อย 6 ตัว</span></div>
+          <span class="hint">อย่างน้อย 6 ตัว ยิ่งยาวยิ่งปลอดภัย</span></div>
         <div class="field"><label for="pwNew2">ยืนยันรหัสผ่านใหม่</label>
           <input class="inp" id="pwNew2" type="password" autocomplete="new-password" required></div>
-        <button class="btn full" id="pwBtn" type="submit">บันทึกรหัสผ่านใหม่</button>
+        <button class="btn brand full" id="pwBtn" type="submit">บันทึกรหัสผ่านใหม่</button>
         <div class="msg" id="pwMsg"></div>
       </form>
     </div>
@@ -182,8 +278,8 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
   <div id="pUsers" class="hidden">
     <div class="panel">
-      <div class="row" style="margin-bottom:12px"><h2 class="sec" style="margin:0">ผู้ใช้ทั้งหมด</h2>
-        <button class="btn sm" id="btnAddUser">+ เพิ่มผู้ใช้</button></div>
+      <div class="row"><div><h2>ผู้ใช้ทั้งหมด</h2><p class="note">กำหนดว่าใครเปิดเครื่องมือไหนได้</p></div>
+        <button class="btn brand sm" id="btnAddUser">+ เพิ่มผู้ใช้</button></div>
       <div class="tblwrap"><table class="ulist">
         <thead><tr><th>รหัสพนักงาน</th><th>ชื่อ</th><th>บทบาท</th><th class="hide-sm">เข้าเครื่องมือได้</th><th></th></tr></thead>
         <tbody id="uBody"><tr><td colspan="5" class="note">กำลังโหลด...</td></tr></tbody>
@@ -194,21 +290,25 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
 
   <div id="pToolData" class="hidden">
     <div class="panel">
-      <h2 class="sec">Master Data / Master Van (Audit Tools)</h2>
-      <p class="lead">ไฟล์ Master ใช้เฉพาะใน Audit Tools จึงยังอัปโหลดอยู่ในหน้า Settings ของ Audit Tools</p>
-      <a class="btn" style="display:inline-block;margin-top:14px;text-decoration:none" href="audit.html#settings">เปิดหน้า Master Data →</a>
+      <div class="toolinfo"><div>
+        <h2>Master Data / Master Van</h2>
+        <p class="note">ไฟล์ Master ใช้เฉพาะใน Audit Tools จึงยังอัปโหลดอยู่ในหน้า Settings ของ Audit Tools</p>
+        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="audit.html#settings" target="_blank" rel="noopener">เปิดหน้า Master Data ↗</a>
+      </div></div>
     </div>
     <div class="panel">
-      <h2 class="sec">AssetSync</h2>
-      <p class="lead">ใช้บัญชีเดียวกับ Portal ทั้งบนคอมและเครื่องยิง (รหัสพนักงาน + รหัสผ่าน) · เพิ่มผู้ใช้และตั้งรหัสที่แท็บจัดการผู้ใช้ แล้วติ๊กเครื่องมือ AssetSync</p>
-      <a class="btn ghost" style="display:inline-block;margin-top:14px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/">เปิด AssetSync →</a>
+      <div class="toolinfo"><div>
+        <h2>AssetSync</h2>
+        <p class="note">ใช้บัญชีเดียวกับ Portal ทั้งบนคอมและเครื่องยิง (รหัสพนักงาน + รหัสผ่าน) · เพิ่มผู้ใช้และตั้งรหัสที่แท็บจัดการผู้ใช้ แล้วติ๊กเครื่องมือ AssetSync</p>
+        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/" target="_blank" rel="noopener">เปิด AssetSync ↗</a>
+      </div></div>
     </div>
   </div>
 </main>
 
 <!-- ===== USER MODAL ===== -->
 <div class="ov hidden" id="ovUser">
-  <form class="modal" id="fUser" autocomplete="off">
+  <form class="modal" id="fUser" autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="muTitle">
     <h3 id="muTitle">เพิ่มผู้ใช้</h3>
     <div class="split">
       <div class="field"><label for="muName">รหัสพนักงาน</label>
@@ -227,7 +327,7 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
     <div id="muPermBox">
       <div class="field"><label>เครื่องมือที่เข้าได้</label><div class="checks" id="muTools"></div></div>
       <div class="field" id="muAuditBox"><label>เมนูใน Audit Tools</label><div id="muAudit"></div>
-        <span class="hint">ไม่ติ๊กเลย = ใช้ค่าเริ่มต้น (ทุกเมนูที่พร้อมใช้ ยกเว้น Settings)</span></div>
+        <span class="hint">ไม่ติ๊กเลย = ใช้ค่าเริ่มต้น (ทุกเมนูที่พร้อมใช้ ยกเว้น Master Data)</span></div>
     </div>
     <p class="hint" id="muAdminHint" style="margin-top:14px">Admin เข้าได้ทุกเครื่องมือและทุกเมนู</p>
     <div class="msg" id="muMsg"></div>
@@ -235,7 +335,7 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
       <button class="btn danger hidden" type="button" id="muDel">ลบผู้ใช้</button>
       <span style="flex:1"></span>
       <button class="btn ghost" type="button" id="muCancel">ยกเลิก</button>
-      <button class="btn" type="submit" id="muSave">บันทึก</button>
+      <button class="btn brand" type="submit" id="muSave">บันทึก</button>
     </div>
   </form>
 </div>
@@ -246,9 +346,9 @@ footer{margin-top:44px;color:var(--ink-faint);font-size:12.5px;text-align:center
    url    : ที่อยู่ของเครื่องมือ
    status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live' },
-  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live', accent:'azure' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live', accent:'rose' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', accent:'violet' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
@@ -275,7 +375,9 @@ function errText(e){ return (e && (e.message||e.error_description)) || 'เก�
 /* ---------- routing ---------- */
 function route(){
   if(!ME){ show('vLogin'); setTimeout(()=>$('lgUser').focus(),50); return; }
-  if(location.hash==='#settings'){ show('vSettings'); openTab(currentTab); }
+  const st=location.hash==='#settings';
+  $('btnSettings').classList.toggle('on', st); $('btnHome').classList.toggle('on', !st);
+  if(st){ show('vSettings'); openTab(currentTab); }
   else { show('vHome'); renderTools(); }
 }
 window.addEventListener('hashchange', route);
@@ -284,7 +386,11 @@ window.addEventListener('hashchange', route);
 async function loadMe(){
   ME = await IPAuth.profile();
   if(ME){
-    $('whoName').textContent = ME.username + (ME.role==='admin'?' · Admin':'');
+    $('whoName').textContent = ME.username;
+    $('whoRole').classList.toggle('hidden', ME.role!=='admin');
+    $('hiName').textContent = ME.username;
+    $('statRole').textContent = ME.role==='admin' ? 'Admin' : 'User';
+    $('statTools').textContent = TOOLS.filter(t=>t.status==='live' && IPAuth.canUseTool(ME,t.id)).length;
     $('whoAv').textContent = (ME.username||'?').charAt(0).toUpperCase();
     $('tabUsers').classList.toggle('hidden', ME.role!=='admin');
   }
@@ -313,10 +419,12 @@ function renderTools(){
   const list=TOOLS.filter(t=>IPAuth.canUseTool(ME,t.id)).filter(t=>!k||(t.name+' '+t.desc).toLowerCase().includes(k));
   $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
-    const inner=`<div class="row"><div class="icon">${t.icon}</div><span class="tag ${live?'':'soon'}">${live?'ใช้งานได้':'เร็ว ๆ นี้'}</span></div>
+    const chips=[live?'':'<span class="chip soon">เร็ว ๆ นี้</span>', t.version?`<span class="chip mono">${esc(t.version)}</span>`:'', t.note?`<span class="chip">${esc(t.note)}</span>`:''].join('');
+    const inner=`<div class="ic" aria-hidden="true">${t.icon}</div>
       <h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p>
-      <div class="row"><span class="meta">${esc(t.version||'')}${t.note?' · '+esc(t.note):''}</span>${live?'<span class="go">เปิดใช้งาน →</span>':''}</div>`;
-    return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="card off">${inner}</div>`;
+      <div class="chips">${chips}${live?'<span class="open">เปิดใช้งาน <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></span>':''}</div>`;
+    const cls='card '+(t.accent||'azure');
+    return live?`<a class="${cls}" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="${cls}">${inner}</div>`;
   }).join('');
   $('empty').classList.toggle('hidden', list.length>0);
 }
@@ -455,6 +563,7 @@ $('muDel').addEventListener('click', async ()=>{
 });
 
 /* ---------- start ---------- */
+try{ $('today').textContent = new Date().toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }catch(e){}
 buildChecks();
 (async ()=>{ await loadMe(); route(); })();
 IPAuth.sb.auth.onAuthStateChange((evt)=>{ if(evt==='SIGNED_OUT'){ ME=null; route(); } });

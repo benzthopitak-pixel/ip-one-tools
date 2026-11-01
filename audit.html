@@ -17102,6 +17102,15 @@ body:not(.pre-login){
 body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.88) 0,rgba(255,255,255,.55) 260px,rgba(255,255,255,.18) 520px,rgba(255,255,255,0) 700px)}
 .app-shell,#atHead{position:relative;z-index:1}
+/* ดอกไม้ขอบซ้าย-ขวา (ตัดจากภาพตัวอย่าง) */
+.at-flower{position:fixed;bottom:0;height:min(62vh,640px);width:auto;z-index:0;pointer-events:none;
+  -webkit-mask-image:linear-gradient(to top,#000 70%,transparent);mask-image:linear-gradient(to top,#000 70%,transparent)}
+.at-flower.l{left:0;-webkit-mask-image:linear-gradient(to top,#000 70%,transparent),linear-gradient(to right,#000 75%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to top,#000 70%,transparent),linear-gradient(to right,#000 75%,transparent);mask-composite:intersect}
+.at-flower.r{right:0;-webkit-mask-image:linear-gradient(to top,#000 70%,transparent),linear-gradient(to left,#000 75%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to top,#000 70%,transparent),linear-gradient(to left,#000 75%,transparent);mask-composite:intersect}
+body.pre-login .at-flower{display:none}
+@media (min-width:1280px){ .tab-panel.active{max-width:min(1400px,calc(100vw - 260px)) !important} .hr-quicknav{max-width:calc(100vw - 240px) !important} }
+@media (min-width:1280px) and (max-width:1599px){ .hr-qn-item{flex-basis:120px !important} .hr-quicknav{gap:8px !important} .at-qs{font-size:11.5px} }
+@media (max-width:1279px){ .at-flower{display:none} }
 
 /* ---------- top bar ---------- */
 .hr-topbar{height:var(--at-top) !important;background:rgba(255,255,255,.78) !important;color:var(--at-ink) !important;
@@ -17249,6 +17258,8 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
       +'<span class="at-chip">'+svg('<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M21 20c0-2.6-1.7-4.8-4-5.6"/>').replace('at-ic','at-ic" style="width:18px;height:18px;margin:0')+'ทำงานร่วมกันได้</span></div>'
       +'<button class="at-cta" type="button" id="atStart">เริ่มใช้งานระบบ <span aria-hidden="true">→</span></button>';
     shell.parentNode.insertBefore(head, shell);
+    ['l','r'].forEach(function(k){ var im=document.createElement('img'); im.className='at-flower '+k; im.alt=''; im.setAttribute('aria-hidden','true');
+      im.src='assets/flowers-'+(k==='l'?'left':'right')+'.webp'; document.body.appendChild(im); });
     head.appendChild(qn);
     document.getElementById('atStart').addEventListener('click',function(){
       var c=document.getElementById('content'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'});

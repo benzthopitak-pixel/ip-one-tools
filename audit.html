@@ -5268,8 +5268,10 @@ body.pre-login .hr-statusbar{ display:none !important; }
 
 <!-- Portal SSO: ยังไม่ได้ล็อกอิน → ไปล็อกอินที่ Portal -->
 <script>
-  try{ if(!localStorage.getItem('sb-hcjbjbdjddnnutpwjbny-auth-token')) location.replace('./?next='+encodeURIComponent('audit.html'+location.hash)); }catch(e){}
+  try{ if(!localStorage.getItem('sb-hcjbjbdjddnnutpwjbny-auth-token')) location.replace('./?next='+encodeURIComponent('audit.html'+location.hash));
+       else document.documentElement.classList.add('sso'); }catch(e){}
 </script>
+<style>html.sso #loginGate{display:none!important}</style>
 <!-- 1. โหลด Library ของ Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 

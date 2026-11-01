@@ -17095,12 +17095,12 @@ $('dlBtn').addEventListener('click',()=>{
   --at-top:76px;
 }
 body:not(.pre-login){
-  background:#fff var(--at-bg) center bottom/cover fixed no-repeat !important;
+  background:#8ec5ef var(--at-bg) center center/cover fixed no-repeat !important;
   padding-top:var(--at-top) !important;
   font-family:var(--at-sans);
 }
 body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(255,255,255,.75) 0,rgba(255,255,255,.35) 220px,rgba(255,255,255,0) 420px)}
+  background:linear-gradient(180deg,rgba(255,255,255,.25) 0,rgba(255,255,255,0) 240px)}
 .app-shell,#atHead{position:relative;z-index:1}
 @media (min-width:1280px){ .tab-panel.active{max-width:min(1400px,calc(100vw - 260px)) !important} .hr-quicknav{max-width:calc(100vw - 240px) !important} }
 @media (min-width:1280px) and (max-width:1599px){ .hr-quicknav .hr-qn-item{flex:0 0 120px !important} #hrQuicknav.hr-quicknav{gap:8px !important} .at-qs{font-size:11.5px} }
@@ -17131,17 +17131,7 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
 .at-nav button.on{color:var(--at-ink);font-weight:700}
 .at-nav button.on::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;border-radius:3px;background:var(--at-ink)}
 
-/* ---------- hero ---------- */
-#atHead{max-width:1460px;margin:0 auto;padding:18px 24px 4px;text-align:center}
-.at-h1{font:400 clamp(44px,5.4vw,84px)/1.02 var(--at-serif) !important;color:var(--at-ink) !important;-webkit-text-fill-color:currentColor;background:none !important;letter-spacing:-.02em}
-.at-h1 em{font-style:italic;color:#6b7280 !important}
-.at-sub{font:500 clamp(15px,1.5vw,21px)/1.5 var(--at-sans);color:#374151;margin-top:8px}
-.at-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:20px}
-.at-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:999px;background:var(--at-glass2);border:1px solid var(--at-line);font:500 15px var(--at-sans);color:var(--at-ink);box-shadow:0 4px 14px rgba(17,24,39,.06)}
-.at-cta{margin-top:20px;display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 34px;border-radius:999px;border:0;background:#111;color:#fff;font:700 17px var(--at-sans);cursor:pointer;box-shadow:0 10px 24px rgba(0,0,0,.22);transition:transform .2s}
-.at-cta:hover{transform:scale(1.02)}
-.at-chip:hover{transform:scale(1.02)}
-.at-chip{transition:transform .2s}
+#atHead{max-width:1460px;margin:0 auto;padding:8px 24px 0;text-align:center}
 
 /* ---------- icon row (เมนูไอคอนเดิม) ---------- */
 .hr-quicknav{position:static !important;height:auto !important;background:transparent !important;border:0 !important;box-shadow:none !important;
@@ -17191,14 +17181,12 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
 }
 #atMenuBtn{display:none}
 @media (prefers-reduced-motion:no-preference){
-  #atHead .at-h1,#atHead .at-sub,#atHead .at-chips,#atHead .at-cta{animation:atRise .8s cubic-bezier(.2,.8,.2,1) both}
-  #atHead .at-sub{animation-delay:.08s} #atHead .at-chips{animation-delay:.16s} #atHead .at-cta{animation-delay:.24s}
   .hr-qn-item{animation:atRise .8s cubic-bezier(.2,.8,.2,1) both}
   .tab-panel.active{animation:atFade .3s ease both}
   @keyframes atRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
   @keyframes atFade{from{opacity:0}to{opacity:1}}
 }
-@media (prefers-reduced-motion:reduce){ .hr-qn-item,.at-cta,.at-chip{transition:none !important} }
+@media (prefers-reduced-motion:reduce){ .hr-qn-item{transition:none !important} }
 @media (max-width:768px){
   :root{--at-top:60px}
   .hr-topbar{padding:0 12px !important}
@@ -17212,7 +17200,6 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
   .hr-quicknav{display:grid !important;grid-template-columns:1fr 1fr !important;gap:10px !important;overflow:visible !important}
   .hr-quicknav > .hr-qn-item:first-child,.hr-quicknav > .hr-qn-item:last-child{margin:0 !important}
   .hr-qn-item{height:96px !important;width:auto !important}
-  .at-chips{gap:8px}.at-chip{padding:7px 14px;font-size:14px}
   .tab-panel.active{padding:22px 16px !important;border-radius:22px !important}
 }
 </style>
@@ -17244,18 +17231,8 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
     });
     // 2) หัวเรื่อง + ย้ายแถวไอคอนมาอยู่ใต้หัวเรื่อง
     var head=document.createElement('div'); head.id='atHead';
-    head.innerHTML='<h1 class="at-h1">Smarter controls, <em>Simpler inventory.</em></h1>'
-      +'<p class="at-sub">ระบบจัดการข้อมูลสต็อก ตรวจนับ และเตรียมไฟล์สำหรับงาน Inventory ในที่เดียว</p>'
-      +'<div class="at-chips"><span class="at-chip">'+svg('<path d="M4 20V10M10 20V4M16 20v-8"/>').replace('at-ic','at-ic" style="width:18px;height:18px;margin:0')+'จัดการข้อมูล</span>'
-      +'<span class="at-chip">'+svg('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>').replace('at-ic','at-ic" style="width:18px;height:18px;margin:0')+'ลดขั้นตอน</span>'
-      +'<span class="at-chip">'+svg('<path d="M12 3 5 6v6c0 4.5 3 8 7 9 4-1 7-4.5 7-9V6z"/><path d="m9 12 2 2 4-4"/>').replace('at-ic','at-ic" style="width:18px;height:18px;margin:0')+'แม่นยำ</span>'
-      +'<span class="at-chip">'+svg('<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M21 20c0-2.6-1.7-4.8-4-5.6"/>').replace('at-ic','at-ic" style="width:18px;height:18px;margin:0')+'ทำงานร่วมกันได้</span></div>'
-      +'<button class="at-cta" type="button" id="atStart">เริ่มใช้งานระบบ <span aria-hidden="true">→</span></button>';
     shell.parentNode.insertBefore(head, shell);
     head.appendChild(qn);
-    document.getElementById('atStart').addEventListener('click',function(){
-      var c=document.getElementById('content'); if(c) c.scrollIntoView({behavior:'smooth',block:'start'});
-    });
     // 3) เมนูข้อความกลางแถบบน (เรียก navTo เดิม · ซ่อน/แสดง + active ตามการ์ดเมนูเดิม)
     var nav=document.createElement('nav'); nav.className='at-nav'; nav.setAttribute('aria-label','เมนูหลัก');
     var home=document.createElement('button'); home.type='button'; home.textContent='Home';

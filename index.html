@@ -400,7 +400,7 @@ async function loadMe(){
     $('tabUsers').classList.toggle('hidden', ME.role!=='admin');
   }
 }
-$('fLogin').addEventListener('submit', async ev=>{
+$('vLogin').addEventListener('submit', async ev=>{
   ev.preventDefault();
   const btn=$('lgBtn'); clearMsg($('lgErr')); btn.disabled=true; btn.textContent='กำลังเข้าสู่ระบบ...';
   try{

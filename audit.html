@@ -17089,7 +17089,7 @@ $('dlBtn').addEventListener('click',()=>{
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style id="atTheme">
 :root{
-  --at-bg:linear-gradient(180deg,#e8edf4 0%,#f3f5f9 100%); /* พื้นหลังเรียบ (เดิมเป็นภาพทุ่งหญ้า) */
+  --at-bg:radial-gradient(circle at 12% 16%,rgba(110,175,250,.42) 0,rgba(110,175,250,0) 38%),radial-gradient(circle at 88% 34%,rgba(150,205,255,.45) 0,rgba(150,205,255,0) 40%),radial-gradient(circle at 46% 96%,rgba(130,195,255,.32) 0,rgba(130,195,255,0) 44%),linear-gradient(180deg,#dfeefc 0%,#f6faff 100%); /* พื้นหลังเรียบ ฟ้า-ขาว (เดิมเป็นภาพทุ่งหญ้า) */
   --at-ink:#111111; --at-ink2:#6F6F6F; --at-muted:#8a8a8a; --at-line:rgba(17,24,39,.08);
   --at-glass:rgba(255,255,255,.72); --at-glass2:rgba(255,255,255,.88);
   --at-blue1:#2F80ED; --at-blue2:#1F63C8;
@@ -17098,7 +17098,7 @@ $('dlBtn').addEventListener('click',()=>{
   --at-top:76px;
 }
 body:not(.pre-login){
-  background:#8ec5ef var(--at-bg) center center/cover fixed no-repeat !important;
+  background:var(--at-bg) !important;background-attachment:fixed !important;background-color:#eaf4fe !important;
   padding-top:var(--at-top) !important;
   font-family:var(--at-sans);
 }

@@ -13,7 +13,7 @@
 <style>
 /* ===== Scene assets (ภาพทุ่งหญ้า + วิดีโอเคลื่อนไหว) ===== */
 :root{
-  --plate:linear-gradient(165deg,#1d3557 0%,#27497a 55%,#2f5b93 100%); /* พื้นหลังเรียบ (เดิมเป็นภาพทุ่งหญ้า) */
+  --plate:radial-gradient(circle at 16% 20%,rgba(255,255,255,.38) 0,rgba(255,255,255,0) 36%),radial-gradient(circle at 84% 76%,rgba(255,255,255,.30) 0,rgba(255,255,255,0) 40%),linear-gradient(170deg,#3b86db 0%,#5aa0e9 50%,#8cc2f2 100%); /* พื้นหลังเรียบ ฟ้า-ขาว (เดิมเป็นภาพทุ่งหญ้า) */
   --u:min(calc(100vw / 1440), calc(100vh / 1220)); /* พอดีจอ: ย่อตามด้านที่แคบกว่า */
   --white:#fff; --green:#5b875c; --green-d:#456b47; --ink:#1f3347; --ink-soft:#4d6378; --line:#dfe8ef;
   --sky1:#2f7fd0; --sky2:#9fd0f3; --mint:rgba(204,218,173,.6); --sage:rgba(173,196,174,.45);
@@ -80,8 +80,8 @@ button,input,select{font:inherit;color:inherit}
 .cards::-webkit-scrollbar{display:none}
 .card{position:relative;flex:0 0 calc(378*var(--u));height:calc(273*var(--u));border-radius:calc(15*var(--u));overflow:hidden;color:#fff;text-decoration:none;
   box-shadow:0 calc(14*var(--u)) calc(34*var(--u)) rgba(28,60,40,.28);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
-.card .art{position:absolute;inset:0;background:linear-gradient(150deg,#3f6ea8 0%,#2d5288 100%);border:1px solid rgba(255,255,255,.16);border-radius:inherit;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(10,20,40,.28) 100%)}
+.card .art{position:absolute;inset:0;background:linear-gradient(150deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.12) 100%);border:1px solid rgba(255,255,255,.6);border-radius:inherit;backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(20,70,130,.22) 100%);pointer-events:none}
 .card:hover{transform:translateY(calc(-8*var(--u)))}
 .card:hover .art{transform:scale(1.05)}
 .card .meta{position:absolute;z-index:1;left:calc(20*var(--u));right:calc(20*var(--u));bottom:calc(18*var(--u));display:flex;align-items:flex-end;gap:calc(14*var(--u))}

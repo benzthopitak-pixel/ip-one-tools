@@ -371,7 +371,7 @@ function webStickers(c) {
   }
   const a4 = S.stSize === 'a4',
     per = Math.floor(210 / tpl.w) * Math.floor(297 / tpl.h);
-  h += `</section><aside class="card side"><b>ตัวอย่างป้าย</b><div class="sticker" style="transform:none"><canvas id="stPrev" width="560" height="280" aria-label="ตัวอย่างสติกเกอร์"></canvas></div>
+  h += `</section><aside class="card side" style="flex:0 1 400px;max-width:100%"><b>ตัวอย่างป้าย</b><div class="sticker" style="transform:none"><canvas id="stPrev" width="560" height="280" aria-label="ตัวอย่างสติกเกอร์"></canvas></div>
     ${tplPick()}
     ${(() => {
       const have = new Set(lblFieldNames().map(lk)),
@@ -391,8 +391,8 @@ function webStickers(c) {
     })()}
     <label class="f">เครื่องพิมพ์ / กระดาษ<select class="in" id="stSize"><option value="roll" ${a4 ? '' : 'selected'}>เครื่องพิมพ์สติกเกอร์ · ม้วน (${tpl.w} × ${tpl.h} มม.)</option><option value="a4" ${a4 ? 'selected' : ''} ${per ? '' : 'disabled'}>เครื่องพิมพ์ธรรมดา · A4 ${per} ดวงต่อแผ่น</option></select></label>
     ${a4 ? '' : prnBox(tpl)}
-    <div class="row" style="gap:8px"><label class="f" style="flex:1">ความละเอียด<select class="in" id="lblDpi">${[203, 300, 600].map(d => `<option value="${d}" ${lblDpi() === d ? 'selected' : ''}>${d} dpi${d === 203 ? ' (TSC TTP-244 Pro)' : ''}</option>`).join('')}</select></label>
-      <label class="f" style="flex:1">จำนวนต่อรายการ<input class="in" id="stCopies" type="number" min="1" max="50" value="${copies}" title="ตั้งครั้งเดียว · คอมเครื่องนี้จะจำเป็นค่าเริ่มต้น"><span class="sub" style="font-size:11.5px">จำเป็นค่าเริ่มต้นในคอมเครื่องนี้</span></label></div>
+    <div class="row" style="gap:8px"><label class="f" style="flex:1 1 100%">ความละเอียด<select class="in" id="lblDpi">${[203, 300, 600].map(d => `<option value="${d}" ${lblDpi() === d ? 'selected' : ''}>${d} dpi${d === 203 ? ' (TSC TTP-244 Pro)' : ''}</option>`).join('')}</select></label>
+      <label class="f" style="flex:1 1 100%">จำนวนต่อรายการ (ค่าเริ่มต้น · คอมนี้จำไว้)<input class="in" id="stCopies" type="number" min="1" max="50" value="${copies}"></label></div>
     ${
       Store.isApp
         ? `<div class="row"><button class="btn" data-a="stpdf" data-v="test" ${dis}>ทดสอบ 1 ดวง</button><button class="btn pri" data-a="stpdf" data-v="all" ${dis}>PDF ${nSel * copies} ดวง</button></div>`
@@ -418,7 +418,7 @@ function prnBox(tpl) {
   const pw = p.rot % 180 ? tpl.h : tpl.w,
     ph = p.rot % 180 ? tpl.w : tpl.h,
     W = +(p.left + p.across * pw + (p.across - 1) * p.gap).toFixed(2);
-  return `<div class="card" style="background:#f8f9fc;padding:10px 12px;gap:8px"><button class="row" data-a="prnopen" style="all:unset;cursor:pointer;display:flex;justify-content:space-between;align-items:center"><b>⚙ ตั้งค่าเครื่องพิมพ์สติกเกอร์</b><span class="sub">${p.across} ดวง/แถว${p.rot ? ' · หมุน ' + p.rot + '°' : ''}${p.dx || p.dy ? ' · เลื่อน' : ''} ${o ? '▲' : '▼'}</span></button>
+  return `<div class="card" style="background:#f8f9fc;padding:10px 12px;gap:8px"><button class="row" data-a="prnopen" style="all:unset;cursor:pointer;display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:space-between;align-items:center"><b>⚙ ตั้งค่าเครื่องพิมพ์สติกเกอร์</b><span class="sub">${p.across} ดวง/แถว${p.rot ? ' · หมุน ' + p.rot + '°' : ''}${p.dx || p.dy ? ' · เลื่อน' : ''} ${o ? '▲' : '▼'}</span></button>
     ${
       o
         ? `<div class="row" style="gap:8px">${n('across', 'ดวงต่อแถว (ม้วนกี่ดวงขวาง)', 1, 1, 6)}${n('gap', 'ช่องว่างระหว่างดวง (มม.)', 0.5, 0, 20)}</div>

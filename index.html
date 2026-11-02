@@ -82,6 +82,12 @@ button,input,select{font:inherit;color:inherit}
   box-shadow:0 calc(14*var(--u)) calc(34*var(--u)) rgba(28,60,40,.28);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .card .art{position:absolute;inset:0;background:linear-gradient(150deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.12) 100%);border:1px solid rgba(255,255,255,.6);border-radius:inherit;backdrop-filter:blur(16px) saturate(1.2);-webkit-backdrop-filter:blur(16px) saturate(1.2);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .card::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(20,70,130,.22) 100%);pointer-events:none}
+/* การ์ดที่มีภาพประกอบ: ภาพมีชื่อเครื่องมืออยู่แล้ว → การ์ดสี่เหลี่ยมจัตุรัส ซ่อนข้อความทับภาพ (ยังอ่านได้ด้วยโปรแกรมอ่านหน้าจอ) */
+.card.has-art{flex-basis:calc(273*var(--u))}
+.card.has-art .art{background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.7);backdrop-filter:none;-webkit-backdrop-filter:none}
+.card.has-art::after{display:none}
+.card.has-art .meta{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.cards > .card:first-child{margin-left:auto}.cards > .card:last-child{margin-right:auto}
 .card:hover{transform:translateY(calc(-8*var(--u)))}
 .card:hover .art{transform:scale(1.05)}
 .card .meta{position:absolute;z-index:1;left:calc(20*var(--u));right:calc(20*var(--u));bottom:calc(18*var(--u));display:flex;align-items:flex-end;gap:calc(14*var(--u))}
@@ -190,6 +196,7 @@ button,input,select{font:inherit;color:inherit}
   .rowtitle{font-size:26px}.rowlink{font-size:16px}
   .cards{margin:12px -16px 0;padding:0 16px 10px;scroll-snap-type:x mandatory}
   .card{flex-basis:78%;height:220px;scroll-snap-align:start}
+  .card.has-art{flex-basis:220px}
   .card h3{font-size:18px}.card p{font-size:13.5px}
   .card .playc{width:40px;height:40px}
   .card .tag{font-size:12px}
@@ -362,9 +369,9 @@ button,input,select{font:inherit;color:inherit}
    url    : ที่อยู่ของเครื่องมือ
    status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'' },
-  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'assets/tool-audit.webp' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'assets/tool-stock.webp' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'assets/tool-assetsync.webp' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
@@ -450,8 +457,8 @@ function renderTools(){
     const off=Array.isArray(ME.off)&&ME.off.includes(t.id);
     const inner=`<span class="art"${t.art?` style="background-image:url('${esc(t.art)}')"`:''}></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
       <span class="meta">${play}<span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></span></span>`;
-    if(off) return `<div class="card is-off" aria-disabled="true" title="ปิดใช้งานอยู่ · เปิดได้ที่ ตั้งค่า → เปิด/ปิดเครื่องมือ">${inner}</div>`;
-    return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;
+    if(off) return `<div class="card is-off${t.art?' has-art':''}" aria-disabled="true" title="ปิดใช้งานอยู่ · เปิดได้ที่ ตั้งค่า → เปิด/ปิดเครื่องมือ">${inner}</div>`;
+    return live?`<a class="card${t.art?' has-art':''}" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;
   }).join('');
   $('empty').classList.toggle('hidden', list.length>0);
   intro();

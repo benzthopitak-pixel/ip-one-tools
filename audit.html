@@ -5270,7 +5270,7 @@ body.pre-login .hr-statusbar{ display:none !important; }
 
 <!-- Portal SSO: ยังไม่ได้ล็อกอิน → ไปล็อกอินที่ Portal -->
 <script>
-  try{ if(!localStorage.getItem('sb-hcjbjbdjddnnutpwjbny-auth-token')) location.replace('./?next='+encodeURIComponent('audit.html'+location.hash));
+  try{ if(!localStorage.getItem('sb-hcjbjbdjddnnutpwjbny-auth-token')) location.replace('./?next='+encodeURIComponent('audit'+location.hash));
        else document.documentElement.classList.add('sso'); }catch(e){}
 </script>
 <style>html.sso #loginGate{display:none!important}</style>
@@ -7242,7 +7242,7 @@ function toggleMobileSidebar() {
           const h=(location.hash||'').replace('#','');
           if(h && allowed.includes(h) && typeof navTo==='function') navTo(h);
         }else{
-          location.replace('./?next='+encodeURIComponent('audit.html'+location.hash)); return;
+          location.replace('./?next='+encodeURIComponent('audit'+location.hash)); return;
         }
       }catch(e){}
     })();

@@ -147,6 +147,9 @@ button,input,select{font:inherit;color:inherit}
 .sw[aria-checked="true"]::after{transform:translateX(22px)}
 .sw:disabled{opacity:.55;cursor:default}
 .card .tag.off{background:#fde4e1;color:#b3261e}
+.card.is-off{filter:grayscale(1);opacity:.75;cursor:not-allowed}
+.card.is-off:hover{transform:none}
+.card.is-off:hover .art{transform:none}
 .grp b{font-size:12px;letter-spacing:.06em;color:#7a8ea1;font-weight:600}
 .toolinfo{display:flex;gap:18px;align-items:center}
 .ov{position:fixed;inset:0;background:rgba(20,40,60,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:50}
@@ -445,6 +448,7 @@ function renderTools(){
     const off=Array.isArray(ME.off)&&ME.off.includes(t.id);
     const inner=`<span class="art" style="background-image:url('${esc(t.art||'')}')"></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
       <span class="meta">${play}<span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></span></span>`;
+    if(off) return `<div class="card is-off" aria-disabled="true" title="ปิดใช้งานอยู่ · เปิดได้ที่ ตั้งค่า → เปิด/ปิดเครื่องมือ">${inner}</div>`;
     return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;
   }).join('');
   $('empty').classList.toggle('hidden', list.length>0);

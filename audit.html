@@ -17104,7 +17104,7 @@ body:not(.pre-login){
 body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.25) 0,rgba(255,255,255,0) 240px)}
 .app-shell,#atHead{position:relative;z-index:1}
-@media (min-width:1280px){ .tab-panel.active{max-width:min(1400px,calc(100vw - 260px)) !important} .hr-quicknav{max-width:calc(100vw - 240px) !important} }
+@media (min-width:1280px){ .tab-panel.active{max-width:min(1400px,calc(100vw - 260px)) !important} .hr-quicknav{max-width:calc(100vw - 48px) !important} }
 @media (min-width:1280px) and (max-width:1599px){ .hr-quicknav .hr-qn-item{flex:0 0 120px !important} #hrQuicknav.hr-quicknav{gap:8px !important} .at-qs{font-size:11.5px} }
 
 
@@ -17127,11 +17127,6 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
 .hr-tb-uname{font:700 16px var(--at-sans) !important;color:var(--at-ink) !important}
 #atBell{position:relative}
 #atBell::after{content:"";position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:#f97316}
-.at-nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:22px;align-items:center;height:100%}
-.at-nav button{background:none;border:0;cursor:pointer;font:500 15.5px var(--at-sans);color:#6b7280;padding:8px 0;position:relative}
-.at-nav button:hover{color:var(--at-ink)}
-.at-nav button.on{color:var(--at-ink);font-weight:700}
-.at-nav button.on::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:3px;border-radius:3px;background:var(--at-ink)}
 
 #atHead{max-width:1460px;margin:0 auto;padding:8px 24px 0;text-align:center}
 
@@ -17140,7 +17135,7 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
   display:flex !important;justify-content:flex-start !important;gap:10px !important;padding:22px 24px 10px !important;overflow-x:auto !important;margin:0 auto !important;max-width:1460px;scrollbar-width:none}
 .hr-quicknav::-webkit-scrollbar{display:none}
 .hr-quicknav > .hr-qn-item:first-child{margin-left:auto !important}
-.hr-quicknav > .hr-qn-item:last-child{margin-right:auto !important}
+.hr-quicknav > .hr-qn-item:last-child,.hr-quicknav > .hr-qn-item[data-qn-page="email"]{margin-right:auto !important}
 .hr-qn-div{display:none !important}
 .hr-qn-item{flex:0 0 128px !important;height:104px !important;border-radius:20px !important;background:var(--at-glass) !important;border:1px solid rgba(255,255,255,.8) !important;
   backdrop-filter:blur(14px) !important;-webkit-backdrop-filter:blur(14px) !important;box-shadow:0 8px 24px rgba(17,24,39,.10) !important;
@@ -17172,16 +17167,6 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
 .hr-statusbar{background:rgba(255,255,255,.8) !important;color:var(--at-ink2) !important;backdrop-filter:blur(12px) !important;-webkit-backdrop-filter:blur(12px) !important;border-top:1px solid var(--at-line) !important}
 
 @media (max-width:1899px){ .hr-tb-sub{display:none !important} }
-@media (max-width:1599px){
-  .at-nav{position:fixed;left:auto;right:16px;top:calc(var(--at-top) + 8px);transform:none;height:auto;flex-direction:column;align-items:stretch;gap:2px;
-    padding:8px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 40px rgba(17,17,17,.18);min-width:190px;display:none;z-index:9999}
-  .at-nav.open{display:flex}
-  .at-nav button{text-align:left;padding:10px 14px;border-radius:12px}
-  .at-nav button.on{background:#eef4fd;color:var(--at-blue2)}
-  .at-nav button.on::after{display:none}
-  #atMenuBtn{display:grid !important}
-}
-#atMenuBtn{display:none}
 @media (prefers-reduced-motion:no-preference){
   .hr-qn-item{animation:atRise .8s cubic-bezier(.2,.8,.2,1) both}
   .tab-panel.active{animation:atFade .3s ease both}
@@ -17200,7 +17185,7 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
   .hr-topbar-right{gap:6px !important}
   .hr-tb-sub,.hr-zoom{display:none !important}
   .hr-quicknav{display:grid !important;grid-template-columns:1fr 1fr !important;gap:10px !important;overflow:visible !important}
-  .hr-quicknav > .hr-qn-item:first-child,.hr-quicknav > .hr-qn-item:last-child{margin:0 !important}
+  .hr-quicknav > .hr-qn-item:first-child,.hr-quicknav > .hr-qn-item:last-child,.hr-quicknav > .hr-qn-item[data-qn-page="email"]{margin:0 !important}
   .hr-qn-item{height:96px !important;width:auto !important}
   .tab-panel.active{padding:22px 16px !important;border-radius:22px !important}
 }
@@ -17235,40 +17220,7 @@ body:not(.pre-login)::before{content:"";position:fixed;inset:0;z-index:0;pointer
     var head=document.createElement('div'); head.id='atHead';
     shell.parentNode.insertBefore(head, shell);
     head.appendChild(qn);
-    // 3) เมนูข้อความกลางแถบบน (เรียก navTo เดิม · ซ่อน/แสดง + active ตามการ์ดเมนูเดิม)
-    var nav=document.createElement('nav'); nav.className='at-nav'; nav.setAttribute('aria-label','เมนูหลัก');
-    var home=document.createElement('button'); home.type='button'; home.textContent='Home';
-    home.addEventListener('click',function(){ window.scrollTo({top:0,behavior:'smooth'}); });
-    nav.appendChild(home);
-    var pairs=[];
-    qn.querySelectorAll('.hr-qn-item[data-qn-page]').forEach(function(b){
-      var p=b.getAttribute('data-qn-page'); if(p==='settings') return;
-      var t=document.createElement('button'); t.type='button';
-      t.textContent=(b.querySelector('.hr-qn-lb')||{}).textContent||p;
-      t.addEventListener('click',function(){ if(typeof window.navTo==='function') window.navTo(p); });
-      nav.appendChild(t); pairs.push([b,t]);
-    });
-    bar.appendChild(nav);
-    var mb=document.createElement('button'); mb.className='hr-tb-icon'; mb.id='atMenuBtn'; mb.type='button'; mb.title='เมนู';
-    mb.setAttribute('aria-label','เปิดเมนู'); mb.setAttribute('aria-expanded','false');
-    mb.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
-    mb.addEventListener('click',function(e){ e.stopPropagation(); var o=nav.classList.toggle('open'); mb.setAttribute('aria-expanded',o?'true':'false'); });
-    nav.addEventListener('click',function(){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); });
-    document.addEventListener('click',function(e){ if(!nav.contains(e.target)&&e.target!==mb){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); } });
-    document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ nav.classList.remove('open'); mb.setAttribute('aria-expanded','false'); } });
-    var rt=bar.querySelector('.hr-topbar-right'); if(rt) rt.insertBefore(mb, rt.firstChild);
     var i=0; qn.querySelectorAll('.hr-qn-item').forEach(function(b){ b.style.animationDelay=(0.3+0.1*(i++))+'s'; });
-    function sync(){
-      var any=false;
-      pairs.forEach(function(x){
-        var hidden=x[0].style.display==='none' || getComputedStyle(x[0]).display==='none';
-        x[1].style.display=hidden?'none':'';
-        var on=x[0].classList.contains('active'); x[1].classList.toggle('on',on); if(on) any=true;
-      });
-      home.classList.toggle('on',!any);
-    }
-    new MutationObserver(sync).observe(qn,{subtree:true,attributes:true,attributeFilter:['class','style']});
-    sync();
     // 4) ปุ่มกระดิ่งเป็นของแต่งตามแบบ (ปุ่มเดิมไม่เปลี่ยน)
     var right=bar.querySelector('.hr-topbar-right');
     if(right && !document.getElementById('atBell')){

@@ -7233,7 +7233,9 @@ function toggleMobileSidebar() {
           try{
             const t = await window.sb.from('profiles').select('tools').eq('id', session.user.id).single();
             const tools = t && t.data ? t.data.tools : null;
-            if(prof.role!=='admin' && Array.isArray(tools) && !tools.includes('audit')){ location.replace('./'); return; }
+            const o = await window.sb.from('app_settings').select('value').eq('key','tools_off').maybeSingle();
+            const off = o && o.data && Array.isArray(o.data.value) ? o.data.value : [];
+            if(prof.role!=='admin' && ((Array.isArray(tools) && !tools.includes('audit')) || off.includes('audit'))){ location.replace('./'); return; }
           }catch(_e){}
           const h=(location.hash||'').replace('#','');
           if(h && allowed.includes(h) && typeof navTo==='function') navTo(h);

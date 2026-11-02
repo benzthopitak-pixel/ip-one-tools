@@ -1,6 +1,6 @@
 # กติกาการแก้ไข repo นี้ (IP One Tools)
 
-เจ้าของ: Phassakorn T — เว็บจริง https://inventory-tools.netlify.app (Netlify ดึงจาก branch `main` = เว็บจริง · ลิงก์เดียวของทุกเครื่องมือ)
+เจ้าของ: Phassakorn T — เว็บจริง https://inventory-tools-hub.netlify.app (Netlify ดึงจาก branch `main` = เว็บจริง · ลิงก์เดียวของทุกเครื่องมือ)
 
 ## 1. แก้เฉพาะสิ่งที่ถูกสั่ง
 - แก้ **เฉพาะไฟล์และจุดที่ผู้ใช้ระบุ** เท่านั้น

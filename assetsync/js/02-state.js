@@ -24,7 +24,7 @@ const S = {
   lblId: LS.get('lblId', 'std'),
   xls: null,
   xlsSel: new Set(),
-  stCopies: 1,
+  stCopies: Math.max(1, Math.min(50, +LS.get('stCopies', 1) || 1)), // ค่าเริ่มต้นจำนวนดวงต่อรายการ (จำไว้ในคอมเครื่องนี้)
   stPaste: '',
   cards: [],
   item: null,

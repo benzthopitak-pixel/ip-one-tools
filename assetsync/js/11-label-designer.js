@@ -357,6 +357,7 @@ document.addEventListener('change', async ev => {
   }
   if (t.id === 'stCopies') {
     S.stCopies = Math.max(1, Math.min(50, +t.value || 1));
+    LS.set('stCopies', S.stCopies);
     setTimeout(render);
     return;
   }

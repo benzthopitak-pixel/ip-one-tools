@@ -13,7 +13,7 @@
 <style>
 /* ===== Scene assets (ภาพทุ่งหญ้า + วิดีโอเคลื่อนไหว) ===== */
 :root{
-  --plate:url("https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3ca5d10d-ea2f-4907-876f-33bde169469e.jpg");
+  --plate:linear-gradient(165deg,#1d3557 0%,#27497a 55%,#2f5b93 100%); /* พื้นหลังเรียบ (เดิมเป็นภาพทุ่งหญ้า) */
   --u:min(calc(100vw / 1440), calc(100vh / 1220)); /* พอดีจอ: ย่อตามด้านที่แคบกว่า */
   --white:#fff; --green:#5b875c; --green-d:#456b47; --ink:#1f3347; --ink-soft:#4d6378; --line:#dfe8ef;
   --sky1:#2f7fd0; --sky2:#9fd0f3; --mint:rgba(204,218,173,.6); --sage:rgba(173,196,174,.45);
@@ -31,7 +31,7 @@ button,input,select{font:inherit;color:inherit}
 
 /* ===== Hero frame (1440×1280 scaled by width) ===== */
 .hero{position:relative;width:100%;height:100vh;overflow:hidden;color:#fff}
-.scene{position:absolute;inset:0;background:var(--plate) center/cover no-repeat #8cc6ef}
+.scene{position:absolute;inset:0;background:var(--plate)}
 .scene video{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover}
 .frame{position:absolute;inset:0}
 .abs{position:absolute}
@@ -80,8 +80,8 @@ button,input,select{font:inherit;color:inherit}
 .cards::-webkit-scrollbar{display:none}
 .card{position:relative;flex:0 0 calc(378*var(--u));height:calc(273*var(--u));border-radius:calc(15*var(--u));overflow:hidden;color:#fff;text-decoration:none;
   box-shadow:0 calc(14*var(--u)) calc(34*var(--u)) rgba(28,60,40,.28);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
-.card .art{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
-.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(10,30,20,.62) 100%)}
+.card .art{position:absolute;inset:0;background:linear-gradient(150deg,#3f6ea8 0%,#2d5288 100%);border:1px solid rgba(255,255,255,.16);border-radius:inherit;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(10,20,40,.28) 100%)}
 .card:hover{transform:translateY(calc(-8*var(--u)))}
 .card:hover .art{transform:scale(1.05)}
 .card .meta{position:absolute;z-index:1;left:calc(20*var(--u));right:calc(20*var(--u));bottom:calc(18*var(--u));display:flex;align-items:flex-end;gap:calc(14*var(--u))}
@@ -168,7 +168,7 @@ button,input,select{font:inherit;color:inherit}
   .scene{overflow:hidden}
   .scene .box{position:absolute;top:0;bottom:0;aspect-ratio:9/8;left:18%;transform:translateX(-18%)}
   .scene{background:none}
-  .scene .box{background:var(--plate) center/cover no-repeat #8cc6ef}
+  .scene .box{background:var(--plate)}
   .frame{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 16px}
   .abs{position:static}
   .nav{display:flex;align-items:center;justify-content:space-between;width:100%;padding-top:14px}
@@ -209,7 +209,7 @@ button,input,select{font:inherit;color:inherit}
 <!-- ===== HERO (หน้าแรก + ล็อกอิน) ===== -->
 <section class="hero" id="hero">
   <div class="scene" aria-hidden="true"><div class="box">
-    <video id="sceneVideo" muted loop playsinline preload="auto" poster="https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/3ca5d10d-ea2f-4907-876f-33bde169469e.jpg"></video>
+    <video id="sceneVideo" muted loop playsinline preload="auto"></video>
   </div></div>
   <div class="frame">
     <div class="nav">
@@ -362,9 +362,9 @@ button,input,select{font:inherit;color:inherit}
    url    : ที่อยู่ของเครื่องมือ
    status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cd2d844f-ae3f-4fa9-8067-b077530b6e71.webp' },
-  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/48f5b97e-c27c-4afd-9427-eb35aebd1751.webp' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cde5384e-ce4d-423f-925a-451b779066e0.webp' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
@@ -448,7 +448,7 @@ function renderTools(){
   $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
     const off=Array.isArray(ME.off)&&ME.off.includes(t.id);
-    const inner=`<span class="art" style="background-image:url('${esc(t.art||'')}')"></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
+    const inner=`<span class="art"${t.art?` style="background-image:url('${esc(t.art)}')"`:''}></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
       <span class="meta">${play}<span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></span></span>`;
     if(off) return `<div class="card is-off" aria-disabled="true" title="ปิดใช้งานอยู่ · เปิดได้ที่ ตั้งค่า → เปิด/ปิดเครื่องมือ">${inner}</div>`;
     return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;
@@ -622,7 +622,7 @@ $('muDel').addEventListener('click', async ()=>{
 /* ---------- start ---------- */
 /* ---------- scene video + entrance ---------- */
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(!reduce){ const v=$('sceneVideo'); v.src='https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/d2cb5bef-f92b-4e91-ae93-8dc6555e56ac.mp4'; v.play().catch(()=>{}); }
+/* วิดีโอฉากทุ่งหญ้าเอาออกแล้ว (พื้นหลังเรียบ) */
 let introDone=false;
 function intro(){
   if(introDone || reduce || !document.body.animate) return; introDone=true;

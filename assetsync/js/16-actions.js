@@ -482,6 +482,10 @@ document.addEventListener('click', async e => {
       break;
     case 'sttab':
       S.stTab = v;
+      S.stF = { cc: '', area: '', q: '' };
+      break;
+    case 'stfclr':
+      S.stF = { cc: '', area: '', q: '' };
       break;
     case 'stsel':
       t.checked ? S.stSel.add(v) : S.stSel.delete(v);
@@ -885,6 +889,10 @@ document.addEventListener('change', async e => {
     S.room = t.value.trim();
     LS.set('room', S.room);
   }
+  if (t.id === 'stFcc' || t.id === 'stFarea') {
+    S.stF = { ...S.stF, [t.id === 'stFcc' ? 'cc' : 'area']: t.value };
+    setTimeout(render);
+  }
   if (t.id === 'stSize') {
     S.stSize = t.value;
     LS.set('stSize', t.value);
@@ -946,6 +954,12 @@ document.addEventListener('input', e => {
     S.search.q = e.target.value;
     clearTimeout(window._sq);
     window._sq = setTimeout(render, 150);
+    return;
+  }
+  if (e.target.id === 'stFq') {
+    S.stF = { ...S.stF, q: e.target.value };
+    clearTimeout(window._sf);
+    window._sf = setTimeout(render, 250);
     return;
   }
   if (e.target.id === 'stPaste') {

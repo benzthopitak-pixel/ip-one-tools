@@ -26,6 +26,7 @@ const S = {
   xlsSel: new Set(),
   stCopies: Math.max(1, Math.min(50, +LS.get('stCopies', 1) || 1)), // ค่าเริ่มต้นจำนวนดวงต่อรายการ (จำไว้ในคอมเครื่องนี้)
   stPaste: '',
+  stF: { cc: '', area: '', q: '' }, // ตัวกรองหน้าพิมพ์สติกเกอร์: CC บนป้าย · พื้นที่ที่พบ · ค้นหา
   cards: [],
   item: null,
   imp: null,

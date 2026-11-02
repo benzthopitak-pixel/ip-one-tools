@@ -1,4 +1,4 @@
-/* AssetSync · ปรับขนาดได้เอง (หน้าเว็บ): ลากขอบหัวคอลัมน์เพื่อย่อ/ขยายคอลัมน์ · ลากเส้นแบ่งเพื่อย่อ/ขยายกล่องด้านขวา
+/* AssetSync · ปรับขนาดได้เอง (หน้าเว็บ): ทุกตาราง 1 บรรทัดต่อแถว · ลากขอบหัวคอลัมน์เพื่อย่อ/ขยายคอลัมน์ · ลากเส้นแบ่งเพื่อย่อ/ขยายกล่องด้านขวา
  * จำขนาดไว้ในเครื่องนี้ · ดับเบิลคลิกที่ขอบ = กลับเป็นขนาดเดิม · ไม่แตะข้อมูลหรือการทำงานอื่น */
 (function () {
   const ls = {
@@ -25,6 +25,8 @@ th.rsz-th{position:relative}
 .pair-split::after{content:'';position:absolute;left:5px;top:35%;bottom:35%;width:3px;border-radius:3px;background:var(--line)}
 .pair-split:hover::after,.pair-split.on::after{background:var(--blue)}
 body.rsz-drag,body.rsz-drag *{cursor:col-resize!important;user-select:none!important}
+table.tauto{table-layout:fixed}
+table.tauto td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 @media (max-width:860px){.row.pair>.pair-split{display:none}}`;
   document.head.appendChild(st);
 
@@ -93,6 +95,43 @@ body.rsz-drag,body.rsz-drag *{cursor:col-resize!important;user-select:none!impor
     });
   }
 
+  /* ---------- ตารางที่ยังไม่กำหนดคอลัมน์: 1 บรรทัดต่อแถว · ชื่อยาวตัด … · ลากขยายได้ · เลื่อนซ้าย/ขวาได้ ---------- */
+  function autoTable(t) {
+    const ths = t.tHead ? [...t.tHead.rows[0].cells] : [];
+    if (!ths.length || !t.offsetWidth || ths.some(c => c.colSpan > 1)) return;
+    t.style.tableLayout = 'auto';
+    t.querySelectorAll('td').forEach(td => (td.style.whiteSpace = 'nowrap'));
+    const w = ths.map(c => Math.max(44, Math.min(360, Math.ceil(c.getBoundingClientRect().width))));
+    t.querySelectorAll('td').forEach(td => (td.style.whiteSpace = ''));
+    t.style.tableLayout = '';
+    // ให้พอดีกล่องเท่าที่ทำได้: ลดคอลัมน์ที่กว้างที่สุดก่อน · คอลัมน์ชื่อเหลืออย่างน้อย 280px คอลัมน์อื่น 120px
+    // ไม่พอ = เลื่อนซ้าย/ขวาดู · ลากขอบหัวคอลัมน์ขยายเองได้
+    const room = (t.parentElement?.clientWidth || 0) - 2,
+      floor = ths.map((c, i) => Math.min(w[i], /ชื่อ|description|name/i.test(c.textContent) ? 280 : 120)),
+      sum = () => w.reduce((a, b) => a + b, 0);
+    for (let k = 0; k < 400 && room > 0 && sum() > room; k++) {
+      const cand = w.map((x, i) => (x > floor[i] ? x : -1)),
+        i = cand.indexOf(Math.max(...cand));
+      if (cand[i] < 0) break;
+      w[i] = Math.max(floor[i], w[i] - Math.min(20, sum() - room));
+    }
+    const cg = document.createElement('colgroup');
+    w.forEach(px => {
+      const c = document.createElement('col');
+      c.style.width = px + 'px';
+      cg.appendChild(c);
+    });
+    t.insertBefore(cg, t.firstChild);
+    t.style.minWidth = w.reduce((a, b) => a + b, 0) + 'px';
+    t.classList.add('tauto', 'tfix');
+    t.querySelectorAll('td').forEach(td => !td.title && td.textContent.trim() && !td.querySelector('input,select,button') && (td.title = td.textContent.trim()));
+  }
+  // ตารางรายงานกำหนดคอลัมน์เป็น % : ให้มีความกว้างขั้นต่ำ จอเล็กจะเลื่อนซ้าย/ขวาแทนการบีบชื่อ
+  function minTable(t) {
+    const n = t.querySelectorAll(':scope > colgroup > col').length;
+    if (n && !t.style.minWidth) t.style.minWidth = Math.max(720, n * 90) + 'px';
+  }
+
   /* ---------- เส้นแบ่งกล่องซ้าย/ขวา ---------- */
   function setupPair(row) {
     row.dataset.split = '1';
@@ -126,7 +165,8 @@ body.rsz-drag,body.rsz-drag *{cursor:col-resize!important;user-select:none!impor
   }
 
   const scan = () => {
-    document.querySelectorAll('table.tfix:not([data-rsz])').forEach(setupTable);
+    document.querySelectorAll('.tbl-wrap > table:not(.tfix)').forEach(autoTable);
+    document.querySelectorAll('table.tfix:not([data-rsz])').forEach(t => (minTable(t), setupTable(t)));
     document.querySelectorAll('.row.pair:not([data-split])').forEach(setupPair);
   };
   new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });

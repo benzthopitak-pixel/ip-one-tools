@@ -1,10 +1,30 @@
 /* AssetSync · เมนู 5 พิมพ์สติกเกอร์: แหล่งรายการ, แม่แบบป้าย, หน้าพิมพ์ และวาดป้ายสำหรับพิมพ์/PDF */
+// ติดสติกเกอร์แล้ว (บันทึกว่าติดแล้ว) = ไม่ต้องแสดงในแท็บที่ยังต้องทำ
+const stMovedTodo = s => s.rv.move === 'approved' && (s.flags.reprint || !s.printedAt);
+const stNsTodo = s => s.ns && !s.printedAt;
+const stArea = code => {
+  const s = compute().cur.get(code);
+  return s?.area ? { code: String(s.area), name: s.areaName && s.areaName !== s.area ? String(s.areaName) : '' } : { code: '', name: '' };
+};
+// ตัวกรอง: CC บนป้าย · พื้นที่ที่พบ · ค้นหาเลข/ชื่อ (ใช้กับทุกแท็บ ยกเว้นไฟล์ Excel)
 function stickerList(c) {
+  const all = stickerListAll(c),
+    f = S.stF,
+    q = f.q.trim().toLowerCase();
+  if (!f.cc && !f.area && !q) return all;
+  return all.filter(code => {
+    if (f.cc && String(labelCC(code).code) !== f.cc) return false;
+    if (f.area && stArea(code).code !== f.area) return false;
+    if (q && !(code + ' ' + (master.get(code)?.name || '')).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function stickerListAll(c) {
   const { cur } = compute();
   if (S.stTab === 'reprint') return c.reprint.map(s => s.code);
   if (S.stTab === 'namebad') return c.namebad.map(s => s.code);
-  if (S.stTab === 'moved') return [...cur.values()].filter(s => s.rv.move === 'approved').map(s => s.code);
-  if (S.stTab === 'ns') return [...cur.values()].filter(s => s.ns).map(s => s.code);
+  if (S.stTab === 'moved') return [...cur.values()].filter(stMovedTodo).map(s => s.code);
+  if (S.stTab === 'ns') return [...cur.values()].filter(stNsTodo).map(s => s.code);
   if (S.stTab === 'noqr') return [...cur.values()].filter(needQR).map(s => s.code);
   if (S.stTab === 'oldqr') return [...cur.values()].filter(oldQR).map(s => s.code);
   if (S.stTab === 'paste') {
@@ -309,10 +329,10 @@ const ST_TABS = c => {
   return [
     ['reprint', 'ต้องพิมพ์ใหม่', c.reprint.length],
     ['namebad', 'ชื่อไม่ตรงระบบ', c.namebad.length],
-    ['moved', 'ย้ายแผนก (อนุมัติแล้ว)', [...cur.values()].filter(s => s.rv.move === 'approved').length],
+    ['moved', 'ย้ายแผนก (อนุมัติแล้ว)', [...cur.values()].filter(stMovedTodo).length],
     ['noqr', 'ยังไม่มี QR', [...cur.values()].filter(needQR).length],
     ['oldqr', 'ป้าย QR รูปแบบเก่า', [...cur.values()].filter(oldQR).length],
-    ['ns', 'ยังไม่มีสติกเกอร์', [...cur.values()].filter(s => s.ns).length],
+    ['ns', 'ยังไม่มีสติกเกอร์', [...cur.values()].filter(stNsTodo).length],
     ['paste', 'วางเลข Asset เอง', ''],
     ['xls', '📄 จากไฟล์ Excel', S.xls ? S.xls.recs.length : '']
   ];
@@ -360,12 +380,33 @@ function webStickers(c) {
   } else {
     if (S.stTab === 'paste')
       h += `<label class="f">เลข Asset หรือ Asset-Sub บรรทัดละ 1 รหัส (ใส่เฉพาะเลข Asset = ทุกรายการย่อย)<textarea class="in mono" id="stPaste" rows="4" placeholder="51000136">${esc(S.stPaste)}</textarea></label>`;
-    h += `<div class="tbl-wrap"><table><thead><tr><th><input type="checkbox" data-a="stall" aria-label="เลือกทั้งหมด" ${list.length && list.every(x => S.stSel.has(x)) ? 'checked' : ''}></th><th>No.</th><th>ชื่อ</th><th>CC บนป้าย</th><th>พิมพ์ล่าสุด</th></tr></thead><tbody>`;
+    const full = stickerListAll(c),
+      opt = (m, cur0) =>
+        [...m]
+          .sort((a, b) => a[0].localeCompare(b[0], 'th', { numeric: true }))
+          .map(([k, v]) => `<option value="${esc(k)}" ${cur0 === k ? 'selected' : ''}>${esc(k)}${v.name ? ' · ' + esc(v.name) : ''} (${v.n})</option>`)
+          .join(''),
+      ccM = new Map(),
+      arM = new Map();
+    for (const code of full) {
+      const cc = labelCC(code),
+        ar = stArea(code),
+        k1 = String(cc.code || '');
+      if (k1) ccM.set(k1, { name: cc.name || '', n: (ccM.get(k1)?.n || 0) + 1 });
+      if (ar.code) arM.set(ar.code, { name: ar.name, n: (arM.get(ar.code)?.n || 0) + 1 });
+    }
+    const fOn = S.stF.cc || S.stF.area || S.stF.q.trim();
+    h += `<div class="fbar"><select class="in" id="stFcc" style="flex:1 1 200px;width:auto;min-width:0" aria-label="กรอง CC บนป้าย"><option value="">CC บนป้าย · ทั้งหมด</option>${opt(ccM, S.stF.cc)}</select>
+      <select class="in" id="stFarea" style="flex:1 1 200px;width:auto;min-width:0" aria-label="กรองพื้นที่ที่พบ"><option value="">${locMode() ? 'Location ที่พบ' : 'พื้นที่ที่พบ'} · ทั้งหมด</option>${opt(arM, S.stF.area)}</select>
+      <input class="in" id="stFq" type="search" style="width:auto;flex:1 1 200px;min-width:0" placeholder="ค้นหาเลข Asset / ชื่อ" value="${esc(S.stF.q)}" aria-label="ค้นหาเลข Asset หรือชื่อ">
+      ${fOn ? `<button class="btn" data-a="stfclr">ล้างตัวกรอง</button><span class="sub">แสดง ${N(list.length)} จาก ${N(full.length)}</span>` : ''}</div>`;
+    h += `<div class="tbl-wrap"><table><thead><tr><th><input type="checkbox" data-a="stall" aria-label="เลือกทั้งหมด" ${list.length && list.every(x => S.stSel.has(x)) ? 'checked' : ''}></th><th>No.</th><th>ชื่อ</th><th>CC บนป้าย</th><th>${locMode() ? 'Location ที่พบ' : 'พื้นที่ที่พบ'}</th><th>พิมพ์ล่าสุด</th></tr></thead><tbody>`;
     for (const code of list.slice(0, 300)) {
       const a = master.get(code),
         s = cur.get(code),
-        cc = labelCC(code);
-      h += `<tr><td><input type="checkbox" data-a="stsel" data-v="${esc(code)}" ${S.stSel.has(code) ? 'checked' : ''} aria-label="เลือก ${esc(code)}"></td><td class="mono">${esc(code)}</td><td>${esc(a?.name || '')}</td><td>${esc(cc.code)} ${esc(cc.name)}</td><td class="sub">${s?.printedAt ? fmtT(s.printedAt) : '—'}</td></tr>`;
+        cc = labelCC(code),
+        ar = stArea(code);
+      h += `<tr><td><input type="checkbox" data-a="stsel" data-v="${esc(code)}" ${S.stSel.has(code) ? 'checked' : ''} aria-label="เลือก ${esc(code)}"></td><td class="mono">${esc(code)}</td><td>${esc(a?.name || '')}</td><td>${esc(cc.code)} ${esc(cc.name)}</td><td>${esc(ar.code)}${ar.name ? ' ' + esc(ar.name) : ''}</td><td class="sub">${s?.printedAt ? fmtT(s.printedAt) : '—'}</td></tr>`;
     }
     h += `</tbody></table></div>${list.length ? '' : '<p class="sub">ไม่มีรายการ</p>'}`;
   }

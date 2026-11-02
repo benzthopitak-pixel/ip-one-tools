@@ -304,7 +304,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="toolinfo"><div>
         <h2>Master Data / Master Van</h2>
         <p class="note">ไฟล์ Master ใช้เฉพาะใน Audit Tools จึงยังอัปโหลดอยู่ในหน้า Settings ของ Audit Tools</p>
-        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="audit.html#settings" target="_blank" rel="noopener">เปิดหน้า Master Data ↗</a>
+        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="audit#settings" target="_blank" rel="noopener">เปิดหน้า Master Data ↗</a>
       </div></div>
     </div>
     <div class="panel">
@@ -359,8 +359,8 @@ button,input,select{font:inherit;color:inherit}
    url    : ที่อยู่ของเครื่องมือ
    status : 'live' ใช้งานได้ | 'soon' กำลังพัฒนา                         */
 const TOOLS = [
-  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit.html', version:'V.6.1', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cd2d844f-ae3f-4fa9-8067-b077530b6e71.webp' },
-  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare.html', version:'', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/48f5b97e-c27c-4afd-9427-eb35aebd1751.webp' },
+  { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cd2d844f-ae3f-4fa9-8067-b077530b6e71.webp' },
+  { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/48f5b97e-c27c-4afd-9427-eb35aebd1751.webp' },
   { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cde5384e-ce4d-423f-925a-451b779066e0.webp' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
@@ -425,7 +425,7 @@ $('vLogin').addEventListener('submit', async ev=>{
     $('lgPass').value='';
     await loadMe();
     const next = new URLSearchParams(location.search).get('next');
-    if(next && /^[a-z0-9-]+\.html(#[a-z0-9-]*)?$/i.test(next)){ location.href = next; return; }
+    if(next && /^[a-z0-9-]+(\.html)?(#[a-z0-9-]*)?$/i.test(next)){ location.href = next; return; }
     route();
   }catch(e){ setMsg($('lgErr'), errText(e), 'err'); }
   finally{ btn.disabled=false; btn.textContent='เข้าใช้งาน'; }

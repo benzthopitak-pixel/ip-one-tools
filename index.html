@@ -409,7 +409,6 @@ async function loadMe(){
   ME = await IPAuth.profile();
   if(ME){
     $('whoName').textContent = ME.username;
-    $('whoAv').classList.remove('hidden');
     $('kicker').textContent = 'สวัสดี, ' + ME.username;
     $('rowLink').classList.toggle('hidden', ME.role!=='admin');
     $('whoAv').textContent = (ME.username||'?').charAt(0).toUpperCase();

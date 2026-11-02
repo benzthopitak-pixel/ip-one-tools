@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#3b5bfd">
+<title>AssetSync</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<script src="config.js"></script>
+<script src="build.js"></script>
+<script src="lib/supabase.js"></script>
+<script src="lib/xlsx.full.min.js"></script>
+<script>window.__XLSX = window.XLSX;</script>
+<script src="lib/xlsx-style.min.js"></script>
+<script>window.XLSXS = window.XLSX; window.XLSX = window.__XLSX;</script>
+<script src="lib/jspdf.umd.min.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="lib/jsbarcode.min.js"></script>
+<script src="store.js"></script>
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/theme-sky.css">
+
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="gFile" hidden aria-hidden="true">
+
+<!-- โค้ดของแอปแยกเป็นไฟล์ตามหมวดใน js/ · ลำดับมีผล: ไฟล์เลขน้อยโหลดก่อน (ดู web/README.md) -->
+<script src="js/01-helpers.js"></script>
+<script src="js/02-state.js"></script>
+<script src="js/03-compute.js"></script>
+<script src="js/04-storage.js"></script>
+<script src="js/05-shell.js"></script>
+<script src="js/06-web-reports.js"></script>
+<script src="js/07-web-import.js"></script>
+<script src="js/08-web-live.js"></script>
+<script src="js/09-web-inbox.js"></script>
+<script src="js/10-stickers.js"></script>
+<script src="js/11-label-designer.js"></script>
+<script src="js/12-app.js"></script>
+<script src="js/13-usb.js"></script>
+<script src="js/14-auth.js"></script>
+<script src="js/15-scan.js"></script>
+<script src="js/16-actions.js"></script>
+<script src="js/17-scanner-input.js"></script>
+<script src="js/18-exports.js"></script>
+<script src="js/19-pivot.js"></script>
+<script src="js/20-main.js"></script>
+</body>
+</html>

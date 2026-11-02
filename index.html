@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IP One Tools Portal</title>
+<link rel="icon" type="image/png" href="assets/ip-favicon.png">
+<link rel="apple-touch-icon" href="assets/ip-apple.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Grandstander:wght@900&family=Mali:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,6 +40,7 @@ button,input,select{font:inherit;color:inherit}
 /* nav */
 .logo{left:calc(31*var(--u));top:calc(23*var(--u));display:flex;align-items:center;gap:calc(9*var(--u));font:900 calc(29.5*var(--u))/1 var(--display);letter-spacing:.01em;text-decoration:none;color:#fff;text-shadow:var(--shadow-t)}
 .logo svg{width:calc(30*var(--u));height:calc(30*var(--u))}
+.logo img{height:calc(36*var(--u));width:auto;display:block;filter:drop-shadow(0 2px 6px rgba(28,70,120,.25))}
 .navpill{left:calc(50% - 277*var(--u));top:calc(13*var(--u));width:calc(546*var(--u));height:calc(50*var(--u));border-radius:calc(25*var(--u));
   background:var(--sage);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;align-items:center;gap:calc(54*var(--u));padding-left:calc(49*var(--u))}
 .navpill button{background:none;border:0;color:#fff;font:500 calc(19.5*var(--u))/1 var(--body);cursor:pointer;padding:calc(6*var(--u)) 0;border-bottom:2px solid transparent}
@@ -95,6 +98,7 @@ button,input,select{font:inherit;color:inherit}
 .topbar{position:relative;height:86px;color:#fff}
 .topbar .logo{position:absolute;left:31px;top:23px;font-size:29.5px;gap:9px}
 .topbar .logo svg{width:30px;height:30px}
+.topbar .logo img{height:36px}
 .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 64px}
 .eyebrow{font:900 15px var(--display);letter-spacing:.12em;color:rgba(255,255,255,.9)}
 .wrap h1{font:900 46px/1.1 var(--display);color:#fff;text-shadow:0 4px 18px rgba(28,70,120,.28);margin-top:4px}
@@ -169,7 +173,7 @@ button,input,select{font:inherit;color:inherit}
   .frame{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 16px}
   .abs{position:static}
   .nav{display:flex;align-items:center;justify-content:space-between;width:100%;padding-top:14px}
-  .logo{font-size:22px}.logo svg{width:24px;height:24px}
+  .logo{font-size:22px}.logo svg{width:24px;height:24px}.logo img{height:30px}
   .navpill{display:none!important}
   .join{height:40px;padding:0 16px;font-size:15px}
   .kicker{margin-top:56px;font-size:22px}
@@ -210,7 +214,7 @@ button,input,select{font:inherit;color:inherit}
   </div></div>
   <div class="frame">
     <div class="nav">
-      <a class="abs logo anim" href="./" aria-label="IP One Tools หน้าแรก"><svg viewBox="0 0 32 32" fill="#fff" aria-hidden="true"><path d="M15 29V17c0-5-3-9-10-9 0 6 4 10 10 10"/><path d="M17 29V14c0-6 4-10 11-10 0 7-4 11-11 11"/><rect x="14.6" y="14" width="2.8" height="16" rx="1.4"/></svg>IP One Tools</a>
+      <a class="abs logo anim" href="./" aria-label="IP One Tools หน้าแรก"><img src="assets/ip-mark.png" alt="">IP One Tools</a>
       <nav class="abs navpill anim hidden" id="who" aria-label="เมนู">
         <button id="btnHome">หน้าแรก</button><button id="btnTools">เครื่องมือ</button><button id="btnLogout">ออกจากระบบ</button>
       </nav>
@@ -247,7 +251,7 @@ button,input,select{font:inherit;color:inherit}
 
 <!-- ===== SETTINGS PAGE ===== -->
 <div class="page hidden" id="settingsPage">
-  <div class="topbar"><a class="logo" href="./"><svg viewBox="0 0 32 32" fill="#fff" aria-hidden="true"><path d="M15 29V17c0-5-3-9-10-9 0 6 4 10 10 10"/><path d="M17 29V14c0-6 4-10 11-10 0 7-4 11-11 11"/><rect x="14.6" y="14" width="2.8" height="16" rx="1.4"/></svg>IP One Tools</a><a class="pill white" href="./" style="position:absolute;right:24px;top:20px;height:42px;padding:0 20px;font-size:16px">← หน้าแรก</a></div>
+  <div class="topbar"><a class="logo" href="./"><img src="assets/ip-mark.png" alt="">IP One Tools</a><a class="pill white" href="./" style="position:absolute;right:24px;top:20px;height:42px;padding:0 20px;font-size:16px">← หน้าแรก</a></div>
 <!-- ===== SETTINGS ===== -->
 <main class="wrap hidden" id="vSettings">
   <span class="eyebrow">Settings</span>

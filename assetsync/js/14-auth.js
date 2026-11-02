@@ -4,7 +4,7 @@ function gateView() {
     msg = S.gateMsg ? `<div class="msg bad">${esc(S.gateMsg)}</div>` : '';
   const wrap =
     inner => `<div class="phone" style="min-height:100vh;justify-content:center"><div class="pbody" style="padding-bottom:40px">
-    <div class="brand"><img src="logo.svg" alt="Innovative Passionately"><b>AssetSync</b><span>ระบบตรวจนับทรัพย์สิน · ${esc(VER())}</span></div>${inner}</div></div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
+    <div class="brand"><img src="logo.svg" alt="AssetSync"><b>AssetSync</b><span>ระบบตรวจนับทรัพย์สิน · ${esc(VER())}</span></div>${inner}</div></div>${S.toast ? `<div class="toast" role="status">${esc(S.toast)}</div>` : ''}`;
   if (S.gate === 'boot') return wrap(`<div class="card"><p class="sub">กำลังเชื่อมต่อ…</p></div>`);
   if (S.gate === 'setup')
     return wrap(`<div class="card"><h2>ตั้งค่าการเชื่อมต่อ</h2><p class="sub">ใส่ค่าจาก Supabase → Project Settings → API (ทำครั้งเดียวต่อเครื่อง)</p>

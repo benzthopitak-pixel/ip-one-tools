@@ -42,7 +42,7 @@ function appView(c) {
 }
 function appLogin() {
   const team = meta?.team || [];
-  return `<div class="pbody"><div class="brand"><img src="logo.svg" alt="Innovative Passionately"><b>AssetSync</b><span>เลือกชื่อของคุณเพื่อเริ่มนับ</span></div>
+  return `<div class="pbody"><div class="brand"><img src="logo.svg" alt="AssetSync"><b>AssetSync</b><span>เลือกชื่อของคุณเพื่อเริ่มนับ</span></div>
     ${team.length ? team.map((u, i) => `<button class="li" data-a="login" data-v="${i}"><span class="dot" style="background:${u.role === 'lead' ? 'var(--blue)' : 'var(--orange)'};color:${u.role === 'lead' ? '#fff' : '#1d0e00'}">${esc(u.name.slice(0, 1))}</span><span class="t"><b>${esc(u.name)}</b><span>${u.role === 'lead' ? 'Admin' : 'ผู้ตรวจนับ'}</span></span></button>`).join('') : `<div class="card"><p class="sub">ยังไม่มีรายชื่อทีม Admin เพิ่มได้ที่เมนู 6.2 User บนคอมพิวเตอร์ หรือใส่ชื่อทดสอบด้านล่าง</p></div>`}
     <div class="card"><label class="f">หรือพิมพ์ชื่อ<input class="in" id="loginName" placeholder="ชื่อของคุณ"></label><button class="btn pri" data-a="loginname">เข้าใช้งาน</button></div>
     <p class="sub">โหมดสาย USB · เลือกชื่อจากแพ็กเกจที่นำเข้า · เครื่องนี้: ${esc(dev)}</p></div>`;

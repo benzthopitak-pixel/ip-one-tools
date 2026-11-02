@@ -72,7 +72,7 @@ const isLead = () => usbMode || S.user?.role === 'lead';
 function labelCC(code) {
   const a = master.get(code),
     s = compute().cur.get(code);
-  if (s && s.rv.move === 'approved') return { code: s.area, name: s.areaName };
+  if (s && s.rv.move === 'approved' && !locMode()) return { code: s.area, name: s.areaName };
   return { code: a?.cc || '', name: a?.ccName || '' };
 }
 function dmy(s) {

@@ -205,9 +205,15 @@ const markChoices = (code, act, extra = '') => {
 };
 const ccClosed = code => compute().ccDone.get(String(code)) || null;
 const closeTxt = d => `ปิดงานโดย ${esc(d.by)} · ${fmtT(d.t)}${d.left ? ` · ไม่พบ ${d.left} รายการ` : ''}`;
+// พื้นที่ตรวจนับ: ไฟล์ทะเบียนมีคอลัมน์ Location → ใช้ Location (พื้นที่กว้าง เช่น MKT ครอบ MKT Inter + MKT Res) · ไม่มี → ใช้ Cost Center เหมือนเดิม
+const locMode = () => (meta?.map?.loc ?? -1) >= 0;
+const locKey = v => String(v ?? '').trim().replace(/\s+/g, ' ').toUpperCase();
+const homeOf = a => (!a ? '' : locMode() ? locKey(a.raws?.[0]?.[meta.map.loc]) : String(a.cc ?? ''));
 const isOther = s => {
   const a = master.get(s.code);
-  return !!(a && !s.shared && s.area && a.cc && ccKey(s.area) !== ccKey(a.cc));
+  if (!a || s.shared || !s.area) return false;
+  if (locMode()) return !!homeOf(a) && locKey(s.area) !== homeOf(a);
+  return !!(a.cc && ccKey(s.area) !== ccKey(a.cc));
 };
 // same CC code but the file spells the department differently → warn only, never counts as a move
 const ccNameOf = code => (meta?.areas || []).find(x => String(x.code) === String(code))?.name || String(code);

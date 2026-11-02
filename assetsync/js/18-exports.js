@@ -194,7 +194,7 @@ function exportBook(kind) {
             r[t.note] = s ? [s.room, s.cond !== 'ปกติ' ? s.cond : '', s.remark].filter(Boolean).join(' · ') : 'ไม่พบ';
           if (t.status >= 0)
             r[t.status] = !s ? (wo ? 'Write - Off' : 'ไม่พบ (นับซ้ำ)') : mv ? 'เปลี่ยน Cost center' : 'CC เดิม';
-          if (t.ccNew >= 0) r[t.ccNew] = s ? (mv ? s.area : a.cc) : '';
+          if (t.ccNew >= 0) r[t.ccNew] = s ? (mv && !locMode() ? s.area : a.cc) : '';
           if (t.ccNewName >= 0) r[t.ccNewName] = s ? (mv ? s.areaName : a.ccName) : '';
           fillSY(r, s, false);
         }

@@ -89,6 +89,10 @@ button,input,select{font:inherit;color:inherit}
 .card .playc{flex:none;width:calc(46*var(--u));height:calc(46*var(--u));border-radius:50%;background:rgba(255,255,255,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center}
 .card h3{font:600 calc(21*var(--u))/1.25 'Mali','IBM Plex Sans Thai',sans-serif}
 .card p{font-size:calc(14.5*var(--u));line-height:1.4;opacity:.92;margin-top:calc(2*var(--u));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .ico{position:absolute;z-index:1;left:50%;top:calc(24*var(--u));transform:translateX(-50%);width:calc(96*var(--u));height:calc(96*var(--u));border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 calc(8*var(--u)) calc(22*var(--u)) rgba(28,70,120,.18);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.card .ico svg{width:calc(56*var(--u));height:calc(56*var(--u));fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.card:hover .ico{transform:translateX(-50%) scale(1.06)}
 .card .tag{position:absolute;z-index:1;top:calc(14*var(--u));right:calc(14*var(--u));font-size:calc(13*var(--u));font-weight:600;padding:calc(4*var(--u)) calc(10*var(--u));border-radius:999px;background:rgba(255,255,255,.9);color:var(--green)}
 .empty{left:calc(50% - 583*var(--u));top:calc(930*var(--u));font-size:calc(18*var(--u))}
 .credit{left:0;right:0;bottom:calc(14*var(--u));text-align:center;font-size:calc(13*var(--u));opacity:.85}
@@ -192,6 +196,7 @@ button,input,select{font:inherit;color:inherit}
   .cards{margin:12px -16px 0;padding:0 16px 10px;scroll-snap-type:x mandatory}
   .card{flex-basis:78%;height:220px;scroll-snap-align:start}
   .card h3{font-size:18px}.card p{font-size:13.5px}
+  .card .ico{width:72px;height:72px;top:26px}.card .ico svg{width:40px;height:40px}
   .card .playc{width:40px;height:40px}
   .card .tag{font-size:12px}
   .empty{font-size:16px}
@@ -367,6 +372,12 @@ const TOOLS = [
   { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'' },
   { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'' },
 ];
+/* ไอคอนบนการ์ดเครื่องมือ (เส้นขาว บนกระจก) */
+const TOOL_ICON = {
+  audit:'<rect x="5.5" y="4" width="13" height="17" rx="2"/><path d="M9 4V2.8h6V4"/><path d="m8.8 11.5 2.1 2.1 4.3-4.3"/><path d="M8.8 17h6.4"/>',
+  stock:'<path d="M12 4v15.5M7.5 20h9"/><path d="M4.5 7h15"/><path d="M12 4l-.01 0"/><path d="m4.5 7-2.8 5.6a2.8 2.8 0 0 0 5.6 0z"/><path d="m19.5 7-2.8 5.6a2.8 2.8 0 0 0 5.6 0z"/>',
+  assetsync:'<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M8 8.5v7M10.5 8.5v7M13 8.5v7M16 8.5v7"/>'
+};
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [
   { title:'1 · Prepare Data', pages:[['stock','Stock Formatter'],['movement','Movement Wait'],['lorry','Picking Formatter']] },
@@ -449,7 +460,7 @@ function renderTools(){
   $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
     const off=Array.isArray(ME.off)&&ME.off.includes(t.id);
-    const inner=`<span class="art"${t.art?` style="background-image:url('${esc(t.art)}')"`:''}></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
+    const inner=`<span class="art"${t.art?` style="background-image:url('${esc(t.art)}')"`:''}></span>${TOOL_ICON[t.id]?`<span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24">${TOOL_ICON[t.id]}</svg></span>`:''}${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
       <span class="meta">${play}<span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></span></span>`;
     if(off) return `<div class="card is-off" aria-disabled="true" title="ปิดใช้งานอยู่ · เปิดได้ที่ ตั้งค่า → เปิด/ปิดเครื่องมือ">${inner}</div>`;
     return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;

@@ -138,6 +138,15 @@ button,input,select{font:inherit;color:inherit}
 .checks label{display:flex;align-items:center;gap:7px;font-size:14.5px;cursor:pointer;color:var(--ink)}
 .checks input{width:16px;height:16px;accent-color:var(--green)}
 .grp{margin-top:12px}
+.swrow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.swrow:last-of-type{border-bottom:0}
+.swrow b{font-size:15.5px;color:var(--ink)}
+.sw{position:relative;flex:none;width:52px;height:30px;border:0;border-radius:999px;background:#cfd8df;cursor:pointer;transition:background .2s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:transform .2s}
+.sw[aria-checked="true"]{background:var(--green)}
+.sw[aria-checked="true"]::after{transform:translateX(22px)}
+.sw:disabled{opacity:.55;cursor:default}
+.card .tag.off{background:#fde4e1;color:#b3261e}
 .grp b{font-size:12px;letter-spacing:.06em;color:#7a8ea1;font-weight:600}
 .toolinfo{display:flex;gap:18px;align-items:center}
 .ov{position:fixed;inset:0;background:rgba(20,40,60,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:50}
@@ -244,6 +253,7 @@ button,input,select{font:inherit;color:inherit}
   <div class="tabs" role="tablist">
     <button class="tab on" data-tab="me" role="tab">บัญชีของฉัน</button>
     <button class="tab hidden" data-tab="users" role="tab" id="tabUsers">จัดการผู้ใช้</button>
+    <button class="tab hidden" data-tab="switch" role="tab" id="tabSwitch">เปิด/ปิดเครื่องมือ</button>
     <button class="tab" data-tab="tooldata" role="tab">ข้อมูลเครื่องมือ</button>
   </div>
 
@@ -274,6 +284,15 @@ button,input,select{font:inherit;color:inherit}
         <tbody id="uBody"><tr><td colspan="5" class="note">กำลังโหลด...</td></tr></tbody>
       </table></div>
       <div class="msg" id="uMsg"></div>
+    </div>
+  </div>
+
+  <div id="pSwitch" class="hidden">
+    <div class="panel narrow">
+      <h2>เปิด/ปิดเครื่องมือ</h2>
+      <p class="note">ปิดแล้วการ์ดจะหายจาก Portal และเข้าทางลิงก์ตรงไม่ได้ สำหรับทุกคน · แอดมินยังเข้าได้เพื่อทดสอบ</p>
+      <div id="swList" style="margin-top:8px"></div>
+      <div class="msg" id="swMsg"></div>
     </div>
   </div>
 
@@ -392,6 +411,7 @@ async function loadMe(){
     $('rowLink').classList.toggle('hidden', ME.role!=='admin');
     $('whoAv').textContent = (ME.username||'?').charAt(0).toUpperCase();
     $('tabUsers').classList.toggle('hidden', ME.role!=='admin');
+    $('tabSwitch').classList.toggle('hidden', ME.role!=='admin');
   }
 }
 $('vLogin').addEventListener('submit', async ev=>{
@@ -422,7 +442,8 @@ function renderTools(){
   const play='<span class="playc" aria-hidden="true"><span class="tri"></span></span>';
   $('grid').innerHTML=list.map(t=>{
     const live=t.status==='live'&&t.url;
-    const inner=`<span class="art" style="background-image:url('${esc(t.art||'')}')"></span>${live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
+    const off=Array.isArray(ME.off)&&ME.off.includes(t.id);
+    const inner=`<span class="art" style="background-image:url('${esc(t.art||'')}')"></span>${off?'<span class="tag off">ปิดอยู่</span>':live?'':'<span class="tag">เร็ว ๆ นี้</span>'}
       <span class="meta">${play}<span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></span></span>`;
     return live?`<a class="card" href="${esc(t.url)}" target="_blank" rel="noopener" aria-label="เปิด ${esc(t.name)} ในแท็บใหม่">${inner}</a>`:`<div class="card">${inner}</div>`;
   }).join('');
@@ -433,15 +454,45 @@ function renderTools(){
 /* ---------- settings tabs ---------- */
 let currentTab='me';
 function openTab(t){
-  if(t==='users' && (!ME || ME.role!=='admin')) t='me';
+  if((t==='users'||t==='switch') && (!ME || ME.role!=='admin')) t='me';
   currentTab=t;
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on', b.dataset.tab===t));
   $('pMe').classList.toggle('hidden', t!=='me');
   $('pUsers').classList.toggle('hidden', t!=='users');
   $('pToolData').classList.toggle('hidden', t!=='tooldata');
+  $('pSwitch').classList.toggle('hidden', t!=='switch');
   if(t==='users') loadUsers();
+  if(t==='switch') renderSwitches();
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>openTab(b.dataset.tab)));
+
+/* ---------- เปิด/ปิดเครื่องมือทั้งระบบ (admin) ---------- */
+const SWITCHABLE = ['audit','stock'];
+async function renderSwitches(){
+  clearMsg($('swMsg'));
+  ME.off = await IPAuth.toolsOff();
+  $('swList').innerHTML = TOOLS.filter(t=>SWITCHABLE.includes(t.id)).map(t=>{
+    const on = !ME.off.includes(t.id);
+    return `<div class="swrow"><div><b>${esc(t.name)}</b><div class="note">${on?'เปิดใช้งานอยู่':'ปิดอยู่ — ผู้ใช้ทั่วไปเข้าไม่ได้'}</div></div>
+      <button type="button" class="sw" role="switch" aria-checked="${on}" aria-label="เปิด/ปิด ${esc(t.name)}" data-tool="${t.id}"></button></div>`;
+  }).join('');
+  $('swList').querySelectorAll('.sw').forEach(b=>b.addEventListener('click',()=>toggleTool(b)));
+}
+async function toggleTool(b){
+  const id=b.dataset.tool, turnOn=b.getAttribute('aria-checked')!=='true';
+  const off=new Set(ME.off||[]); turnOn?off.delete(id):off.add(id);
+  const value=[...off];
+  $('swList').querySelectorAll('.sw').forEach(x=>x.disabled=true);
+  try{
+    const { error } = await IPAuth.sb.from('app_settings').upsert({ key:'tools_off', value, updated_at:new Date().toISOString() });
+    if(error) throw error;
+    await renderSwitches();
+    setMsg($('swMsg'), (TOOLS.find(t=>t.id===id)||{}).name+(turnOn?' เปิดแล้ว':' ปิดแล้ว'), 'ok');
+  }catch(e){
+    await renderSwitches().catch(()=>{});
+    setMsg($('swMsg'), 'บันทึกไม่ได้: '+errText(e)+' — ตรวจว่ารัน supabase/tool-switch.sql แล้ว', 'err');
+  }
+}
 
 /* ---------- change own password ---------- */
 $('fPw').addEventListener('submit', async ev=>{

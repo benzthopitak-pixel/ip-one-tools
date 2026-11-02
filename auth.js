@@ -14,25 +14,35 @@
     return !s ? '' : (s.indexOf('@')>=0 ? s : s + '@' + DOMAIN);
   }
 
+  /* เครื่องมือที่แอดมินปิดไว้ทั้งระบบ (ตาราง app_settings · key tools_off) */
+  async function toolsOff(){
+    try{
+      var r = await sb.from('app_settings').select('value').eq('key','tools_off').maybeSingle();
+      return r && r.data && Array.isArray(r.data.value) ? r.data.value : [];
+    }catch(e){ return []; }
+  }
+
   async function profile(){
     var r = await sb.auth.getSession();
     var s = r && r.data && r.data.session;
     if(!s || !s.user) return null;
-    var fallback = { id:s.user.id, username:(s.user.email||'user').split('@')[0], role:'user', perms:null, tools:null };
+    var off = await toolsOff();
+    var fallback = { id:s.user.id, username:(s.user.email||'user').split('@')[0], role:'user', perms:null, tools:null, off:off };
     try{
       var q = await sb.from('profiles').select('id,username,role,perms,tools').eq('id', s.user.id).single();
       if(q.error || !q.data){
         // ยังไม่ได้รัน portal-setup.sql (ไม่มีคอลัมน์ tools) → ลองแบบเดิม
         var q2 = await sb.from('profiles').select('id,username,role,perms').eq('id', s.user.id).single();
-        return q2.data ? Object.assign({ tools:null }, q2.data) : fallback;
+        return q2.data ? Object.assign({ tools:null, off:off }, q2.data) : fallback;
       }
-      return q.data;
+      return Object.assign({ off:off }, q.data);
     }catch(e){ return fallback; }
   }
 
   function canUseTool(p, toolId){
     if(!p) return false;
     if(p.role === 'admin') return true;
+    if(Array.isArray(p.off) && p.off.indexOf(toolId) >= 0) return false;
     return !Array.isArray(p.tools) || p.tools.indexOf(toolId) >= 0;
   }
 
@@ -56,5 +66,5 @@
     location.replace('./');
   }
 
-  window.IPAuth = { sb:sb, toEmail:toEmail, profile:profile, canUseTool:canUseTool, guard:guard, logout:logout, portalUrl:portalUrl };
+  window.IPAuth = { sb:sb, toEmail:toEmail, profile:profile, toolsOff:toolsOff, canUseTool:canUseTool, guard:guard, logout:logout, portalUrl:portalUrl };
 })();

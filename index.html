@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IP One Tools Portal</title>
+<title>Inventory Tools</title>
 <link rel="icon" type="image/png" href="assets/ip-favicon.png">
 <link rel="apple-touch-icon" href="assets/ip-apple.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -214,7 +214,7 @@ button,input,select{font:inherit;color:inherit}
   </div></div>
   <div class="frame">
     <div class="nav">
-      <a class="abs logo anim" href="./" aria-label="IP One Tools หน้าแรก"><img src="assets/ip-mark.png" alt="">IP One Tools</a>
+      <a class="abs logo anim" href="./" aria-label="Inventory Tools หน้าแรก"><img src="assets/ip-mark.png" alt="">Inventory Tools</a>
       <nav class="abs navpill anim hidden" id="who" aria-label="เมนู">
         <button id="btnHome">หน้าแรก</button><button id="btnTools">เครื่องมือ</button><button id="btnLogout">ออกจากระบบ</button>
       </nav>
@@ -251,7 +251,7 @@ button,input,select{font:inherit;color:inherit}
 
 <!-- ===== SETTINGS PAGE ===== -->
 <div class="page hidden" id="settingsPage">
-  <div class="topbar"><a class="logo" href="./"><img src="assets/ip-mark.png" alt="">IP One Tools</a><a class="pill white" href="./" style="position:absolute;right:24px;top:20px;height:42px;padding:0 20px;font-size:16px">← หน้าแรก</a></div>
+  <div class="topbar"><a class="logo" href="./"><img src="assets/ip-mark.png" alt="">Inventory Tools</a><a class="pill white" href="./" style="position:absolute;right:24px;top:20px;height:42px;padding:0 20px;font-size:16px">← หน้าแรก</a></div>
 <!-- ===== SETTINGS ===== -->
 <main class="wrap hidden" id="vSettings">
   <span class="eyebrow">Settings</span>
@@ -315,7 +315,7 @@ button,input,select{font:inherit;color:inherit}
       <div class="toolinfo"><div>
         <h2>AssetSync</h2>
         <p class="note">ใช้บัญชีเดียวกับ Portal ทั้งบนคอมและเครื่องยิง (รหัสพนักงาน + รหัสผ่าน) · เพิ่มผู้ใช้และตั้งรหัสที่แท็บจัดการผู้ใช้ แล้วติ๊กเครื่องมือ AssetSync</p>
-        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="https://benzthopitak-pixel.github.io/AMS-COUNT/" target="_blank" rel="noopener">เปิด AssetSync ↗</a>
+        <a class="btn ghost sm" style="display:inline-block;margin-top:12px;text-decoration:none" href="assetsync/" target="_blank" rel="noopener">เปิด AssetSync ↗</a>
       </div></div>
     </div>
   </div>
@@ -365,7 +365,7 @@ button,input,select{font:inherit;color:inherit}
 const TOOLS = [
   { id:'audit', icon:'📦', name:'Audit Tools', desc:'จัดรูปแบบ Stock / Movement / Picking, รวมไฟล์ตรวจนับ, Stock Audit, Sales Recon, Approval Audit และอีเมล Audit', url:'audit', version:'V.6.1', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cd2d844f-ae3f-4fa9-8067-b077530b6e71.webp' },
   { id:'stock', icon:'⚖️', name:'เทียบ Stock SAP × SalesTools', desc:'เทียบยอด Stock ระหว่าง SAP (MB52) กับ SalesTools แยกของดี / ของเสีย พร้อมปรับ PO (GR / Return)', url:'stock-compare', version:'', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/48f5b97e-c27c-4afd-9427-eb35aebd1751.webp' },
-  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'https://benzthopitak-pixel.github.io/AMS-COUNT/', version:'AMS Count', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cde5384e-ce4d-423f-925a-451b779066e0.webp' },
+  { id:'assetsync', icon:'🏷️', name:'AssetSync', desc:'ระบบตรวจนับทรัพย์สิน ใช้ได้ทั้งบนคอมและเครื่องยิง CipherLab ข้อมูลซิงก์สดทุกเครื่อง', url:'assetsync/', version:'AMS Count', status:'live', art:'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/cde5384e-ce4d-423f-925a-451b779066e0.webp' },
 ];
 /* เมนูใน Audit Tools (ต้องตรงกับ RBAC_PAGE_GROUPS ใน audit.html) */
 const AUDIT_PAGES = [

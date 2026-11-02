@@ -51,11 +51,10 @@ window.XLSX_READ = window.XLSX;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-  background:
-    radial-gradient(1100px 480px at 8% -10%,#e9f1ff 0%,transparent 58%),
-    radial-gradient(900px 420px at 96% -14%,#e6faf3 0%,transparent 60%),
-    radial-gradient(700px 380px at 55% 110%,#fdf0f5 0%,transparent 62%),
-    var(--bg);
+  /* พื้นหลังฟ้า-ขาว + ลวดลายเส้น (โทนเดียวกับทุกหน้า) */
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%233b86db' stroke-linecap='round'%3E %3Ccircle cx='1390' cy='120' r='260' stroke-opacity='.20' stroke-width='2'/%3E%3Ccircle cx='1390' cy='120' r='190' stroke-opacity='.12' stroke-width='1.5'/%3E%3Ccircle cx='1390' cy='120' r='120' stroke-opacity='.12' stroke-width='1.2'/%3E %3Ccircle cx='150' cy='820' r='230' stroke-opacity='.20' stroke-width='2'/%3E%3Ccircle cx='150' cy='820' r='160' stroke-opacity='.12' stroke-width='1.5'/%3E %3Cpath d='M-40 600 C 260 520 460 700 760 620 S 1260 500 1640 590' stroke-opacity='.20' stroke-width='2.2'/%3E %3Cpath d='M-40 650 C 280 570 480 750 780 670 S 1280 550 1640 640' stroke-opacity='.12' stroke-width='1.6'/%3E %3Cpath d='M-40 700 C 300 620 500 800 800 720 S 1300 600 1640 690' stroke-opacity='.12' stroke-width='1.2'/%3E %3Cpath d='M-40 230 C 220 170 420 300 700 240' stroke-opacity='.12' stroke-width='1.4'/%3E%3C/g%3E%3C/svg%3E") center/cover no-repeat,radial-gradient(circle at 12% 16%,rgba(110,175,250,.42) 0,rgba(110,175,250,0) 38%),radial-gradient(circle at 88% 34%,rgba(150,205,255,.45) 0,rgba(150,205,255,0) 40%),radial-gradient(circle at 46% 96%,rgba(130,195,255,.32) 0,rgba(130,195,255,0) 44%),linear-gradient(180deg,#dfeefc 0%,#f6faff 100%);
+  background-attachment:fixed;
+  background-color:#eaf4fe;
   color:var(--ink);
   font-family:'IBM Plex Sans Thai','Inter',system-ui,sans-serif;
   font-size:15px;line-height:1.6;padding-bottom:80px;

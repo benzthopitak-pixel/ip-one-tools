@@ -18,6 +18,7 @@
 | `assets/` | ภาพสินค้า |
 | `supabase/portal-setup.sql` | คำสั่งตั้งค่าฐานข้อมูล (รันใน Supabase เท่านั้น) |
 repo `AMS-COUNT` เหลือไว้สร้างแอปเครื่องยิง (Android) เท่านั้น · เว็บ AssetSync ใช้ไฟล์ใน `assetsync/` ของ repo นี้
+- แก้ไฟล์ใน `assetsync/` แล้ว: รัน workflow ของ `AMS-COUNT` (Actions → Build APK → Run workflow) → ได้ Release `app` ไฟล์ `assetsync-download.zip` → แตกทับลง `assetsync/` (โฟลเดอร์ `download/` + `build.js`) แล้ว commit · ไม่งั้นแอปเครื่องยิงจะไม่อัปเดตหน้าจอเอง (checksum ไม่ตรง)
 
 ## 3. ขั้นตอนทุกครั้งที่แก้
 1. แก้ใน branch แยก (ไม่แก้ `main` ตรง ๆ)

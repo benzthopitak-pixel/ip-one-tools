@@ -5,7 +5,7 @@ function areaStats() {
   for (const a of meta.areas || []) st.set(String(a.code), { ...a, total: 0, found: 0, other: 0, here: 0 });
   for (const a of master.values()) {
     if (!counted(a)) continue;
-    const x = st.get(String(a.cc));
+    const x = st.get(homeOf(a));
     if (!x) continue;
     x.total++;
     if (cur.has(a.code)) x.found++;
@@ -28,7 +28,7 @@ function webLive(c) {
     dec = new Map();
   for (const s2 of cur.values()) {
     const a = master.get(s2.code);
-    if (a && isMoveCase(s2)) out.set(String(a.cc), (out.get(String(a.cc)) || 0) + 1);
+    if (a && isMoveCase(s2)) out.set(homeOf(a), (out.get(homeOf(a)) || 0) + 1);
     if (!a) unkHere.set(String(s2.area), (unkHere.get(String(s2.area)) || 0) + 1);
     if (needsDecision(s2)) dec.set(String(s2.area), (dec.get(String(s2.area)) || 0) + 1);
   }
@@ -259,7 +259,7 @@ function ccRows(ccCode) {
     all = ccCode === '*',
     out = [];
   for (const a of master.values()) {
-    if (!counted(a) || (!all && String(a.cc) !== ccCode)) continue;
+    if (!counted(a) || (!all && homeOf(a) !== ccCode)) continue;
     const s2 = cur.get(a.code);
     out.push({
       code: a.code,
@@ -378,11 +378,11 @@ function webCC() {
         r.state === 'moveout'
           ? `<span class="chip c-oth">ต้องย้ายไป ${esc(s2.areaName)}</span>`
           : r.state === 'movein'
-            ? `<span class="chip c-oth">ย้ายมาจาก ${esc(r.a.cc)}</span>`
+            ? `<span class="chip c-oth">ย้ายมาจาก ${esc(homeOf(r.a))}</span>`
             : r.state === 'lentout'
               ? `<span class="chip c-gray">ให้ ${esc(s2.areaName)} ยืม</span>`
               : r.state === 'borrowin'
-                ? `<span class="chip c-gray">ยืมมาจาก ${esc(r.a.cc)}</span>`
+                ? `<span class="chip c-gray">ยืมมาจาก ${esc(homeOf(r.a))}</span>`
                 : ST[r.state];
     const decided =
       s2 && s2.rv.move && !isBorrowed(s2)
@@ -408,7 +408,7 @@ function ccDetail(code, ccCode) {
     return h;
   }
   if (!a) return '<p class="sub">ไม่พบรายการ</p>';
-  const target = ccCode !== '*' ? ccCode : String(a.cc),
+  const target = ccCode !== '*' ? ccCode : homeOf(a),
     tArea = (meta.areas || []).find(x => String(x.code) === target);
   return `<div class="row" style="justify-content:space-between"><b class="mono" style="font-size:22px">${esc(code)}</b><span class="chip c-warn">รอตรวจ</span></div><div style="font-size:17px">${esc(a.name)}</div>
     <p class="sub">ในทะเบียน: CC ${esc(a.cc)}${a.ccName !== String(a.cc) ? ' · ' + esc(a.ccName) : ''} · Class ${esc(a.cls)}${a.raws.length > 1 ? ` · ${a.raws.length} แถว` : ''}${capDate(a) ? ' · ' + esc(capDate(a)) : ''}</p>

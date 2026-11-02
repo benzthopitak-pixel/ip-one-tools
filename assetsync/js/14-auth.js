@@ -175,8 +175,8 @@ function searchHits() {
     list = list.filter(
       a => a.code.includes(q) || norm(a.name).includes(q) || (a.alt && a.alt.includes(q)) || norm(a.ccName).includes(q)
     );
-  else list = list.filter(a => String(a.cc) === here);
-  list.sort((a, b) => (String(b.cc) === here) - (String(a.cc) === here) || a.code.localeCompare(b.code));
+  else list = list.filter(a => homeOf(a) === here);
+  list.sort((a, b) => (homeOf(b) === here) - (homeOf(a) === here) || a.code.localeCompare(b.code));
   return { total: list.length, list: list.slice(0, 60) };
 }
 function searchSheet() {

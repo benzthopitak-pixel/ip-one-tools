@@ -75,7 +75,7 @@ function pivotRecords() {
       QR: !s2 ? '' : hasQR(s2) ? 'ครบ' : s2.printedAt ? 'ติดแล้ว' : 'ต้องสร้าง',
       สถานะย้าย: s2 && isMoveCase(s2) ? (s2.rv.move === 'approved' ? 'รอโอนย้าย' : 'รออนุมัติ') : '',
       วันที่นับ: s2 ? new Date(s2.t).toLocaleDateString('th-TH') : '',
-      'ปิดงาน CC': ccClosed(a.cc) ? 'ปิดแล้ว' : 'ยังไม่ปิด'
+      'ปิดงาน CC': ccClosed(homeOf(a)) ? 'ปิดแล้ว' : 'ยังไม่ปิด'
     };
     for (const raw of a.raws.length ? a.raws : [[]]) {
       const rec = {};

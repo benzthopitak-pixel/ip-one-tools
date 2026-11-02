@@ -124,6 +124,7 @@ function prepareImport(name) {
         b
       ),
       cls: guess(h, ['ASSET CLASS', 'CLASS']),
+      loc: guess(h, ['LOCATION', 'สถานที่', 'ที่ตั้ง'], b),
       sub: subCol(h)
     }
   });
@@ -199,7 +200,19 @@ async function doImport() {
   }
   const rows = [...out.values()],
     counts = {};
-  for (const r of rows) if (!r[7]) counts[r[6]] = (counts[r[6]] || 0) + 1;
+  // Location mode: area = Location from the file (one Location may cover many Cost Centers)
+  const useLoc = (m.loc ?? -1) >= 0,
+    lk2 = r => String(r[5][0]?.[m.loc] ?? '').trim().replace(/\s+/g, ' '),
+    locNames = {};
+  if (useLoc)
+    for (const r of rows) {
+      const n = lk2(r);
+      if (!n) continue;
+      const k = n.toUpperCase();
+      if (!locNames[k]) locNames[k] = n;
+      if (!r[7]) counts[k] = (counts[k] || 0) + 1;
+    }
+  else for (const r of rows) if (!r[7]) counts[r[6]] = (counts[r[6]] || 0) + 1;
   const fresh = true;
   if (fresh) {
     const nm =
@@ -226,7 +239,7 @@ async function doImport() {
     S.liveArea = null;
   }
   const prev = new Map((meta.areas || []).map(a => [String(a.code), a]));
-  const areas = Object.entries(cc)
+  const areas = Object.entries(useLoc ? locNames : cc)
     .filter(([k]) => k)
     .sort((a, b) => a[1].localeCompare(b[1]))
     .map(([code, name]) => ({
@@ -263,7 +276,7 @@ async function doImport() {
   if (fresh) subscribeEvents();
   S.web = 'live';
   flash(
-    `นำเข้าแล้ว ${N(rows.length)} รายการ · ${areas.length} แผนก${Object.keys(ccNames).length ? ` · ⚠ ชื่อแผนกไม่ตรงกัน ${Object.keys(ccNames).length} CC (ยึดรหัส CC)` : ''}`
+    `นำเข้าแล้ว ${N(rows.length)} รายการ · ${areas.length} ${useLoc ? 'Location' : 'แผนก'}${Object.keys(ccNames).length ? ` · ⚠ ชื่อแผนกไม่ตรงกัน ${Object.keys(ccNames).length} CC (ยึดรหัส CC)` : ''}`
   );
 }
 function webRounds(c) {
@@ -312,11 +325,12 @@ function importBlock() {
     ['ccName', 'ชื่อแผนก (Cost Center)'],
     ['sub', 'Sub-number (เลขซับ)'],
     ['alt', 'รหัสสำรอง'],
-    ['cls', 'ประเภท']
+    ['cls', 'ประเภท'],
+    ['loc', 'Location (พื้นที่ตรวจนับ)']
   ]
     .map(([k, l]) => `<label class="f">${l}<select class="in" data-map="${k}">${opts(I.map[k] ?? -1)}</select></label>`)
     .join('')}</div>
-    <div class="chips"><span class="chip c-ok">✓ ${N(st.codes)} รายการ จาก ${N(st.rows)} แถว</span>${I.map.sub >= 0 ? `<span class="chip c-blue">แยกตาม Asset + Sub-number${st.withSubs ? ` · ${N(st.withSubs)} Asset มีหลายรายการย่อย` : ''}</span>` : `<span class="chip c-gray">ไม่ได้เลือกคอลัมน์ Sub-number · นับรวมตามเลข Asset</span>`}${st.multi ? `<span class="chip c-warn">${I.map.sub >= 0 ? 'Asset + Sub' : 'เลข Asset'} ซ้ำในไฟล์ ${st.multi} เลข (รวม ${N(st.multiRows)} แถว) · สแกนครั้งเดียวนับครบทุกแถว</span>` : ''}${st.wo ? `<span class="chip c-warn">${st.wo} แถว Write-Off เดิม · ไม่นับ</span>` : ''}</div>`;
+    <div class="chips"><span class="chip c-ok">✓ ${N(st.codes)} รายการ จาก ${N(st.rows)} แถว</span>${I.map.sub >= 0 ? `<span class="chip c-blue">แยกตาม Asset + Sub-number${st.withSubs ? ` · ${N(st.withSubs)} Asset มีหลายรายการย่อย` : ''}</span>` : `<span class="chip c-gray">ไม่ได้เลือกคอลัมน์ Sub-number · นับรวมตามเลข Asset</span>`}${st.multi ? `<span class="chip c-warn">${I.map.sub >= 0 ? 'Asset + Sub' : 'เลข Asset'} ซ้ำในไฟล์ ${st.multi} เลข (รวม ${N(st.multiRows)} แถว) · สแกนครั้งเดียวนับครบทุกแถว</span>` : ''}${st.wo ? `<span class="chip c-warn">${st.wo} แถว Write-Off เดิม · ไม่นับ</span>` : ''}${(I.map.loc ?? -1) >= 0 ? `<span class="chip c-blue">พื้นที่ตรวจนับ = Location จากไฟล์ (1 Location รวมได้หลาย CC)</span>` : `<span class="chip c-gray">ไม่ได้เลือก Location · พื้นที่ตรวจนับ = Cost Center</span>`}</div>`;
   if (busyRound)
     h += `<div class="msg ok">ไฟล์นี้จะเป็นงานใหม่อีกงาน · งาน "${esc(meta.name)}" ที่นับอยู่ยังอยู่ครบ สลับไปมาได้</div>`;
   h += `<div class="row"><button class="btn pri" data-a="doimport">${fresh ? 'นำเข้า + สร้างงานใหม่' : 'นำเข้า'} ${N(st.codes)} รายการ</button><button class="btn" data-a="cancelimport">ยกเลิก</button></div>`;

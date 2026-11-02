@@ -1,6 +1,6 @@
 # กติกาการแก้ไข repo นี้ (IP One Tools)
 
-เจ้าของ: Phassakorn T — เว็บนี้ทีมใช้งานจริงผ่าน GitHub Pages (branch `main` = เว็บจริง)
+เจ้าของ: Phassakorn T — เว็บจริง https://inventory-tool01.netlify.app (Netlify build จาก branch `main` = เว็บจริง · GitHub Pages ปิดแล้ว)
 
 ## 1. แก้เฉพาะสิ่งที่ถูกสั่ง
 - แก้ **เฉพาะไฟล์และจุดที่ผู้ใช้ระบุ** เท่านั้น
@@ -15,8 +15,9 @@
 | `audit.html` | Audit Tools V.6.1 |
 | `stock-compare.html` | เทียบ Stock SAP × SalesTools |
 | `assets/` | ภาพสินค้า |
-| `supabase/portal-setup.sql` | คำสั่งตั้งค่าฐานข้อมูล (รันใน Supabase เท่านั้น) |
-AssetSync อยู่อีก repo (`AMS-COUNT`) — ห้ามแก้จากที่นี่
+| `supabase/*.sql` | คำสั่งตั้งค่าฐานข้อมูล (รันใน Supabase เท่านั้น) |
+| `netlify.toml`, `netlify-build.sh` | ตั้งค่า Netlify: ตอน build ดึง AssetSync (Release `site` ของ AMS-COUNT) มาวางที่ `/assetsync/` |
+AssetSync อยู่อีก repo (`AMS-COUNT`) — ห้ามแก้จากที่นี่ · แก้ AssetSync แล้วต้อง build Netlify ใหม่ 1 ครั้ง (push ขึ้น `main` ของ repo นี้ หรือกด Trigger deploy ใน Netlify) ถึงจะขึ้นที่ `/assetsync/`
 
 ## 3. ขั้นตอนทุกครั้งที่แก้
 1. แก้ใน branch แยก (ไม่แก้ `main` ตรง ๆ)

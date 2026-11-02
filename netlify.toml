@@ -1,0 +1,7 @@
+# Netlify (inventory-tool01.netlify.app)
+# - หน้าเว็บหลักเสิร์ฟจากโฟลเดอร์นี้ตรง ๆ
+# - AssetSync: ตอน build ดึงไฟล์ชุดล่าสุดจาก repo AMS-COUNT มาวางที่ /assetsync/ (ดู netlify-build.sh)
+#   แก้ AssetSync แล้วต้อง build เว็บนี้ใหม่ 1 ครั้ง (push ขึ้น main หรือกด Trigger deploy ใน Netlify)
+[build]
+  publish = "."
+  command = "bash netlify-build.sh"

@@ -96,5 +96,14 @@ test('two-hour timeout notifies every tab and preserves notice until navigation'
   function makeTab(){const events={},session=new Map(),redirects=[];const c={Date:{now:()=>now},Math,window:{},localStorage:{get length(){return data.size},key:i=>[...data.keys()][i],getItem:k=>data.get(k)||null,setItem(k,v){data.set(k,String(v));for(const t of tabs)if(t!==c)t.events.storage?.({key:k,newValue:String(v)})},removeItem(k){data.delete(k);for(const t of tabs)if(t!==c)t.events.storage?.({key:k,newValue:null})}},sessionStorage:{getItem:k=>session.get(k),setItem:(k,v)=>session.set(k,v),removeItem:k=>session.delete(k)},location:{protocol:'https:',hostname:'example.test',replace:u=>redirects.push(u)},addEventListener:(k,f)=>events[k]=f,setInterval:f=>events.tick=f,document:{readyState:'complete',getElementById:()=>({}),addEventListener(){}}};c.events=events;c.session=session;c.redirects=redirects;tabs.push(c);context(c,read('idle.js'));return c;}
   const a=makeTab(),b=makeTab();now+=7200000;a.events.tick();assert.equal(a.redirects.length,1);assert.equal(b.redirects.length,1);assert.equal(a.session.get('it.idleOut'),'1');assert.equal(b.session.get('it.idleOut'),'1');
 });
+test('frequent input avoids storage scans while active input still refreshes the session',()=>{
+  let now=100000000, reads=0;const events={},data=new Map([['sb-test-auth-token','session'],['it.lastActive',String(now)]]);
+  for(let i=0;i<40;i++)data.set('amt.test'+i,'x');
+  const c={window:{},Date:{now:()=>now},Math,localStorage:{get length(){reads++;return data.size},key:i=>{reads++;return [...data.keys()][i]},getItem:k=>{reads++;return data.get(k)||null},setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)},sessionStorage:{getItem(){return null},setItem(){},removeItem(){}},location:{protocol:'https:',hostname:'test.example',replace(){throw Error('active user must not log out')}},addEventListener:(k,f)=>events[k]=f,setInterval(){},document:{readyState:'complete',getElementById(){return null},addEventListener(){}}};
+  context(c,read('idle.js'));reads=0;
+  for(let i=0;i<600;i++){now=100000000+i;events.wheel();}
+  assert.ok(reads<200,'storage operations must be throttled, got '+reads);
+  now=100031000;events.keydown();assert.equal(data.get('it.lastActive'),String(now));
+});
 (async()=>{let failed=0;for(const c of cases)try{await c.run();console.log('PASS '+c.name);}catch(e){failed++;console.error('FAIL '+c.name+'\n'+e.stack);}console.log(`${cases.length-failed}/${cases.length} passed`);process.exitCode=failed?1:0;})();
 

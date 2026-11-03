@@ -34,12 +34,15 @@
     if (Date.now() - t >= LIMIT) leave('idle', true);
   }
   function active() {
-    if (exiting) return;
+    var n = Date.now();
+    // Wheel/touch/key events can fire hundreds of times per second. Keep the
+    // throttle ahead of every synchronous localStorage read on all four pages.
+    if (exiting || n - last < 30000) return;
+    last = n;
     if (!tokenKeys().length) { try { localStorage.removeItem(KEY); } catch (e) {} return; }
-    var n = Date.now(), t = get();
+    var t = get();
     if (t && n - t >= LIMIT) return leave('idle', true);
-    if (n - last < 30000) return;
-    last = n; set(n);
+    set(n);
   }
   addEventListener('storage', function (e) {
     if (exiting) return;

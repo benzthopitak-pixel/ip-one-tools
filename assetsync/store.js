@@ -72,9 +72,9 @@
       if (error) throw err(error, 'เข้าสู่ระบบไม่สำเร็จ');
       return data.session;
     },
-    async logout() {
+    async logout(options) {
       try {
-        await client()?.auth.signOut();
+        await client()?.auth.signOut(options);
       } catch {}
     },
     async profile() {
@@ -206,7 +206,15 @@
     /row-level security|violates/i.test(e?.message || '');
   const rejected = new Map(); // id → reason · shown on the device, never retried
   async function putEvents(items) {
-    const fresh = items.filter(e => e && e.id && !sentIds.has(e.id) && !rejected.has(e.id));
+    const removed = new Map();
+    const fresh = items.filter(e => {
+      if (!e || !e.id || sentIds.has(e.id) || rejected.has(e.id)) return false;
+      if (!removed.has(e.round)) {
+        try { removed.set(e.round, new Set(JSON.parse(localStorage.getItem('amt.removed-' + e.round) || '[]'))); }
+        catch (error) { removed.set(e.round, new Set()); }
+      }
+      return !removed.get(e.round).has(e.id);
+    });
     for (let i = 0; i < fresh.length; i += 500) {
       const part = fresh.slice(i, i + 500);
       const { error } = await client()
@@ -280,50 +288,45 @@
     };
   }
   function watchEvents(round, cb, onErr) {
-    const all = new Map();
-    let alive = true,
-      t = null;
+    let all = new Map(), alive = true, timer = null, version = 0, sequence = 0, checkedAt = 0;
+    const arrivals = new Map();
     const emit = () => {
-      clearTimeout(t);
-      t = setTimeout(
-        () => alive && cb({ docs: [{ id: 'srv', exists: true, data: () => ({ round, items: [...all.values()] }) }] }),
-        120
-      );
+      clearTimeout(timer);
+      timer = setTimeout(() => alive && cb({ checkedAt, docs: [{ id: 'srv', exists: true, data: () => ({ round, items: [...all.values()] }) }] }), 120);
     };
-    const pull = () =>
-      fetchEvents(round).then(
-        list => {
-          if (!alive) return;
-          for (const e of list) all.set(e.id, e);
-          emit();
-        },
-        e => alive && onErr?.(e)
-      );
+    const pull = async () => {
+      const request = ++version, since = sequence, startedAt = Date.now();
+      try {
+        const list = await fetchEvents(round);
+        if (!alive || request !== version) return;
+        const next = new Map(list.map(e => [e.id, e]));
+        // INSERTs committed while the snapshot was loading must not be lost.
+        for (const [id, entry] of arrivals) if (entry.sequence > since) next.set(id, entry.event);
+        all = next;
+        checkedAt = startedAt;
+        for (const [id, entry] of arrivals) if (entry.sequence <= since) arrivals.delete(id);
+        emit();
+      } catch (e) { if (alive && request === version) onErr?.(e); }
+    };
     const ch = client()
       .channel('ev-' + round + '-' + Math.random().toString(36).slice(2, 6))
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'ams_events', filter: `round=eq.${round}` },
-        p => {
-          const d = p.new?.data;
-          if (d && d.id) {
-            all.set(d.id, d);
-            sentIds.add(d.id);
-            emit();
-          }
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'ams_events', filter: `round=eq.${round}` }, p => {
+        if (!alive) return;
+        const e = p.new?.data;
+        if (e?.id) {
+          arrivals.set(e.id, { event: e, sequence: ++sequence });
+          all.set(e.id, e); sentIds.add(e.id); emit();
         }
-      )
+      })
+      // DELETE payloads may contain only the primary key, so resync the subscribed round.
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'ams_events' }, pull)
       .subscribe(st => {
         if (st === 'SUBSCRIBED') pull();
         else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') onErr?.(err(null, st));
       });
     resyncers.add(pull);
     pull();
-    return () => {
-      alive = false;
-      resyncers.delete(pull);
-      client().removeChannel(ch);
-    };
+    return () => { alive = false; ++version; clearTimeout(timer); resyncers.delete(pull); client().removeChannel(ch); };
   }
 
   const db = {

@@ -3,32 +3,56 @@ function scheduleFlush() {
   clearTimeout(scheduleFlush.t);
   scheduleFlush.t = setTimeout(flush, 700);
 }
-async function flush() {
-  if (!db || !meta || writing || !dirty.size) {
+const sendingJobs = new Map();
+function flushRound(round) {
+  if (!db || !round) return Promise.resolve();
+  if (sendingJobs.has(round)) return sendingJobs.get(round);
+  const store = db;
+  const send = async () => {
+    writing = true;
     paintSync();
-    return;
-  }
-  writing = true;
-  paintSync();
-  try {
-    for (const k of [...dirty]) {
-      const items = mine.slice(k * CHUNK, (k + 1) * CHUNK);
-      await db.doc(`ev/${meta.id}-${dev}-${k}`).set({ round: meta.id, dev, items, at: Date.now() });
-      dirty.delete(k);
-      saveMine();
+    try {
+      const chunks = LS.get('dirty-' + round, []);
+      for (const k of chunks) {
+        const items = LS.get('mine-' + round, []).slice(k * CHUNK, (k + 1) * CHUNK);
+        await store.doc(`ev/${round}-${dev}-${k}`).set({ round, dev, items, at: Date.now() });
+        const synced = LS.get('synced-' + round, {});
+        const refused = store.rejected ? store.rejected() : new Map();
+        for (const e of items) if (!refused.has(e.id)) synced[e.id] = Date.now();
+        LS.set('synced-' + round, synced);
+        const latest = LS.get('mine-' + round, []).slice(k * CHUNK, (k + 1) * CHUNK);
+        const queue = new Set(LS.get('dirty-' + round, []));
+        if (latest.length === items.length && latest.every((e, i) => e.id === items[i].id)) queue.delete(k);
+        LS.set('dirty-' + round, [...queue]);
+        if (meta?.id === round) dirty = queue;
+      }
+      online = true;
+    } catch (e) {
+      online = false;
+      clearTimeout(flush.r);
+      if (e.code !== 'storage_failed') flush.r = setTimeout(() => flushRound(round), 8000);
+    } finally {
+      sendingJobs.delete(round);
+      writing = !!sendingJobs.size;
+      paintSync();
+      render();
+      if (!S.storageError && meta?.id === round && dirty.size && online) scheduleFlush();
     }
-    online = true;
-  } catch (e) {
-    online = false;
-    clearTimeout(flush.r);
-    flush.r = setTimeout(flush, 8000);
-  }
-  writing = false;
-  paintSync();
-  render();
+  };
+  const promise = Promise.resolve().then(send);
+  sendingJobs.set(round, promise);
+  return promise;
+}
+async function flush() {
+  if (!meta || !db) return paintSync();
+  // Persist a freshly reconstructed queue before sending.
+  LS.set('dirty-' + meta.id, [...dirty]);
+  return flushRound(meta.id);
 }
 function pushEvent(e) {
   if (!meta) return;
+  if (S.loadingJob) throw new Error('กำลังโหลดงาน · กรุณารอให้ทะเบียนพร้อมก่อน');
+  if (S.storageError) throw new Error('กรุณาแก้ไขการบันทึกในเครื่องก่อนนับต่อ');
   const ev = {
     id: dev + '-' + Date.now().toString(36) + '-' + mine.length,
     t: Date.now(),
@@ -36,9 +60,11 @@ function pushEvent(e) {
     dev,
     ...e
   };
-  mine.push(ev);
-  dirty.add(Math.floor((mine.length - 1) / CHUNK));
-  saveMine();
+  const next = [...mine, ev], queue = new Set(dirty);
+  queue.add(Math.floor((next.length - 1) / CHUNK));
+  saveMine(meta.id, next, queue);
+  mine = next;
+  dirty = queue;
   _cache = null;
   scheduleFlush();
   return ev;
@@ -127,18 +153,38 @@ let unsubEv = null,
 function subscribeEvents() {
   if (!db || !meta || evRound === meta.id) return;
   if (unsubEv) unsubEv();
-  evRound = meta.id;
+  const round = meta.id;
+  evRound = round;
   serverEv = {};
   unsubEv = db
     .collection('ev')
     .where('round', '==', meta.id)
     .onSnapshot(
       snap => {
+        if (meta?.id !== round || evRound !== round) return;
         const m = {};
         for (const d of snap.docs) {
           const x = d.data();
           if (x) m[d.id] = x.items || [];
         }
+        const all = Object.values(m).flat(), ids = new Set(all.map(e => e.id));
+        const synced = LS.get('synced-' + round, {}), removed = new Set(LS.get('removed-' + round, []));
+        const local = [...mine, ...Object.values(usbEv).flat()];
+        for (const e of local) {
+          if (ids.has(e.id)) synced[e.id] = 0;
+          else if (snap.checkedAt && synced[e.id] !== undefined && synced[e.id] < snap.checkedAt) removed.add(e.id);
+        }
+        LS.set('synced-' + round, synced);
+        LS.set('removed-' + round, [...removed]);
+        removedEvents = removed;
+        const keptMine = mine.filter(e => !removed.has(e.id));
+        if (keptMine.length !== mine.length) {
+          const queue = new Set(keptMine.map((_, i) => Math.floor(i / CHUNK)));
+          saveMine(round, keptMine, queue);
+          mine = keptMine; dirty = queue;
+        }
+        const keptUsb = Object.fromEntries(Object.entries(usbEv).map(([dev, events]) => [dev, events.filter(e => !removed.has(e.id))]));
+        if (JSON.stringify(keptUsb) !== JSON.stringify(usbEv)) { LS.set('usb-' + round, keptUsb); usbEv = keptUsb; }
         serverEv = m;
         online = true;
         _cache = null;
@@ -150,16 +196,17 @@ function subscribeEvents() {
       }
     );
 }
-async function loadMaster(m) {
+async function loadMaster(m, current = () => true) {
   const rows = [];
   for (let i = 0; i < m.chunks; i++) {
     const d = (await db.doc(masterKeyOf(m, i)).get()).data();
     if (!d || d.ver !== m.ver) return false;
     rows.push(...d.rows);
   }
-  indexMaster(rows);
+  if (!current()) return false;
   LS.set('master', rows);
   LS.set('masterVer', m.ver);
+  indexMaster(rows);
   return true;
 }
 // the register must reach every device: keep retrying until this device has the version the round says
@@ -167,7 +214,12 @@ function retryMaster() {
   clearTimeout(retryMaster.t);
   retryMaster.t = setTimeout(async () => {
     if (!db || !meta?.ver || meta.ver === LS.get('masterVer', null)) return;
-    if (await loadMaster(meta).catch(() => false)) {
+    const target = meta, generation = jobGeneration;
+    if (await loadMaster(target, () => generation === jobGeneration && meta === target).catch(() => false)) {
+      S.loadingJob = false;
+      LS.set('meta', meta);
+      subscribeEvents();
+      startPresence();
       _cache = null;
       flash('โหลดทะเบียนครบแล้ว');
       render();
@@ -266,23 +318,45 @@ function curJobKey() {
   return j.metaKey;
 }
 let watchedKey = null,
-  unsubJobs = null;
+  unsubJobs = null,
+  jobGeneration = 0;
+watchJob.revision = 0;
 function watchJob() {
   const k = curJobKey();
   if (k === watchedKey && unsubMeta) return;
   watchedKey = k;
+  const generation = ++jobGeneration;
+  S.loadingJob = true;
   unsubMeta?.();
+  unsubEv?.();
+  evRound = null;
+  serverEv = {};
   unsubMeta = db.doc(k).onSnapshot(
     async s => {
+      if (generation !== jobGeneration) return;
       const m = s.exists ? s.data() : null;
+      const revision = ++watchJob.revision;
+      const current = () => generation === jobGeneration && revision === watchJob.revision;
+      S.loadingJob = true;
       const roundChanged = (m?.id || null) !== (meta?.id || null);
       if (m && m.ver && m.ver !== LS.get('masterVer', null)) {
         flash('กำลังโหลดทะเบียน…');
-        if (!(await loadMaster(m).catch(() => false))) {
-          flash('ทะเบียนยังโหลดไม่ครบ · กำลังลองใหม่');
+        const ready = await loadMaster(m, current).catch(() => false);
+        if (!current()) return;
+        if (!ready) {
+          flash('ทะเบียนยังโหลดไม่ครบ · ยังไม่สามารถบันทึกผลนับได้');
+          // Stay on the requested job, but never count using another job's register.
+          meta = m;
+          loadMine();
+          S.area = null;
+          LS.set('area', null);
           retryMaster();
+          render();
+          return;
         }
       }
+      if (!current()) return;
+      S.loadingJob = false;
       if (m && (!jobs || !jobs.length)) {
         jobs = [jobEntry(m)];
         LS.set('jobs', jobs);
@@ -345,23 +419,13 @@ async function flushOtherJobs() {
   if (!db || usbMode) return;
   for (const j of jobList()) {
     if (j.id === meta?.id) continue;
-    const d = LS.get('dirty-' + j.id, []);
-    if (!d.length) continue;
-    const list = LS.get('mine-' + j.id, []);
-    try {
-      for (const k of d)
-        await db
-          .doc(`ev/${j.id}-${dev}-${k}`)
-          .set({ round: j.id, dev, items: list.slice(k * CHUNK, (k + 1) * CHUNK), at: Date.now() });
-      LS.set('dirty-' + j.id, []);
-    } catch {
-      return;
-    }
+    if (LS.get('dirty-' + j.id, []).length) await flushRound(j.id);
   }
 }
 function pickJob(id) {
   if (id === meta?.id) return;
   jobId = id;
+  S.loadingJob = true;
   LS.set('jobId', id);
   S.cards = [];
   S.ccSel = null;

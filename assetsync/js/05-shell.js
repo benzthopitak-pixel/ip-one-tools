@@ -1,3 +1,26 @@
+window.addEventListener('ams-storage-error', () => {
+  S.storageError = true;
+  if (document.getElementById('storageFailure')) return;
+  const box = document.createElement('div');
+  box.id = 'storageFailure';
+  box.setAttribute('role', 'alertdialog');
+  box.style.cssText = 'position:fixed;inset:auto 12px 12px;z-index:99999;background:#fff3f0;color:#7b2015;border:2px solid #d04c35;border-radius:12px;padding:16px;box-shadow:0 4px 24px #0003';
+  const message = document.createElement('p');
+  message.textContent = 'บันทึกในเครื่องไม่สำเร็จ · หยุดนับก่อน รายการล่าสุดอาจยังไม่ได้บันทึก กรุณาส่งออกสำรอง แล้วเพิ่มพื้นที่ว่างและลองใหม่';
+  const backup = document.createElement('button');
+  backup.className = 'btn'; backup.textContent = 'ส่งออกข้อมูลสำรอง';
+  backup.onclick = () => {
+    const data = { kind: 'ams-recovery', at: Date.now(), meta, mine, usbEv, rows: rowsOfMaster() };
+    Store.downloads.save({ filename: 'AssetSync-backup-' + Date.now() + '.json', data: JSON.stringify(data), type: 'application/json' }).catch(() => { message.textContent = 'ส่งออกไม่สำเร็จ · อย่าปิดหน้านี้ กรุณาเพิ่มพื้นที่ว่างแล้วลองใหม่'; });
+  };
+  const retry = document.createElement('button');
+  retry.className = 'btn'; retry.textContent = 'ลองบันทึกใหม่';
+  retry.onclick = () => {
+    try { saveMine(); S.storageError = false; box.remove(); flash('บันทึกสำเนาในเครื่องได้แล้ว · กรุณาตรวจรายการล่าสุดและสแกนซ้ำถ้ายังไม่มี'); scheduleFlush(); } catch (e) {}
+  };
+  box.append(message, backup, retry); document.body.appendChild(box);
+});
+
 /* AssetSync · โครงหน้าจอ: render() วาดหน้าใหม่ทั้งหมด, เลือกหน้าเว็บตามเมนู (webView), แถบสถานะ และงานหลังวาดหน้า (afterRender) */
 function flash(t) {
   S.toast = t;

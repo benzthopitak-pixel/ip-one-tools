@@ -4,7 +4,7 @@ function allEvents() {
   for (const k in serverEv) for (const e of serverEv[k]) m.set(e.id, e);
   for (const k in usbEv) for (const e of usbEv[k]) m.set(e.id, e);
   for (const e of mine) m.set(e.id, e);
-  return [...m.values()].sort((a, b) => a.t - b.t || (a.id < b.id ? -1 : 1));
+  return [...m.values()].filter(e => !removedEvents.has(e.id)).sort((a, b) => a.t - b.t || (a.id < b.id ? -1 : 1));
 }
 let _cache = null,
   _cacheKey = '';

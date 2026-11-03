@@ -728,7 +728,9 @@ function parsePO(aoa,grDOs){
       else o.poVS+=q;
     }
   }
-  Object.keys(plantCount).forEach(p=>{if(!plantId||plantCount[p]>plantCount[plantId])plantId=p});
+  const plantIds=Object.keys(plantCount);
+  if(plantIds.length!==1)throw new Error(plantIds.length ? 'ไฟล์ PO ต้องมี Plant เดียว · พบ '+plantIds.join(', ') : 'ไม่พบ Plant ในไฟล์ PO');
+  plantId=plantIds[0];
   [...byMat.keys()].forEach(k=>{const o=byMat.get(k);if(!o.grVS&&!o.poVS&&!o.po99)byMat.delete(k)});
   // DO ที่กรอกแต่ไม่เจอในไฟล์
   const missDO=[...doSet].filter(d=>!foundDO.has(d));
@@ -809,6 +811,7 @@ function refreshReady(){
     readFile(f,data=>{
       try{
         const po=parsePO(data.aoa,new Set());   // เริ่มยังไม่มี DO -> GR=0
+        if(poFiles.some(x=>String(x.plant)===String(po.plant)))throw new Error('มีไฟล์ PO ของ Plant '+po.plant+' แล้ว · ลบไฟล์เดิมก่อนเพิ่มไฟล์ใหม่');
         poFiles.push({name:f.name,plant:po.plant,aoa:data.aoa,doText:'',
           byMat:po.byMat,grVS:0,poVS:sumBy(po.byMat,'poVS'),po99:sumBy(po.byMat,'po99'),
           foundDO:[],missDO:[]});
@@ -948,43 +951,7 @@ function compute(){
   units.forEach(u=>u.whs.forEach(w=>{const key=w.name;if(!seen.has(key)){seen.add(key);whAll.push(w)}}));
   whMap=whAll;
 
-  // รวมข้อมูลข้าม unit: key = plant+code เพื่อไม่ให้ต่าง plant มารวมยอดกัน
-  const acc=new Map();
-  units.forEach(u=>{
-    // หาไฟล์ PO ที่ตรงกับ plant ของ unit นี้ (จับด้วยเลข plant)
-    const po=poFiles.find(f=>String(f.plant)===String(u.pid));
-    const poKeys=po?[...po.byMat.keys()]:[];
-    const keys=new Set([...u.A.keys(),...u.B.keys(),...poKeys]);
-    keys.forEach(k=>{
-      const a=u.A.get(k),b=u.B.get(k);
-      const adj=po?po.byMat.get(k):null;
-      const id=(curPlant==='__all__'?u.pid+'§':'')+k;
-      if(!acc.has(id))acc.set(id,{code:k,plant:u.pname,pid:u.pid,desc:'',
-        av:0,ad:0,bv:0,bd:0,inA:false,inB:false,by:{},
-        adjVS:0,adj99:0,adjGR:0,adjPO:0});
-      const o=acc.get(id);
-      if(a){o.inA=true;o.av+=a.vs;o.ad+=a.d99;if(!o.desc)o.desc=a.desc}
-      if(b){o.inB=true;o.bv+=b.vs;o.bd+=b.d99;if(!o.desc)o.desc=b.desc;
-        Object.keys(b.by||{}).forEach(w=>o.by[w]=(o.by[w]||0)+b.by[w])}
-      if(adj){
-        // บวกกลับเข้าฝั่ง SalesTools
-        o.inB=true;
-        o.bv+=adj.grVS+adj.poVS;   // GR (VS) + PO wait VS
-        o.bd+=adj.po99;            // PO wait 99
-        o.adjVS+=adj.grVS+adj.poVS;o.adj99+=adj.po99;
-        o.adjGR+=adj.grVS;o.adjPO+=adj.poVS+adj.po99;
-        if(!o.desc&&adj.desc)o.desc=adj.desc;
-      }
-    });
-  });
-
-  rows=[...acc.values()].map(o=>{
-    o.dv=o.av-o.bv;o.dd=o.ad-o.bd;
-    o.gapG=o.inA&&o.inB&&Math.abs(o.dv)>tol;
-    o.gapD=o.inA&&o.inB&&Math.abs(o.dd)>tol;
-    o.status=!o.inA?'only-st':!o.inB?'only-sap':(o.gapG||o.gapD)?'gap':'match';
-    return o;
-  });
+  rows=units.flatMap(rowsForUnit);
 
   // สรุปการจับคู่ Plant — แก้ไขเองได้
   const mu=plantUnits.filter(u=>u.matched).length;
@@ -1171,7 +1138,7 @@ function render(){
       // ST เดิม | +GR | +Return | ST รวม
       const orig=r.inB?fmt(b-adj):'<span class="dash">—</span>';
       const gr=dmg?0:(r.adjGR||0);
-      const ret=dmg?(r.adjPO||0):((r.adjVS||0)-(r.adjGR||0));
+      const ret=dmg?(r.adj99||0):((r.adjVS||0)-(r.adjGR||0));
       const grCell=gr?'<span class="pocell gr">+'+fmt(gr)+'</span>':'<span class="dash">—</span>';
       const retCell=ret?'<span class="pocell ret">+'+fmt(ret)+'</span>':'<span class="dash">—</span>';
       mid='<td class="num">'+orig+'</td>'+
@@ -1261,7 +1228,7 @@ function sheetByType(wb,src,t,name){
     if(poOn){
       // GR ลง VS เท่านั้น | Return ลงได้ทั้ง VS/99 -> แยกให้เห็นราย SKU
       const gr=t==='dmg'?0:(r.adjGR||0);
-      const ret=t==='dmg'?(r.adjPO||0):((r.adjVS||0)-(r.adjGR||0));
+      const ret=t==='dmg'?(r.adj99||0):((r.adjVS||0)-(r.adjGR||0));
       row={'รหัสสินค้า':r.code,'ชื่อสินค้า':r.desc,
         'SAP':r.inA?a:'',
         'ST (เดิม)':r.inB?b-adj:'',
@@ -1305,7 +1272,7 @@ function buildWorkbook(src,wmap,mode){
         const adj=t==='dmg'?(r.adj99||0):(r.adjVS||0);
         if(hasPO){
           const gr=t==='dmg'?0:(r.adjGR||0);
-          const ret=t==='dmg'?(r.adjPO||0):((r.adjVS||0)-(r.adjGR||0));
+          const ret=t==='dmg'?(r.adj99||0):((r.adjVS||0)-(r.adjGR||0));
           return{
             'รหัสสินค้า':r.code,'ชื่อสินค้า':r.desc,
             'SAP':r.inA?a:'',
@@ -1348,7 +1315,7 @@ function buildWorkbook(src,wmap,mode){
         const adj=t==='dmg'?(r.adj99||0):(r.adjVS||0);
         if(hasPO){
           const gr=t==='dmg'?0:(r.adjGR||0);
-          const ret=t==='dmg'?(r.adjPO||0):((r.adjVS||0)-(r.adjGR||0));
+          const ret=t==='dmg'?(r.adj99||0):((r.adjVS||0)-(r.adjGR||0));
           return{
             'รหัสสินค้า':r.code,'ชื่อสินค้า':r.desc,
             'SAP':r.inA?a:'',
@@ -1401,7 +1368,7 @@ function sheetByTypeW(wb,src,wmap,t,name){
     if(poOn){
       // GR ลง VS เท่านั้น | Return ลงได้ทั้ง VS/99 -> แยกให้เห็นราย SKU
       const gr=t==='dmg'?0:(r.adjGR||0);
-      const ret=t==='dmg'?(r.adjPO||0):((r.adjVS||0)-(r.adjGR||0));
+      const ret=t==='dmg'?(r.adj99||0):((r.adjVS||0)-(r.adjGR||0));
       row={'รหัสสินค้า':r.code,'ชื่อสินค้า':r.desc,
         'SAP':r.inA?a:'',
         'ST (เดิม)':r.inB?b-adj:'',
@@ -1431,11 +1398,15 @@ function sheetByTypeW(wb,src,wmap,t,name){
 /* คำนวณ rows ของ unit เดียว (ใช้ตอน export แยก plant) */
 function rowsForUnit(u){
   const tol=Math.abs(Number($('#tol').value)||0);
-  const keys=new Set([...u.A.keys(),...u.B.keys()]);
+  const po=poFiles.find(f=>String(f.plant)===String(u.pid));
+  const keys=new Set([...u.A.keys(),...u.B.keys(),...(po?[...po.byMat.keys()]:[])]);
   return [...keys].map(k=>{
-    const a=u.A.get(k),b=u.B.get(k);
-    const o={code:k,desc:(a&&a.desc)||(b&&b.desc)||'',plant:u.pname,
-      av:a?a.vs:0,ad:a?a.d99:0,bv:b?b.vs:0,bd:b?b.d99:0,inA:!!a,inB:!!b,by:(b&&b.by)||{}};
+    const a=u.A.get(k),b=u.B.get(k),adj=po?.byMat.get(k);
+    const o={code:k,pid:u.pid,desc:a?.desc||b?.desc||adj?.desc||'',plant:u.pname,
+      av:a?.vs||0,ad:a?.d99||0,bv:(b?.vs||0)+(adj?.grVS||0)+(adj?.poVS||0),
+      bd:(b?.d99||0)+(adj?.po99||0),inA:!!a,inB:!!b||!!adj,by:b?.by||{},
+      adjVS:(adj?.grVS||0)+(adj?.poVS||0),adj99:adj?.po99||0,
+      adjGR:adj?.grVS||0,adjPO:(adj?.poVS||0)+(adj?.po99||0)};
     o.dv=o.av-o.bv;o.dd=o.ad-o.bd;
     o.gapG=o.inA&&o.inB&&Math.abs(o.dv)>tol;
     o.gapD=o.inA&&o.inB&&Math.abs(o.dd)>tol;

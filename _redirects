@@ -1,0 +1,2 @@
+# Scanner OTA requests require the original bytes; normal browser pages keep their HTML route.
+/assetsync/index.html v=:build https://raw.githubusercontent.com/benzthopitak-pixel/ip-one-tools/main/assetsync/index.html?v=:build 200!

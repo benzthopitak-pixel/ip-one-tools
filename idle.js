@@ -1,65 +1,64 @@
-/* ============================================================
-   Inventory Tools — ออกจากระบบอัตโนมัติเมื่อไม่ได้ใช้งาน 2 ชั่วโมง
-   ใช้ร่วมกันทุกหน้า (Portal, Audit, เทียบ Stock, AssetSync บนเว็บ)
-   · มีการคลิก/พิมพ์/เลื่อนในแท็บไหนก็ได้ = ยังใช้งานอยู่ (นับรวมทุกแท็บ)
-   · ไม่ทำงานในแอปเครื่องยิง (แอปมีล็อกอินของตัวเอง)
-   ============================================================ */
+/* Inventory Tools — shared two-hour inactivity session (web only). */
 (function () {
-  var LIMIT = 2 * 60 * 60 * 1000, // 2 ชั่วโมง
-    KEY = 'it.lastActive',
-    FLAG = 'it.idleOut';
+  var LIMIT = 2 * 60 * 60 * 1000, KEY = 'it.lastActive', FLAG = 'it.idleOut', SIGNAL = 'it.logout';
   if (!/^https?:$/.test(location.protocol) || /androidplatform\.net$/i.test(location.hostname)) return;
-  var get = function () {
-      try { return +localStorage.getItem(KEY) || 0; } catch (e) { return 0; }
-    },
-    set = function (t) {
-      try { localStorage.setItem(KEY, String(t)); } catch (e) {}
-    },
-    loggedIn = function () {
-      try {
-        for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) return true;
-      } catch (e) {}
-      return false;
-    };
-  function logout() {
+  var exiting = false, last = 0;
+  function get() { try { return +localStorage.getItem(KEY) || 0; } catch (e) { return 0; } }
+  function tokenKeys() {
+    var out = [];
+    try { for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) out.push(localStorage.key(i)); } catch (e) {}
+    return out;
+  }
+  function set(t) { try { localStorage.setItem(KEY, String(t)); } catch (e) {} }
+  function leave(reason, broadcast) {
+    if (exiting) return;
+    exiting = true;
     try {
-      var ks = [];
-      for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i))) ks.push(localStorage.key(i));
-      ks.forEach(function (k) { localStorage.removeItem(k); });
-      localStorage.removeItem(KEY);
-      sessionStorage.setItem(FLAG, '1');
+      if (reason === 'idle') sessionStorage.setItem(FLAG, '1');
+      if (broadcast) localStorage.setItem(SIGNAL, JSON.stringify({ reason: reason, at: Date.now(), nonce: Math.random() }));
     } catch (e) {}
+    // Notify the SDK as well as other tabs. Never revoke sessions on other devices.
+    try {
+      var auth = window.IPAuth && window.IPAuth.sb && window.IPAuth.sb.auth || window.sb && window.sb.auth;
+      var p = auth ? auth.signOut({ scope: 'local' }) : window.AMSStore && window.AMSStore.auth.logout({ scope: 'local' });
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+    try { tokenKeys().forEach(function (k) { localStorage.removeItem(k); }); localStorage.removeItem(KEY); } catch (e) {}
     location.replace('/');
   }
   function check() {
-    if (!loggedIn()) {
-      try { localStorage.removeItem(KEY); } catch (e) {} // ออกจากระบบแล้ว → เริ่มนับใหม่ตอนล็อกอินครั้งหน้า
-      return;
-    }
+    if (exiting) return;
+    if (!tokenKeys().length) { try { localStorage.removeItem(KEY); } catch (e) {} return; }
     var t = get();
-    if (!t) return set(Date.now()); // เพิ่งล็อกอิน / เริ่มใช้ระบบนี้ครั้งแรก
-    if (Date.now() - t > LIMIT) logout();
+    if (!t) return set(Date.now());
+    if (Date.now() - t >= LIMIT) leave('idle', true);
   }
-  check();
-  var last = 0;
   function active() {
-    var n = Date.now();
-    if (n - last < 30000) return; // บันทึกไม่เกินทุก 30 วินาที
-    last = n;
-    if (loggedIn()) {
-      if (get() && n - get() > LIMIT) return logout();
-      set(n);
-    }
+    if (exiting) return;
+    if (!tokenKeys().length) { try { localStorage.removeItem(KEY); } catch (e) {} return; }
+    var n = Date.now(), t = get();
+    if (t && n - t >= LIMIT) return leave('idle', true);
+    if (n - last < 30000) return;
+    last = n; set(n);
   }
-  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) {
-    addEventListener(ev, active, { passive: true, capture: true });
+  addEventListener('storage', function (e) {
+    if (exiting) return;
+    if (e.key === SIGNAL && e.newValue) {
+      try { leave(JSON.parse(e.newValue).reason, false); } catch (err) {}
+    } else if (e.key && /^sb-.+-auth-token$/.test(e.key) && !e.newValue) {
+      var reason = 'signedout';
+      try { var out = JSON.parse(localStorage.getItem(SIGNAL) || 'null'); if (out && Date.now() - out.at < 5000) reason = out.reason; } catch (err) {}
+      leave(reason, false);
+    }
   });
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) { addEventListener(ev, active, { passive: true, capture: true }); });
   setInterval(check, 60000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) check(); });
-  // หน้าล็อกอินของ Portal: บอกเหตุผลที่ต้องล็อกอินใหม่
+  addEventListener('pageshow', check);
+  check();
   function note() {
-    var el = document.getElementById('lgErr');
-    var f = null;
+    if (exiting) return;
+    var el = document.getElementById('lgErr'), f = null;
     try { f = sessionStorage.getItem(FLAG); } catch (e) {}
     if (!f || !el) return;
     try { sessionStorage.removeItem(FLAG); } catch (e) {}

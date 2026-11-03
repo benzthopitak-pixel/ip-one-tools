@@ -13378,7 +13378,20 @@ function lpClear(resetInput = true) {
     return setCellXml(rowXml,rn,colIdx,num,false);
   }
   // ปรับ row reference ในสูตร (+offset) — คง $ absolute
-  function adjFormulaRows(s,off){if(off===0)return s;return s.replace(/(\$?[A-Z]{1,3})(\$?)(\d+)/g,(m,col,abs,row)=>abs==='$'?m:col+(parseInt(row,10)+off));}
+  function adjFormulaRows(s,off){
+    if(off===0)return s;
+    // Keep quoted strings, sheet/workbook names and structured references intact.
+    const tokens=/("(?:[^"]|"")*"|'(?:[^']|'')*'|\[[^\]]*\]|(?:[A-Za-z_\\][A-Za-z0-9_.\\]*|\d+)!)|(\$?[A-Z]{1,3})(\$?)([1-9]\d*)/g;
+    return s.replace(tokens,(m,protectedPart,col,abs,row,at)=>{
+      if(protectedPart)return m;
+      const before=s[at-1]||'',after=s[at+m.length]||'';
+      if(/[A-Za-z0-9_.]/.test(before)||/[A-Za-z0-9_!.([]/.test(after))return m;
+      let n=0;for(const c of col.replace('$',''))n=n*26+c.charCodeAt(0)-64;
+      if(n>16384||+row>1048576||abs==='$')return m;
+      const next=+row+off;
+      return next<1||next>1048576?'#REF!':col+next;
+    });
+  }
   // clone row block (ขยายแถวเมื่อสินค้าเกิน template) — renumber + ปรับสูตร + แตก shared formula
   // v3.6.27: rewritten to be cell-by-cell so self-closing shared-formula slaves
   // (<f t="shared" si="N"/>) ในเทมเพลตไม่ทำให้ regex paired-<f> กิน body ข้ามเซลล์

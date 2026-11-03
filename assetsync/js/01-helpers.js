@@ -12,7 +12,16 @@ const LS = {
   set(k, v) {
     try {
       localStorage.setItem('amt.' + k, JSON.stringify(v));
-    } catch {}
+      return true;
+    } catch (cause) {
+      if (/^(mine-|dirty-|synced-|removed-|master$|masterVer$|meta$|usb-)/.test(k)) {
+        const error = new Error('บันทึกในเครื่องไม่สำเร็จ · รายการล่าสุดยังไม่ถูกบันทึก กรุณาส่งออกสำรองและลองใหม่');
+        error.code = 'storage_failed';
+        window.dispatchEvent(new CustomEvent('ams-storage-error', { detail: { key: k } }));
+        throw error;
+      }
+      return false;
+    }
   }
 };
 // look of the app: 'sky' = glass on a blue sky (default) · 'classic' = the original flat colours · remembered per device

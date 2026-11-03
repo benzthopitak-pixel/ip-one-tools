@@ -145,6 +145,7 @@ const srcOf = raw => {
   return /[\r\n]|https?:|No\s*\.?\s*:/i.test(t) ? 'qr' : 'barcode';
 }; // no prefix at all: multi-line / labelled payloads only come from QR
 function doScan(raw) {
+  if (S.loadingJob || S.storageError) { flash(S.loadingJob ? 'กำลังโหลดงาน · กรุณารอให้ทะเบียนพร้อม' : 'บันทึกในเครื่องไม่สำเร็จ · กรุณาส่งออกสำรองและลองใหม่'); return; }
   if (S.area && !S.area.shared && ccClosed(S.area.code)) {
     beep('dup');
     flash('CC นี้ปิดงานแล้ว · เปิดนับต่อก่อน');
@@ -179,6 +180,7 @@ function doScan(raw) {
 }
 // one count; extra = { qf, qraw } when the sticker is an old format (Asset only / no '-'): it goes on the reprint list
 function countCode(code, src, extra = {}, quiet = false) {
+  if (S.loadingJob || S.storageError) return false;
   const prev = compute().cur.get(code);
   if (prev) {
     if (quiet) return false;

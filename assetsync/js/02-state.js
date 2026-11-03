@@ -41,6 +41,8 @@ const S = {
   team: LS.get('team', []),
   firstRun: false,
   gateMsg: null,
+  loadingJob: false,
+  storageError: false,
   busy: false
 };
 let meta = null; // round document
@@ -48,6 +50,7 @@ let master = new Map(),
   altIx = new Map(),
   subIx = new Map(),
   catIx = new Map(); // subIx: Asset → its Sub keys · catIx: Asset+Sub written together without '-' (old QR)
+let removedEvents = new Set();
 let serverEv = {}; // docId -> items (all devices)
 let mine = []; // this device's events for the current round
 let dirty = new Set(),
@@ -61,15 +64,18 @@ const CHUNK = 350;
 let usbMode = LS.get('usbMode', false),
   usbEv = {}; // usbEv: events that arrived by cable (file), per device
 function loadMine() {
+  removedEvents = new Set(LS.get('removed-' + (meta?.id || ''), []));
   usbEv = meta ? LS.get('usb-' + meta.id, {}) : {};
   mine = meta ? LS.get('mine-' + meta.id, []) : [];
   dirty = new Set(LS.get('dirty-' + (meta?.id || ''), []));
+  // Rebuild the queue after interruption; the event table ignores repeated IDs.
+  mine.forEach((_, i) => dirty.add(Math.floor(i / CHUNK)));
 }
-function saveMine() {
-  if (meta) {
-    LS.set('mine-' + meta.id, mine);
-    LS.set('dirty-' + meta.id, [...dirty]);
-  }
+function saveMine(round = meta?.id, events = mine, queue = dirty) {
+  if (!round) return;
+  // The event list is the durable commit: an extra dirty chunk is safe after failure.
+  LS.set('dirty-' + round, [...queue]);
+  LS.set('mine-' + round, events);
 }
 
 function indexMaster(rows) {

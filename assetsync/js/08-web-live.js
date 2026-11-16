@@ -298,6 +298,28 @@ const SRC_OPTS = [
   ['manual', 'พิมพ์ / ค้นหาบนเครื่อง'],
   ['web', 'บันทึกบนเว็บ']
 ];
+// rows ticked on a CC page: count them as found in one go, or move where they were found (e.g. the wrong Location was picked)
+function ccBulkBar(ccCode, rowsAll) {
+  const picked = rowsAll.filter(r => S.ccChk[r.code] && r.a);
+  if (!picked.length) return '';
+  const cur = compute().cur,
+    todo = picked.filter(r => !cur.has(r.code) && !lostOf(r.code)),
+    done = picked.filter(r => cur.has(r.code)),
+    at = S.ccBulkAt ?? (ccCode === '*' ? '' : ccCode),
+    opts = (meta.areas || [])
+      .filter(x => !x.shared)
+      .slice()
+      .sort((x, y) => String(x.name).localeCompare(String(y.name), 'th')),
+    atName = at ? opts.find(x => String(x.code) === at)?.name || at : 'Location ตามทะเบียนของแต่ละรายการ',
+    ask = S.ccBulkAsk,
+    B = (k, l, n, cls = '') => (n ? `<button class="btn sm ${cls}" data-a="ccbulkask" data-v="${k}">${l} (${n})</button>` : '');
+  const what = { ok: `ตรวจนับ ${todo.length} รายการว่า "พบ · มีสติกเกอร์"`, ns: `ตรวจนับ ${todo.length} รายการว่า "พบ · ไม่มีสติกเกอร์"`, at: `เปลี่ยนที่พบของ ${done.length} รายการ` }[ask];
+  return `<div class="card" style="padding:12px 14px;gap:10px;border:1px solid var(--blue)"><div class="row" style="align-items:center;gap:10px;flex-wrap:wrap">
+    <b>เลือกไว้ ${N(picked.length)} รายการ</b><span class="sub">รอตรวจ ${N(todo.length)} · ตรวจแล้ว ${N(done.length)}</span>
+    <label class="row" style="align-items:center;gap:6px;margin-left:auto"><span class="sub">พบที่</span><select class="in" id="ccBulkAt" style="min-width:220px"><option value="" ${at === '' ? 'selected' : ''}>ตามทะเบียนของแต่ละรายการ</option>${opts.map(x => `<option value="${esc(x.code)}" ${String(x.code) === at ? 'selected' : ''}>${esc(x.name)}${x.name !== String(x.code) ? ' · ' + esc(x.code) : ''}</option>`).join('')}</select></label>
+    ${B('ok', '✓ พบ · มีสติกเกอร์', todo.length, 'pri')}${B('ns', 'พบ · ไม่มีสติกเกอร์', todo.length)}${B('at', 'เปลี่ยนที่พบ', done.length, 'oth')}<button class="btn sm" data-a="ccchknone">ล้างที่เลือก</button></div>
+    ${ask ? `<div class="confirm"><b>${what} · พบที่ ${esc(atName)}?</b><span>${ask === 'at' ? 'ผลนับเดิม (ผู้นับ เวลา สภาพ) ยังอยู่ครบ · ถ้าที่พบตรงกับทะเบียน รายการจะออกจาก "ต้องย้าย"' : 'บันทึกในชื่อคุณจากเว็บ · ถ้าที่พบไม่ตรงทะเบียน รายการจะไปอยู่แท็บ "ต้องย้าย CC"'}${ask === 'ns' ? ' · เข้าคิวพิมพ์สติกเกอร์ใหม่' : ''}</span><div class="row"><button class="btn ${ask === 'at' ? 'oth' : 'pri'}" data-a="ccbulkgo" data-v="${ask}">ยืนยัน</button><button class="btn" data-a="ccbulkask" data-v="">ยกเลิก</button></div></div>` : ''}</div>`;
+}
 function webCC() {
   const ccCode = S.ccSel,
     all = ccCode === '*',
@@ -346,6 +368,13 @@ function webCC() {
   const totalOwn = rowsAll.filter(r => r.state !== 'movein' && r.state !== 'borrowin' && r.state !== 'unk').length,
     doneOwn = rowsAll.filter(r => r.state === 'done' || r.state === 'moveout' || r.state === 'lentout').length;
   if (S.ccPick && !rowsAll.some(r => r.code === S.ccPick)) S.ccPick = null;
+  if (S.ccChkFor !== ccCode) {
+    S.ccChk = {};
+    S.ccChkFor = ccCode;
+  }
+  const lead = isLead(),
+    shown = rows.slice(0, 500),
+    allChk = lead && shown.length > 0 && shown.every(r => S.ccChk[r.code]);
   const title = all
     ? 'ทุก Cost Center'
     : `CC ${esc(ccCode)}${area && area.name !== ccCode ? ' · ' + esc(area.name) : ''}`;
@@ -365,14 +394,15 @@ function webCC() {
       <select class="in" data-ccf="cond" aria-label="สภาพ"><option value="">สภาพ: ทั้งหมด</option>${['ปกติ', 'ชำรุด', 'รอซ่อม', 'ไม่ใช้งาน'].map(c => `<option ${F.cond === c ? 'selected' : ''}>${c}</option>`).join('')}</select>
       <select class="in" data-ccf="qr" aria-label="QR"><option value="">QR: ทั้งหมด</option><option value="done" ${F.qr === 'done' ? 'selected' : ''}>QR ครบแล้ว</option><option value="need" ${F.qr === 'need' ? 'selected' : ''}>ยังไม่มี QR</option></select>
       ${Object.values(F).some(Boolean) ? '<button class="btn sm" data-a="ccfclear">ล้างตัวกรอง</button>' : ''}<span class="sub">แสดง ${N(rows.length)} รายการ</span></div>
-    <div class="row pair"><section class="card grow" style="min-width:0"><div class="tbl-wrap"><table class="tfix" style="min-width:${all ? 980 : 760}px"><colgroup><col style="width:96px"><col style="width:auto">${all ? '<col style="width:76px"><col style="width:110px">' : ''}<col style="width:164px"><col style="width:160px"><col style="width:124px"><col style="width:114px"></colgroup><thead><tr><th>Asset</th><th>ชื่อ</th>${all ? '<th>CC</th><th>พบที่</th>' : ''}<th>สถานะ</th><th>ที่มา / QR</th><th>ผู้นับ</th><th></th></tr></thead><tbody>`;
+    ${lead ? ccBulkBar(ccCode, rowsAll) : ''}
+    <div class="row pair"><section class="card grow" style="min-width:0"><div class="tbl-wrap"><table class="tfix" style="min-width:${all ? 1014 : 794}px"><colgroup>${lead ? '<col style="width:34px">' : ''}<col style="width:96px"><col style="width:auto">${all ? '<col style="width:76px"><col style="width:110px">' : ''}<col style="width:164px"><col style="width:160px"><col style="width:124px"><col style="width:114px"></colgroup><thead><tr>${lead ? `<th style="padding:0;text-align:center"><input type="checkbox" data-a="ccchkall" ${allChk ? 'checked' : ''} aria-label="เลือกทุกรายการที่แสดง" style="width:18px;height:18px;cursor:pointer"></th>` : ''}<th>Asset</th><th>ชื่อ</th>${all ? '<th>CC</th><th>พบที่</th>' : ''}<th>สถานะ</th><th>ที่มา / QR</th><th>ผู้นับ</th><th></th></tr></thead><tbody>`;
   const ST = {
     lost: '<span class="chip c-bad">สูญหาย</span>',
     left: '<span class="chip c-warn">รอตรวจ</span>',
     done: '<span class="chip c-ok">ตรวจแล้ว</span>',
     unk: '<span class="chip c-bad">ไม่อยู่ในทะเบียน</span>'
   };
-  for (const r of rows.slice(0, 500)) {
+  for (const r of shown) {
     const s2 = r.s,
       mvTxt =
         r.state === 'moveout'
@@ -390,7 +420,7 @@ function webCC() {
           ? ' <span class="chip c-blue">อนุมัติแล้ว</span>'
           : ' <span class="chip c-gray">ไม่ย้าย</span>'
         : '';
-    h += `<tr class="click ${S.ccPick === r.code ? 'sel' : ''}" data-a="ccpick" data-v="${esc(r.code)}"><td class="mono"><b>${esc(r.code)}</b></td><td title="${esc(r.a?.name || s2?.uname || '')}">${esc(r.a?.name || s2?.uname || '(ไม่มีชื่อ)')}${r.a?.raws.length > 1 ? ` <span class="sub">· ${r.a.raws.length} แถว</span>` : ''}</td>${all ? `<td class="mono">${esc(r.a?.cc || '—')}</td><td>${s2 ? esc(s2.areaName) : '<span class="sub">—</span>'}</td>` : ''}<td title="${s2 && s2.cond !== 'ปกติ' ? esc(s2.cond) : ''}">${mvTxt}${decided}${s2 && s2.cond !== 'ปกติ' ? ` <span class="chip c-warn">${esc(s2.cond)}</span>` : ''}${dupOf(r.code) ? ' <span class="chip c-warn" title="สแกนจาก 2 เครื่องตอนออฟไลน์">สแกนซ้ำ</span>' : ''}</td><td>${s2 ? `<span class="chip ${SRC[s2.src][1]}" title="${SRC[s2.src][0]}">${{ qr: 'QR', barcode: 'บาร์โค้ด', manual: 'พิมพ์เอง', web: 'เว็บ' }[s2.src]}</span> ` : ''}${!s2 || !r.a ? '' : hasQR(s2) ? '<span class="chip c-ok">✓ มี QR</span>' : s2.printedAt ? '<span class="chip c-ok">✓ ติดแล้ว</span>' : '<span class="chip c-blue" title="ยังไม่มีสติกเกอร์ QR · อยู่ในคิวพิมพ์">ไม่มี QR</span>'}${s2 && s2.flags.reprint ? ' <span class="chip c-warn">ขอพิมพ์</span>' : ''}</td><td class="sub" title="${s2 ? esc(s2.by) + ' · ' + fmtT(s2.t) : ''}">${s2 ? esc(s2.by) + ' · ' + hm(s2.t) : ''}</td><td style="overflow:visible">${!s2 ? '' : S.confirmUndo === r.code ? `<span class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn sm red" data-a="wundo" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px">ยืนยัน</button><button class="btn sm" data-a="noundo" style="min-height:28px;padding:2px 8px;font-size:12px">ไม่</button></span>` : `<span class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn sm" data-a="editpop" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px">แก้ไข</button><button class="btn sm red" data-a="askundo" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px" title="ยกเลิกตรวจนับ">ยกเลิก</button></span>`}</td></tr>`;
+    h += `<tr class="click ${S.ccPick === r.code ? 'sel' : ''}" data-a="ccpick" data-v="${esc(r.code)}">${lead ? `<td style="padding:0;text-align:center"><input type="checkbox" data-a="ccchk" data-v="${esc(r.code)}" ${S.ccChk[r.code] ? 'checked' : ''} aria-label="เลือก ${esc(r.code)}" style="width:18px;height:18px;cursor:pointer"></td>` : ''}<td class="mono"><b>${esc(r.code)}</b></td><td title="${esc(r.a?.name || s2?.uname || '')}">${esc(r.a?.name || s2?.uname || '(ไม่มีชื่อ)')}${r.a?.raws.length > 1 ? ` <span class="sub">· ${r.a.raws.length} แถว</span>` : ''}</td>${all ? `<td class="mono">${esc(r.a?.cc || '—')}</td><td>${s2 ? esc(s2.areaName) : '<span class="sub">—</span>'}</td>` : ''}<td title="${s2 && s2.cond !== 'ปกติ' ? esc(s2.cond) : ''}">${mvTxt}${decided}${s2 && s2.cond !== 'ปกติ' ? ` <span class="chip c-warn">${esc(s2.cond)}</span>` : ''}${dupOf(r.code) ? ' <span class="chip c-warn" title="สแกนจาก 2 เครื่องตอนออฟไลน์">สแกนซ้ำ</span>' : ''}</td><td>${s2 ? `<span class="chip ${SRC[s2.src][1]}" title="${SRC[s2.src][0]}">${{ qr: 'QR', barcode: 'บาร์โค้ด', manual: 'พิมพ์เอง', web: 'เว็บ' }[s2.src]}</span> ` : ''}${!s2 || !r.a ? '' : hasQR(s2) ? '<span class="chip c-ok">✓ มี QR</span>' : s2.printedAt ? '<span class="chip c-ok">✓ ติดแล้ว</span>' : '<span class="chip c-blue" title="ยังไม่มีสติกเกอร์ QR · อยู่ในคิวพิมพ์">ไม่มี QR</span>'}${s2 && s2.flags.reprint ? ' <span class="chip c-warn">ขอพิมพ์</span>' : ''}</td><td class="sub" title="${s2 ? esc(s2.by) + ' · ' + fmtT(s2.t) : ''}">${s2 ? esc(s2.by) + ' · ' + hm(s2.t) : ''}</td><td style="overflow:visible">${!s2 ? '' : S.confirmUndo === r.code ? `<span class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn sm red" data-a="wundo" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px">ยืนยัน</button><button class="btn sm" data-a="noundo" style="min-height:28px;padding:2px 8px;font-size:12px">ไม่</button></span>` : `<span class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn sm" data-a="editpop" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px">แก้ไข</button><button class="btn sm red" data-a="askundo" data-v="${esc(r.code)}" style="min-height:28px;padding:2px 8px;font-size:12px" title="ยกเลิกตรวจนับ">ยกเลิก</button></span>`}</td></tr>`;
   }
   h += `</tbody></table></div>${rows.length > 500 ? `<p class="sub">แสดง 500 จาก ${N(rows.length)} รายการ · ค้นหาเพื่อกรอง</p>` : ''}${rows.length ? '' : '<p class="sub">ไม่มีรายการ</p>'}</section>
     <aside class="card side compact" style="flex:0 0 300px">${S.ccPick ? `<div class="sticker"><canvas id="ccSticker" width="560" height="296" aria-label="สติกเกอร์ ${esc(S.ccPick)}"></canvas></div>` + ccDetail(S.ccPick, ccCode) : '<div class="sticker" style="opacity:.35"><canvas id="ccSticker" width="560" height="296" aria-hidden="true"></canvas></div><p class="sub" style="text-align:center">แตะรายการทางซ้ายเพื่อดูสติกเกอร์ รายละเอียด และแก้ไข</p>'}</aside></div></main>`;

@@ -132,6 +132,11 @@ document.addEventListener('click', async e => {
         S.cards.unshift({ code: v });
         S.item = null;
         S.search = null;
+        // found without a sticker, but it belongs to another Location / CC: ask move / borrowed / check, as when scanning
+        if (isOther(compute().cur.get(v))) {
+          beep('oth');
+          S.othPop = { code: v };
+        }
       }
       break;
     }

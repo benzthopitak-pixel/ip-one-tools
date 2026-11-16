@@ -234,7 +234,8 @@ function itemSheet(code) {
       <p class="sub">นับโดย ${esc(s.by)} · ${fmtT(s.t)}${s.room ? ' · ' + esc(s.room) : ''} · ${SRC[s.src][0]}${a && hasQR(s) ? ' · มี QR แล้ว' : ''}</p>
       <div class="row"><button class="btn dark" data-a="closeitem" style="flex:1">เสร็จสิ้น</button>${s.dev === dev ? `<button class="btn red" data-a="undo" data-v="${esc(code)}">ยกเลิกผลนับ</button>` : ''}</div>`;
   } else {
-    h += `<p class="sub">ยังไม่มีใครสแกนรายการนี้${(hist.get(code) || []).length ? ' (เคยถูกยกเลิก / สั่งตรวจนับซ้ำ)' : ''}</p>${markChoices(code, 'markas')}<button class="btn" data-a="closeitem">ปิด</button>`;
+    const away = a && S.area && !S.area.shared && homeOf(a) && homeOf(a) !== (locMode() ? locKey(S.area.code) : String(S.area.code));
+    h += `<p class="sub">ยังไม่มีใครสแกนรายการนี้${(hist.get(code) || []).length ? ' (เคยถูกยกเลิก / สั่งตรวจนับซ้ำ)' : ''}</p>${away ? `<div class="msg warn">รายการนี้อยู่ในทะเบียน <b>${esc(locMode() ? homeOf(a) : a.ccName)}</b> · คุณกำลังนับ <b>${esc(S.area.name)}</b> · กด "พบ" แล้วระบบจะถามว่า ต้องการย้าย / ยืมมา / รอตรวจสอบ</div>` : ''}${markChoices(code, 'markas')}<button class="btn" data-a="closeitem">ปิด</button>`;
   }
   return h + `</div></div>`;
 }

@@ -28,7 +28,8 @@ function save(name, data, mime) {
 document.addEventListener('click', async e => {
   const t = e.target.closest('[data-a]');
   if (!t) return;
-  if (t.dataset.a.startsWith('close') && e.target.closest('[data-stop]') && e.target.closest('[data-a]') !== t) return;
+  // a click inside a dialog box (dropdown, text box, empty space) must not reach the backdrop's "close"
+  if (t.dataset.a.startsWith('close') && e.target.closest('[data-stop]') && !t.closest('[data-stop]')) return;
   if (
     (t.dataset.a === 'closeitem' || t.dataset.a === 'closepick' || t.dataset.a === 'closesearch') &&
     t.classList.contains('sheetbg') &&

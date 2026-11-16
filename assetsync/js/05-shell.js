@@ -64,9 +64,35 @@ function paintSync() {
 }
 const stageOf = () => (!meta ? 0 : meta.status === 'closed' ? 4 : 2);
 
+// a dropdown is open: live updates (other counters scanning, who is online) wait until it is closed,
+// otherwise redrawing the page shuts the list the moment the Admin tries to pick from it
+let renderHeld = 0;
+function holdForSelect() {
+  const el = document.activeElement,
+    ev = window.event,
+    byUser = ev && ev.isTrusted && /^(click|change|input|key|pointer|mouse|submit|touch)/.test(ev.type);
+  if (!el || el.tagName !== 'SELECT' || byUser) return false;
+  if (renderHeld && Date.now() - renderHeld > 20000) return false; // never hold longer than 20 s
+  if (!renderHeld) {
+    renderHeld = Date.now();
+    const go = () => {
+      el.removeEventListener('blur', go);
+      el.removeEventListener('change', go);
+      setTimeout(() => {
+        renderHeld = 0;
+        render();
+      }, 0);
+    };
+    el.addEventListener('blur', go);
+    el.addEventListener('change', go);
+  }
+  return true;
+}
 function render() {
   const root = $('#app');
   if (!root) return;
+  if (holdForSelect()) return;
+  renderHeld = 0;
   const keepFocus = document.activeElement?.id,
     keepVal = keepFocus && 'value' in document.activeElement ? document.activeElement.value : null,
     scanVal = $('#scanIn')?.value || '';

@@ -408,11 +408,19 @@ function ccDetail(code, ccCode) {
     return h;
   }
   if (!a) return '<p class="sub">ไม่พบรายการ</p>';
-  const target = ccCode !== '*' ? ccCode : homeOf(a),
-    tArea = (meta.areas || []).find(x => String(x.code) === target);
+  // where it was found: this CC page by default · Admin can pick another Location / CC (found elsewhere → move / borrowed)
+  const target = S.wAt?.[code] || (ccCode !== '*' ? ccCode : homeOf(a)),
+    tArea = (meta.areas || []).find(x => String(x.code) === target),
+    away = homeOf(a) && target !== homeOf(a),
+    opts = (meta.areas || [])
+      .filter(x => !x.shared)
+      .slice()
+      .sort((x, y) => String(x.name).localeCompare(String(y.name), 'th'));
   return `<div class="row" style="justify-content:space-between"><b class="mono" style="font-size:22px">${esc(code)}</b><span class="chip c-warn">รอตรวจ</span></div><div style="font-size:17px">${esc(a.name)}</div>
     <p class="sub">ในทะเบียน: CC ${esc(a.cc)}${a.ccName !== String(a.cc) ? ' · ' + esc(a.ccName) : ''} · Class ${esc(a.cls)}${a.raws.length > 1 ? ` · ${a.raws.length} แถว` : ''}${capDate(a) ? ' · ' + esc(capDate(a)) : ''}</p>
-    ${markChoices(code, 'wmark', `data-cc="${esc(target)}" data-ccn="${esc(tArea?.name || target)}"`)}<span class="sub">บันทึกที่ CC ${esc(target)}${tArea && tArea.name !== target ? ' · ' + esc(tArea.name) : ''}</span>`;
+    <label class="f">พบที่ Location / CC<select class="in" id="wAt" data-v="${esc(code)}">${opts.map(x => `<option value="${esc(x.code)}" ${String(x.code) === target ? 'selected' : ''}>${esc(x.name)}${x.name !== String(x.code) ? ' · ' + esc(x.code) : ''}${String(x.code) === homeOf(a) ? ' (ตามทะเบียน)' : ''}</option>`).join('')}</select></label>
+    ${away ? `<div class="msg warn">พบที่ <b>${esc(tArea?.name || target)}</b> ไม่ตรงทะเบียน (<b>${esc(locMode() ? homeOf(a) : a.ccName)}</b>) · กด "พบ" แล้วเลือกต่อว่า อนุมัติย้าย หรือ ไม่ย้าย (ยืมมา)</div>` : ''}
+    ${markChoices(code, 'wmark', `data-cc="${esc(target)}" data-ccn="${esc(tArea?.name || target)}"`)}<span class="sub">บันทึกที่ ${esc(tArea?.name || target)}${tArea && tArea.name !== target ? ' · ' + esc(target) : ''}</span>`;
 }
 function badge(s) {
   if (!master.has(s.code)) return '<span class="chip c-bad">ไม่อยู่ในทะเบียน</span>';

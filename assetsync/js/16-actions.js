@@ -907,6 +907,10 @@ document.addEventListener('change', async e => {
     t.value = '';
     await onFiles(why, files);
   }
+  if (t.id === 'wAt') {
+    S.wAt = { ...(S.wAt || {}), [t.dataset.v]: t.value };
+    render();
+  }
   if (t.id === 'impSheet') {
     prepareImport(t.value.replace(/ \(ซ่อน\)$/, ''));
     render();

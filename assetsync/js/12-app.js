@@ -219,6 +219,21 @@ const isServer = id => {
   }
   return _srvIds.has(id);
 };
+// found, but somewhere else: the counter picks the Location / CC where the item really is (e.g. counting Finance, the desk is in ACC)
+function elsewhereBlock(a) {
+  if (S.elsewhere !== a.code)
+    return `<button class="btn" data-a="elsewhere" data-v="${esc(a.code)}" style="border-style:dashed">พบที่ Location อื่น…</button>`;
+  const here = String(S.area?.code ?? ''),
+    q = norm(S.elseQ || ''),
+    list = (meta.areas || [])
+      .filter(x => !x.shared && String(x.code) !== here && String(x.code) !== homeOf(a))
+      .filter(x => !q || norm(x.name).includes(q) || norm(String(x.code)).includes(q))
+      .sort((x, y) => String(x.name).localeCompare(String(y.name), 'th'));
+  return `<div class="card" style="padding:12px;gap:8px"><b>พบที่ Location ไหน?</b><span class="sub">เลือกที่ที่เจอรายการนี้จริง · ระบบจะบันทึกว่าพบ (ไม่มีสติกเกอร์) แล้วถามว่า ต้องการย้าย / ยืมมา / รอตรวจสอบ</span>
+    <input class="in" id="elseQ" value="${esc(S.elseQ || '')}" placeholder="ค้นหา Location / CC" autocomplete="off" inputmode="text">
+    <div style="display:flex;flex-direction:column;gap:6px;max-height:36vh;overflow-y:auto">${list.map(x => `<button class="li" data-a="foundat" data-v="${esc(a.code)}" data-cc="${esc(x.code)}"><span class="t"><b>${esc(x.name)}</b>${x.name !== String(x.code) ? `<span class="sub">${esc(x.code)}</span>` : ''}</span></button>`).join('') || '<span class="sub">ไม่พบ</span>'}</div>
+    <button class="btn sm" data-a="elsewhere" data-v="">ยกเลิก</button></div>`;
+}
 function itemSheet(code) {
   const { cur, hist } = compute(),
     s = cur.get(code),
@@ -235,7 +250,7 @@ function itemSheet(code) {
       <div class="row"><button class="btn dark" data-a="closeitem" style="flex:1">เสร็จสิ้น</button>${s.dev === dev ? `<button class="btn red" data-a="undo" data-v="${esc(code)}">ยกเลิกผลนับ</button>` : ''}</div>`;
   } else {
     const away = a && S.area && !S.area.shared && homeOf(a) && homeOf(a) !== (locMode() ? locKey(S.area.code) : String(S.area.code));
-    h += `<p class="sub">ยังไม่มีใครสแกนรายการนี้${(hist.get(code) || []).length ? ' (เคยถูกยกเลิก / สั่งตรวจนับซ้ำ)' : ''}</p>${away ? `<div class="msg warn">รายการนี้อยู่ในทะเบียน <b>${esc(locMode() ? homeOf(a) : a.ccName)}</b> · คุณกำลังนับ <b>${esc(S.area.name)}</b> · กด "พบ" แล้วระบบจะถามว่า ต้องการย้าย / ยืมมา / รอตรวจสอบ</div>` : ''}${markChoices(code, 'markas')}<button class="btn" data-a="closeitem">ปิด</button>`;
+    h += `<p class="sub">ยังไม่มีใครสแกนรายการนี้${(hist.get(code) || []).length ? ' (เคยถูกยกเลิก / สั่งตรวจนับซ้ำ)' : ''}</p>${away ? `<div class="msg warn">รายการนี้อยู่ในทะเบียน <b>${esc(locMode() ? homeOf(a) : a.ccName)}</b> · คุณกำลังนับ <b>${esc(S.area.name)}</b> · กด "พบ" แล้วระบบจะถามว่า ต้องการย้าย / ยืมมา / รอตรวจสอบ</div>` : ''}${markChoices(code, 'markas')}${a && meta?.status !== 'closed' ? elsewhereBlock(a) : ''}<button class="btn" data-a="closeitem">ปิด</button>`;
   }
   return h + `</div></div>`;
 }

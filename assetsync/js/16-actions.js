@@ -666,7 +666,37 @@ document.addEventListener('click', async e => {
       break;
     case 'closeitem':
       S.item = null;
+      S.elsewhere = null;
       break;
+    case 'elsewhere':
+      S.elsewhere = v || null;
+      S.elseQ = '';
+      break;
+    case 'foundat': {
+      const to = (meta.areas || []).find(x => String(x.code) === String(t.dataset.cc));
+      if (!to || compute().cur.has(v)) break;
+      pushEvent({
+        k: 'scan',
+        code: v,
+        round: meta.id,
+        area: String(to.code),
+        areaName: to.name,
+        shared: false,
+        room: '',
+        ns: true,
+        src: 'manual'
+      });
+      S.cards.unshift({ code: v });
+      S.item = null;
+      S.search = null;
+      S.elsewhere = null;
+      flash(`บันทึกว่าพบที่ ${to.name} · ติด "ต้องพิมพ์สติกเกอร์ใหม่" ให้`);
+      if (isOther(compute().cur.get(v))) {
+        beep('oth');
+        S.othPop = { code: v };
+      }
+      break;
+    }
     case 'dec':
       edit(v, { dec: t.dataset.d });
       return;
@@ -953,6 +983,19 @@ document.addEventListener('input', e => {
     S[e.target.id] = e.target.value;
     clearTimeout(window._cq);
     window._cq = setTimeout(render, 200);
+    return;
+  }
+  if (e.target.id === 'elseQ') {
+    S.elseQ = e.target.value;
+    clearTimeout(window._eq);
+    window._eq = setTimeout(() => {
+      render();
+      const i = $('#elseQ');
+      if (i) {
+        i.focus({ preventScroll: true });
+        i.setSelectionRange(i.value.length, i.value.length);
+      }
+    }, 200);
     return;
   }
   if (e.target.id === 'srchIn' && S.search) {

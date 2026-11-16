@@ -350,6 +350,8 @@ document.addEventListener('click', async e => {
       S.liveArea = S.liveArea === v ? null : v;
       break;
     case 'opencc':
+      S.ccBulkAt = undefined;
+      S.ccBulkAsk = null;
       S.web = 'cc';
       S.ccSel = String(v);
       S.ccTab = t.dataset.t || 'all';
@@ -361,6 +363,51 @@ document.addEventListener('click', async e => {
       S.ccTab = v;
       S.ccPick = null;
       break;
+    case 'ccchk':
+      S.ccChk = { ...(S.ccChk || {}), [v]: !S.ccChk?.[v] };
+      S.ccBulkAsk = null;
+      break;
+    case 'ccchkall': {
+      const shown = [...document.querySelectorAll('[data-a=ccchk]')].map(x => x.dataset.v),
+        on = !shown.every(c => S.ccChk?.[c]);
+      S.ccChk = { ...(S.ccChk || {}) };
+      for (const c of shown) S.ccChk[c] = on;
+      S.ccBulkAsk = null;
+      break;
+    }
+    case 'ccchknone':
+      S.ccChk = {};
+      S.ccBulkAsk = null;
+      break;
+    case 'ccbulkask':
+      S.ccBulkAsk = v || null;
+      break;
+    case 'ccbulkgo': {
+      const cur = compute().cur,
+        at = S.ccBulkAt ?? (S.ccSel === '*' ? '' : S.ccSel),
+        areaFor = a => (meta.areas || []).find(x => String(x.code) === (at || homeOf(a))),
+        picked = Object.keys(S.ccChk || {}).filter(c => S.ccChk[c] && master.has(c));
+      let n = 0;
+      for (const c of picked) {
+        const a = master.get(c),
+          ar = areaFor(a);
+        if (!ar) continue;
+        if (v === 'at') {
+          const s2 = cur.get(c);
+          if (!s2 || String(s2.area) === String(ar.code)) continue;
+          edit(c, { area: String(ar.code), areaName: ar.name });
+          n++;
+        } else if (!cur.has(c) && !lostOf(c)) {
+          pushEvent({ k: 'scan', code: c, round: meta.id, area: String(ar.code), areaName: ar.name, shared: false, room: '', ns: v === 'ns', src: 'web' });
+          if (v === 'ok') pushEvent({ k: 'edit', code: c, round: meta.id, hasQR: true });
+          n++;
+        }
+      }
+      S.ccChk = {};
+      S.ccBulkAsk = null;
+      flash(v === 'at' ? `เปลี่ยนที่พบแล้ว ${n} รายการ` : `ตรวจนับแล้ว ${n} รายการ`);
+      break;
+    }
     case 'ccpick':
       S.resetRight = S.ccPick !== v;
       S.ccPick = v;
@@ -906,6 +953,11 @@ document.addEventListener('change', async e => {
     pickFor = null;
     t.value = '';
     await onFiles(why, files);
+  }
+  if (t.id === 'ccBulkAt') {
+    S.ccBulkAt = t.value;
+    S.ccBulkAsk = null;
+    render();
   }
   if (t.id === 'wAt') {
     S.wAt = { ...(S.wAt || {}), [t.dataset.v]: t.value };

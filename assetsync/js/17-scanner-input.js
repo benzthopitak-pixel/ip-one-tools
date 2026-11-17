@@ -61,6 +61,7 @@ document.addEventListener(
     if (e.key && (e.key.length === 1 || e.key === 'Enter'))
       logScan('ปุ่ม ' + (a?.id === 'scanIn' ? 'ช่องสแกน' : 'นอกช่องสแกน'), e.key === 'Enter' ? '⏎ Enter' : e.key);
     if (a && a.id === 'scanIn') {
+      scanKeyAt = Date.now();
       // no Enter suffix configured: send automatically when the burst stops
       if (!S.manual && e.key.length === 1) {
         clearTimeout(keyTimer);
@@ -101,6 +102,14 @@ document.addEventListener(
         keyBuf = '';
       }, 350);
     }
+  },
+  true
+);
+// Android sends some scanner keys as text input only (no usable keydown): count those as typing too
+document.addEventListener(
+  'input',
+  e => {
+    if (e.target && e.target.id === 'scanIn') scanKeyAt = Date.now();
   },
   true
 );

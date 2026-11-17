@@ -88,10 +88,21 @@ function holdForSelect() {
   }
   return true;
 }
+// the scanner is typing a code into the scan box: redrawing now swaps the box out mid-code and Android drops
+// the keys in flight ("QRCO" + "DE0124" instead of one code), so wait until the burst stops
+let scanKeyAt = 0,
+  scanHoldT = null;
+function holdForScan() {
+  const i = document.activeElement;
+  if (!i || i.id !== 'scanIn' || !i.value || Date.now() - scanKeyAt > 400) return false;
+  clearTimeout(scanHoldT);
+  scanHoldT = setTimeout(render, 420);
+  return true;
+}
 function render() {
   const root = $('#app');
   if (!root) return;
-  if (holdForSelect()) return;
+  if (holdForSelect() || holdForScan()) return;
   renderHeld = 0;
   const keepFocus = document.activeElement?.id,
     keepVal = keepFocus && 'value' in document.activeElement ? document.activeElement.value : null,

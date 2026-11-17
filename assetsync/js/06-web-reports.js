@@ -324,9 +324,10 @@ function reportData(kind) {
         s2.code,
         a.name,
         String(a.cc),
-        ccNameOf(a.cc),
-        String(s2.area),
-        s2.areaName,
+        locMode() ? a.ccName : ccNameOf(a.cc),
+        locMode() ? newCC(s2).cc : String(s2.area),
+        locMode() ? newCC(s2).ccName : s2.areaName,
+        ...(locMode() ? [newLocTxt(s2)] : []),
         decLabel(s2.dec).replace('ผู้ตรวจนับ: ', ''),
         s2.rv.move === 'approved'
           ? 'รอโอนย้าย'
@@ -345,12 +346,13 @@ function reportData(kind) {
       'ชื่อ CC เดิม',
       'CC ที่พบ',
       'ชื่อ CC ที่พบ',
+      ...(locMode() ? ['Location ที่พบ'] : []),
       'ผู้ตรวจนับแจ้ง',
       'สถานะ',
       'ผู้นับ'
     ],
     rows,
-    w: [11, 24, 10, 13, 10, 13, 10, 15, 10]
+    w: locMode() ? [11, 24, 10, 13, 10, 13, 13, 10, 15, 10] : [11, 24, 10, 13, 10, 13, 10, 15, 10]
   };
 }
 function editDialog(code) {

@@ -29,7 +29,8 @@ function appView(c) {
       h += `<div class="dupbg" data-a="closeoth" role="alertdialog" aria-labelledby="othH"><div class="duppop oth" data-stop="1"><span class="dupicon" aria-hidden="true">!</span><b id="othH">ไม่ตรงพื้นที่</b><span class="mono" style="font-size:20px;font-weight:700">${esc(s.code)}</span><span>${esc(a.name)}</span>${S.othPop.also?.length > 1 ? `<span class="sub">คำตอบนี้ใช้กับทั้ง ${S.othPop.also.length} รายการย่อย (Sub) ที่เพิ่งนับ</span>` : ''}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin:6px 0"><div class="card" style="padding:8px;gap:0;background:#f4f5fa"><span class="sub">ทะเบียน</span><b>${esc(locMode() ? ccNameOf(homeOf(a)) : a.ccName)}</b><span class="sub mono">${locMode() ? 'Location · CC ' + esc(a.cc) : 'CC ' + esc(a.cc)}</span></div><div class="card" style="padding:8px;gap:0;background:var(--oth-soft)"><span class="sub">คุณอยู่ที่</span><b>${esc(s.areaName)}</b><span class="sub mono">CC ${esc(s.area)}</span></div></div>
         <span class="sub">บันทึกว่าพบแล้ว · โปรดระบุเหตุผล</span><div class="chips" style="justify-content:center">${D('moved', 'ต้องการย้าย')}${D('borrowed', 'ยืมมา')}${D('unsure', 'รอตรวจสอบ')}</div>
-        <button class="btn dark" data-a="closeoth" style="align-self:stretch">ตกลง</button></div></div>`;
+        <button class="btn dark" data-a="closeoth" style="align-self:stretch">ตกลง</button>
+        <button class="btn red" data-a="othundo" data-v="${esc(s.code)}" style="align-self:stretch">ยกเลิก · เลือก Location ผิด</button><span class="sub">ยกเลิกผลนับ${S.othPop.also?.length > 1 ? `ทั้ง ${S.othPop.also.length} รายการ` : 'นี้'} แล้วเลือก Location ที่ถูกเพื่อสแกนใหม่</span></div></div>`;
     }
   }
   if (S.dupPop && S.mode === 'app') {

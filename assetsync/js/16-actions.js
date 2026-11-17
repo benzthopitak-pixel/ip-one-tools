@@ -812,6 +812,16 @@ document.addEventListener('click', async e => {
     case 'closeoth':
       S.othPop = null;
       break;
+    // picked the wrong Location: take the count(s) back and let the counter choose the right one, then scan again
+    case 'othundo': {
+      const codes = S.othPop?.also || [v];
+      for (const c2 of codes) pushEvent({ k: 'del', code: c2, round: meta.id });
+      S.cards = (S.cards || []).filter(x => !codes.includes(x.code));
+      S.othPop = null;
+      S.areaPick = true;
+      flash(`ยกเลิกผลนับแล้ว ${codes.length} รายการ · เลือก Location ที่ถูก แล้วสแกนใหม่`);
+      break;
+    }
     case 'ccfclear':
       S.ccF = {};
       break;

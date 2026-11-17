@@ -1,4 +1,17 @@
 /* AssetSync · ไฟล์ส่งออก Excel: ผลตรวจนับตามแม่แบบบริษัท, Transfer (AS02), Write-off (ABAVN), สติกเกอร์ OGA */
+// Cost Center names from the company list (kv 'ccnames', loaded once) for registers that only carry the CC code
+let ccNamesMap = null;
+async function loadCCNames() {
+  if (ccNamesMap || !db) return;
+  try {
+    const d = await db.doc('ccnames').get();
+    ccNamesMap = (d.exists && d.data()?.map) || {};
+  } catch {
+    ccNamesMap = {};
+  }
+}
+// the register's own name when it is a real name, otherwise the company list, otherwise the code
+const nameOfCC = (cc, own) => (own && own !== String(cc) ? own : ccNamesMap?.[String(cc)] || own || '');
 // Location mode: the Cost Center a Location belongs to = the CC most register rows at that Location carry
 function locCC(loc) {
   const k = locKey(loc),
@@ -7,7 +20,7 @@ function locCC(loc) {
   const all = [...n.entries()].sort((x, y) => y[1] - x[1]).map(e => e[0]),
     cc = all[0] || '',
     a = cc && [...master.values()].find(x => x.cc === cc);
-  return { cc, ccName: a?.ccName || '', others: all.slice(1) };
+  return { cc, ccName: nameOfCC(cc, a?.ccName), others: all.slice(1) };
 }
 // Location found + a warning when that Location holds several CCs (the CC above is the most common one: check before AS02)
 const newLocTxt = s => {
@@ -15,7 +28,7 @@ const newLocTxt = s => {
   return s.areaName + (o.length ? ` (Location นี้มีหลาย CC: ${[locCC(s.area).cc, ...o].join(' / ')} · ตรวจสอบ CC ปลายทาง)` : '');
 };
 // where a moved item now belongs: CC + its name (CC mode: the CC it was found in · Location mode: the CC of that Location)
-const newCC = s => (locMode() ? locCC(s.area) : { cc: s.area, ccName: s.areaName });
+const newCC = s => (locMode() ? locCC(s.area) : { cc: s.area, ccName: nameOfCC(s.area, s.areaName) });
 const toCell = v =>
   typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v) && !/^-?0\d/.test(v) && v.length < 16 ? Number(v) : v;
 function exportBook(kind) {
@@ -212,7 +225,7 @@ function exportBook(kind) {
           if (t.status >= 0)
             r[t.status] = !s ? (wo ? 'Write - Off' : 'ไม่พบ (นับซ้ำ)') : mv ? 'เปลี่ยน Cost center' : 'CC เดิม';
           if (t.ccNew >= 0) r[t.ccNew] = s ? (mv ? newCC(s).cc || a.cc : a.cc) : '';
-          if (t.ccNewName >= 0) r[t.ccNewName] = s ? (mv ? newCC(s).ccName || s.areaName : a.ccName) : '';
+          if (t.ccNewName >= 0) r[t.ccNewName] = s ? (mv ? newCC(s).ccName || s.areaName : nameOfCC(a.cc, a.ccName)) : '';
           fillSY(r, s, false);
         }
         data.push([
@@ -257,7 +270,7 @@ function exportBook(kind) {
           const a = master.get(s.code);
           return [
             a.cc,
-            a.ccName,
+            nameOfCC(a.cc, a.ccName),
             a.asset,
             a.sub === '' ? '(blank)' : a.sub,
             a.name,
@@ -276,7 +289,7 @@ function exportBook(kind) {
       .sort((x, y) => String(x.cc).localeCompare(String(y.cc)) || x.code.localeCompare(y.code))
       .map(a => [
         a.cc,
-        a.ccName,
+        nameOfCC(a.cc, a.ccName),
         a.asset,
         a.sub === '' ? '(blank)' : a.sub,
         a.name,
@@ -381,6 +394,7 @@ function exportBook(kind) {
 async function exportFile(kind) {
   if (!meta || !master.size) return ['ยังไม่มีทะเบียน', 'bad'];
   try {
+    await loadCCNames();
     const wb = exportBook(kind),
       data = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
     const nm = { main: 'ผลตรวจนับ', transfer: 'Transfer-AS02', writeoff: 'WriteOff-ABAVN' }[kind];

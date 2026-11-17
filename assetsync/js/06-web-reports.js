@@ -312,6 +312,7 @@ function reportData(kind) {
       w: [11, 24, 10, 13, 10, 13, 15, 10, 11]
     };
   }
+  if (!ccNamesMap) loadCCNames().then(() => render());
   const rows = [...cur.values()]
     .filter(s2 => {
       const a = master.get(s2.code);
@@ -324,7 +325,7 @@ function reportData(kind) {
         s2.code,
         a.name,
         String(a.cc),
-        locMode() ? a.ccName : ccNameOf(a.cc),
+        nameOfCC(a.cc, locMode() ? a.ccName : ccNameOf(a.cc)),
         locMode() ? newCC(s2).cc : String(s2.area),
         locMode() ? newCC(s2).ccName : s2.areaName,
         ...(locMode() ? [newLocTxt(s2)] : []),

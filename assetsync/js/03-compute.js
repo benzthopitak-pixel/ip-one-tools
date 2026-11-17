@@ -17,7 +17,8 @@ function compute() {
     hist = new Map(),
     ccDone = new Map(),
     lost = new Map(),
-    dups = new Map();
+    dups = new Map(),
+    kept = new Map(); // Admin's decision on an item whose scan was cancelled: comes back if it is re-scanned at the same place
   const H = (c, txt, e) => {
     let h = hist.get(c);
     if (!h) hist.set(c, (h = []));
@@ -82,6 +83,17 @@ function compute() {
       });
       recount.delete(c);
       H(c, `${SRC[e.src || (e.ns ? 'manual' : 'barcode')][0]} · พบที่ ${e.areaName}${e.room ? ' · ' + e.room : ''}`, e);
+      const k0 = kept.get(c);
+      kept.delete(c);
+      if (k0 && k0.area === e.area) {
+        const n = cur.get(c);
+        Object.assign(n.rv, k0.rv);
+        n.dec = k0.dec;
+        n.flags.pendingTransfer = k0.pendingTransfer;
+        n.flags.reprint = n.flags.reprint || k0.reprint;
+        n.printedAt = k0.printedAt;
+        H(c, 'คงผลการอนุมัติเดิมไว้ (สแกนใหม่ที่เดิม)', e);
+      }
     } else if (!s && e.k !== 'rv') {
       continue;
     } else if (e.k === 'edit') {
@@ -125,10 +137,24 @@ function compute() {
         e
       );
     } else if (e.k === 'del') {
+      if (s.rv.move || s.rv.unk) {
+        const rv = {};
+        if (s.rv.move) rv.move = s.rv.move;
+        if (s.rv.unk) rv.unk = s.rv.unk;
+        kept.set(c, {
+          area: s.area,
+          rv,
+          dec: s.dec,
+          pendingTransfer: !!s.flags.pendingTransfer,
+          reprint: !!s.flags.reprint,
+          printedAt: s.printedAt
+        });
+      }
       cur.delete(c);
       H(c, 'ยกเลิกผลนับ', e);
     } else if (e.k === 'rv') {
       if (e.act === 'recount') {
+        kept.delete(c); // Admin asked for a fresh count: the old decision goes too
         cur.delete(c);
         recount.add(c);
         H(c, 'Admin สั่งตรวจนับซ้ำ', e);

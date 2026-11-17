@@ -1,4 +1,21 @@
 /* AssetSync · ไฟล์ส่งออก Excel: ผลตรวจนับตามแม่แบบบริษัท, Transfer (AS02), Write-off (ABAVN), สติกเกอร์ OGA */
+// Location mode: the Cost Center a Location belongs to = the CC most register rows at that Location carry
+function locCC(loc) {
+  const k = locKey(loc),
+    n = new Map();
+  for (const a of master.values()) if (homeOf(a) === k && a.cc) n.set(a.cc, (n.get(a.cc) || 0) + 1);
+  const all = [...n.entries()].sort((x, y) => y[1] - x[1]).map(e => e[0]),
+    cc = all[0] || '',
+    a = cc && [...master.values()].find(x => x.cc === cc);
+  return { cc, ccName: a?.ccName || '', others: all.slice(1) };
+}
+// Location found + a warning when that Location holds several CCs (the CC above is the most common one: check before AS02)
+const newLocTxt = s => {
+  const o = locCC(s.area).others;
+  return s.areaName + (o.length ? ` (Location นี้มีหลาย CC: ${[locCC(s.area).cc, ...o].join(' / ')} · ตรวจสอบ CC ปลายทาง)` : '');
+};
+// where a moved item now belongs: CC + its name (CC mode: the CC it was found in · Location mode: the CC of that Location)
+const newCC = s => (locMode() ? locCC(s.area) : { cc: s.area, ccName: s.areaName });
 const toCell = v =>
   typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v) && !/^-?0\d/.test(v) && v.length < 16 ? Number(v) : v;
 function exportBook(kind) {
@@ -194,8 +211,8 @@ function exportBook(kind) {
             r[t.note] = s ? [s.room, s.cond !== 'ปกติ' ? s.cond : '', s.remark].filter(Boolean).join(' · ') : 'ไม่พบ';
           if (t.status >= 0)
             r[t.status] = !s ? (wo ? 'Write - Off' : 'ไม่พบ (นับซ้ำ)') : mv ? 'เปลี่ยน Cost center' : 'CC เดิม';
-          if (t.ccNew >= 0) r[t.ccNew] = s ? (mv && !locMode() ? s.area : a.cc) : '';
-          if (t.ccNewName >= 0) r[t.ccNewName] = s ? (mv ? s.areaName : a.ccName) : '';
+          if (t.ccNew >= 0) r[t.ccNew] = s ? (mv ? newCC(s).cc || a.cc : a.cc) : '';
+          if (t.ccNewName >= 0) r[t.ccNewName] = s ? (mv ? newCC(s).ccName || s.areaName : a.ccName) : '';
           fillSY(r, s, false);
         }
         data.push([
@@ -234,7 +251,7 @@ function exportBook(kind) {
       [
         ['Status', 'เปลี่ยน Cost center', '', 'T-Code :  AS02'],
         [],
-        ['Cost Center', 'Department', 'Asset', 'Sub-number', 'Description', 'CC ( New )', 'CC Name2', 'สถานะ']
+        ['Cost Center', 'Department', 'Asset', 'Sub-number', 'Description', 'CC ( New )', 'CC Name2', 'สถานะ', ...(locMode() ? ['Location ( New )'] : [])]
       ].concat(
         moved.map(s => {
           const a = master.get(s.code);
@@ -244,9 +261,10 @@ function exportBook(kind) {
             a.asset,
             a.sub === '' ? '(blank)' : a.sub,
             a.name,
-            s.area,
-            s.areaName,
-            s.rv.move === 'approved' ? 'รอโอนย้าย' : 'รออนุมัติ'
+            newCC(s).cc,
+            newCC(s).ccName || s.areaName,
+            s.rv.move === 'approved' ? 'รอโอนย้าย' : 'รออนุมัติ',
+            ...(locMode() ? [newLocTxt(s)] : [])
           ];
         })
       ),
